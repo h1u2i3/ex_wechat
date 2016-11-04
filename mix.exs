@@ -29,7 +29,7 @@ defmodule ExWechat.Mixfile do
   defp deps do
     [
       {:httpoison, "~> 0.9.0"},
-      {:poison, "~> 3.0"},
+      {:poison, "~> 2.0"},
       {:plug, "~> 1.2.2"}
     ]
   end
