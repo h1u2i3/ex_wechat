@@ -38,10 +38,7 @@ defmodule ExWechat.Responder do
   """
   def wechat_verify_responder(%{"signature" => signature, "timestamp" => timestamp, 
           "nonce" => nonce, "echostr" => echostr}) do
-    case check_signature(signature, timestamp, nonce) do
-      true -> echostr
-      false -> "forbidden"
-    end
+    check_signature(signature, timestamp, nonce)
   end
 
   defp check_signature(signature, timestamp, nonce) do
