@@ -30,7 +30,8 @@ defmodule ExWechat.Mixfile do
     [
       {:httpoison, "~> 0.9.0"},
       {:poison, "~> 2.0"},
-      {:plug, "~> 1.2.2"}
+      {:plug, "~> 1.2.2"},
+      {:floki, "~> 0.11.0"}
     ]
   end
 end
