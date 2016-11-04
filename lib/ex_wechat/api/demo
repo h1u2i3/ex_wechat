@@ -1,0 +1,11 @@
+# get the access_token
+function: get_access_token
+path: /token
+http: get
+params: grant_type=client_credential, appid, secret
+
+# create the menu for wechat app
+function: create_menu
+path: /menu/create
+http: post
+params: access_token
