@@ -1,8 +1,17 @@
 defmodule ExWechat.Api.Helper do
+  @module_doc """
+    praser data from api description file.
+  """
+
   alias ExWechat.Api
 
+  @external_resource Path.join([__DIR__, "api_definition"])
+
+  @doc """
+    get the data from external file and praser it.
+  """
   def api_data do
-    File.stream!(Path.join([__DIR__, "demo"]), [], :line)
+    File.stream!(@external_resource, [], :line)
       |> Stream.map(&String.strip/1)
       |> Stream.reject(&(String.length(&1) == 0))
       |> Stream.reject(&(String.starts_with?(&1, "#")))
@@ -37,6 +46,9 @@ defmodule ExWechat.Api.Helper do
     |> String.to_atom
   end
 
+  @doc """
+    get function name from description string.
+  """
   def function_name(function_string) do
     function_string
     |> split_colon
@@ -44,6 +56,9 @@ defmodule ExWechat.Api.Helper do
     |> String.to_atom
   end
 
+  @doc """
+    get params from description string.
+  """
   def url_params(params_string) do
     params_string
     |> split_colon
@@ -51,18 +66,28 @@ defmodule ExWechat.Api.Helper do
     |> split_comma
   end
 
+  @doc """
+    split colon in string.
+  """
   def split_colon(string) do
     string
     |> String.split(":")
     |> Enum.map(&String.strip/1)
   end
 
+  @doc """
+    split comma in string.
+  """
   def split_comma(string) do
     string
     |> String.split(~r{,})
     |> Enum.map(&String.strip/1)
   end
 
+  @doc """
+    make string to atom to get the param key.
+    when string contains =, then get the params key.
+  """
   def param_key(param) do
     case String.match?(param, ~r/=/) do
       true ->
@@ -74,6 +99,10 @@ defmodule ExWechat.Api.Helper do
     end
   end
 
+  @doc """
+    get the value of the param
+    when the param string contains =, then split it to get the value.
+  """
   def param_value(param) do
     case String.match?(param, ~r/=/) do
       true ->

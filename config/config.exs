@@ -34,3 +34,7 @@ config :ex_wechat, ExWechat,
   secret: System.get_env("WECHAT_APPSECRET") || "d4624c36b6795d1d99dcf0547af5443d",
   token: System.get_env("WECHAT_TOKEN") || "06d53b73e95af362de834a20",
   access_token_cache: "/tmp/access_token"
+
+# add this config to prevent the accidental error when make a request.
+# https://github.com/edgurgel/httpoison/issues/130
+config :ssl, protocol_version: :"tlsv1.2"
