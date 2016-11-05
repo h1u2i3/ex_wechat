@@ -1,4 +1,5 @@
 defmodule ExWechat.Message do
+  require Logger
 
   @text         "text.eex"
   @voice        "voice.eex"
@@ -18,15 +19,15 @@ defmodule ExWechat.Message do
     end
   end
 
-  defp render_message(msg = %{type: "text"}),       do: render(@text,       msg)
-  defp render_message(msg = %{type: "video"}),      do: render(@video,      msg)
-  defp render_message(msg = %{type: "shortvideo"}), do: render(@shortvideo, msg)
-  defp render_message(msg = %{type: "voice"}),      do: render(@voice,      msg)
-  defp render_message(msg = %{type: "image"}),      do: render(@image,      msg)
-  defp render_message(msg = %{type: "news"}),       do: render(@news,       msg)
+  defp render_message(msg = %{msgtype: "text"}),       do: render(@text,       msg)
+  defp render_message(msg = %{msgtype: "video"}),      do: render(@video,      msg)
+  defp render_message(msg = %{msgtype: "shortvideo"}), do: render(@shortvideo, msg)
+  defp render_message(msg = %{msgtype: "voice"}),      do: render(@voice,      msg)
+  defp render_message(msg = %{msgtype: "image"}),      do: render(@image,      msg)
+  defp render_message(msg = %{msgtype: "news"}),       do: render(@news,       msg)
 
   defp render(file, msg) do
     {:ok, template} = File.read(Path.join([__DIR__, "templates", file]))
-    EEx.eval_string template, Enum.map(msg, fn ({key, value}) -> {key, value} end)
+    EEx.eval_string template, assigns: Enum.map(msg, fn ({key, value}) -> {key, value} end)
   end
 end

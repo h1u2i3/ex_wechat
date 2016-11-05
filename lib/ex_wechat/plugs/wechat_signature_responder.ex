@@ -7,9 +7,6 @@ defmodule ExWechat.Plugs.WechatSignatureResponder do
   end
 
   def call(conn = %Plug.Conn{params: params}, _opts) do
-    case wechat_verify_responder(params) do
-      true  ->  conn
-      false ->  halt(conn)
-    end
+    assign(conn, :signature, wechat_verify_responder(params))
   end
 end
