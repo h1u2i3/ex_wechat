@@ -4,8 +4,6 @@ defmodule ExWechat.TokenTest do
   alias ExWechat.Token
 
   test "should get access_token from wechat server" do
-    assert Token.access_token
+    assert Token._access_token
   end
-
-  #test "should get js_token from wechat server"
 end

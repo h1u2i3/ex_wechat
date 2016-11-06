@@ -1,7 +1,7 @@
 defmodule ExWechat.Plugs.WechatMessageParser do
-  @module_doc """
+  @moduledoc """
     Praser message from the body in conn, and then assign the message to conn.
-    Then the developer can get the msg data (elixir data) with:
+    Then the developer can get the msg data (elixir map) with:
 
         message = conn.assigns[:message]
 
@@ -16,8 +16,13 @@ defmodule ExWechat.Plugs.WechatMessageParser do
   end
 
   def call(conn, _opts) do
-    {:ok, body, conn} = read_body(conn)
-    message = parser_message(body)
-    assign(conn, :message, message)
+    case conn.method do
+      "POST" ->
+        {:ok, body, conn} = read_body(conn)
+        message = parser_message(body)
+        assign(conn, :message, message)
+      _      ->
+        conn
+    end
   end
 end

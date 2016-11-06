@@ -1,4 +1,8 @@
 defmodule ExWechat.Message do
+  @moduledoc """
+    Parse wechat message from `Plug.Conn`, generate wechat message.
+  """
+
   @text         "text.eex"
   @voice        "voice.eex"
   @video        "video.eex"
@@ -6,10 +10,18 @@ defmodule ExWechat.Message do
   @news         "news.eex"
   @music        "music.eex"
 
+  @doc """
+    Generate message for wechat.
+    `msg` is a `Map` struct.
+    You can find what you need for generate message from the template file.
+  """
   def build_message(msg) do
     render_message(msg)
   end
 
+  @doc """
+    Parser xml wechat message to Map.
+  """
   def parser_message(xml_msg) do
     [{"xml", [], attrs}] = Floki.find(xml_msg, "xml")
     for {key, _, [value]} <- attrs, into: %{} do

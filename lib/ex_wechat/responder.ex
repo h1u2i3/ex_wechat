@@ -114,6 +114,10 @@ defmodule ExWechat.Responder do
         signature_responder(conn)
       end
 
+      def show(conn, _) do
+        signature_responder(conn)
+      end
+
       def create(conn, _) do
         message_responder(conn)
       end

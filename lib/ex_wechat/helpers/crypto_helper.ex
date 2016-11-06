@@ -3,6 +3,9 @@ defmodule ExWechat.Helpers.CryptoHelper do
     generate sha1 and verify sha1  of given string.
   """
 
+  @doc """
+    Check the sha hash of `string` with `signature`.
+  """
   def sha1_equal?(string, signature) do
     sha1_hash(string) == signature
   end

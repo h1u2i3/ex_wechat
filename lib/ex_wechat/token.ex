@@ -1,9 +1,13 @@
 defmodule ExWechat.Token do
+  @moduledoc """
+    Wechat access_token.
+  """
+
   use ExWechat.Api
   use ExWechat.Base
   import ExWechat.Helpers.TimeHelper
 
-  @api [:access_token]
+  @api [:access_token] # only need the access_token api definition
 
   @doc """
     first get the token from cache, if invalid then get from the wechat server.
