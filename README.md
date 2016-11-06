@@ -76,8 +76,8 @@ The following is an esay example(when receive text message from user, return use
               from: message.tousername,
               to: message.fromusername,
               content: String.reverse(content)
-            })
-        -   ->
+            }))
+        _   ->
           conn
       end
     end
