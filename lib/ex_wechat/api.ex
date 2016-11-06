@@ -68,11 +68,17 @@ defmodule ExWechat.Api do
   end
 
   def make_params(params, added_params) do
-    params
-    |> Enum.reduce([], fn(param, acc) ->
-         Keyword.put(acc, param_key(param), param_value(param))
-       end)
-    |> Keyword.merge(added_params)
+    params = List.delete(params, "")
+    case Enum.empty?(params) do
+      true  ->
+        []
+      false ->
+        params
+        |> Enum.reduce([], fn(param, acc) ->
+             Keyword.put(acc, param_key(param), param_value(param))
+           end)
+        |> Keyword.merge(added_params)
+    end
   end
 
   def compile(origin) do

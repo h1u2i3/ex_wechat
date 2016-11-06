@@ -32,7 +32,7 @@ defmodule ExWechat.Responder do
   @doc """
     check the signature with wechat server.
   """
-  def wechat_verify_responder(%{"signature" => signature, "timestamp" => timestamp, 
+  def wechat_verify_responder(%{"signature" => signature, "timestamp" => timestamp,
           "nonce" => nonce}) do
     check_signature(signature, timestamp, nonce)
   end
@@ -65,7 +65,7 @@ defmodule ExWechat.Responder do
 
       def message_responder(conn) do
         message = conn.assigns[:message]
-        conn = case message do
+        reply_conn = case message do
           %{msgtype: "text"} ->
             on_text_responder(conn)
           %{msgtype: "voice"} ->
@@ -85,10 +85,17 @@ defmodule ExWechat.Responder do
           _ ->
             conn
         end
-        if conn.assigns[:reply] do
-          text conn, conn.assigns[:reply]
-        else
-          text conn, "success"
+        case reply_conn do
+          %Plug.Conn{}  ->
+            conn = reply_conn
+            if conn.assigns[:reply] do
+              text conn, conn.assigns[:reply]
+            else
+              text conn, "success"
+            end
+          _             ->
+            Logger.error "When use your own on_*_responder function, you should return a Plug.Conn"
+            text conn, "success"
         end
       end
 

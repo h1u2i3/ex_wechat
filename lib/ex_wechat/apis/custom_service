@@ -1,0 +1,34 @@
+#---------------------
+#  custom_service
+#---------------------
+
+# add the kf_account
+function: add_kf_account
+path: /customservice/kfaccount/add
+http: post
+params: access_token
+
+# edit the kf_account
+function: update_kf_account
+path: /customservice/kfaccount/update
+http: post
+params: access_token
+
+# delete the kf_account
+function: delete_kf_account
+path: /customservice/kfaccount/del
+http: post
+params: access_token
+
+# change the avatar of kf_account
+# added_params: kf_account
+function: update_kf_account_avatar
+path: /customservice/kfaccount/uploadheadimg
+http: post
+params: access_token
+
+# get all the kf_account
+function: get_all_kf_account
+path: /customservice/getkflist
+http: get
+params: access_token

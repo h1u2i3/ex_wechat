@@ -1,0 +1,94 @@
+#--------------------
+#  user
+#--------------------
+
+# create user tag
+function: create_user_tag
+path: /tags/create
+http: post
+params: access_token
+
+# get user tags
+function: get_user_tag
+path: /tags/get
+http: get
+params: access_token
+
+# update user tag
+function: update_user_tag
+path: /tags/update
+http: post
+params: access_token
+
+# get the server ip
+function: delete_user_tag
+path: /tags/delete
+http: post
+params: access_token
+
+# get uses in tag
+function: get_users_in_tag
+path: /user/tag/get
+http: post
+params: access_token
+
+# tag at user
+function: tag_at_users
+path: /tags/members/batchtagging
+http: post
+params: access_token
+
+# untag user
+function: untag_at_users
+path: /tags/members/batchuntagging
+http: post
+params: access_token
+
+# get user's tag
+function: get_tags_on_user
+path: /tags/getidlist
+http: post
+params: access_token
+
+# update user remark
+function: update_user_remark
+path: /user/info/updateremark
+http: post
+params: access_token
+
+# get user info
+# added_params: openid
+function: get_user_info
+path: /user/info
+http: get
+params: access_token, lang=zh_CN
+
+# get users info
+function: get_users_info
+path: /user/info/batchget
+http: post
+params: access_token
+
+# get user list
+function: get_user_list
+path: /user/get
+http: get
+params: access_token
+
+# get users in blacklists
+function: get_blacklist
+path: /tags/members/getblacklist
+http: post
+params: access_token
+
+# put users in blacklist
+function: put_blacklist
+path: /tags/members/batchblacklist
+http: post
+params: access_token
+
+# cancel user in blacklist
+function: cancel_blacklist
+path: /tags/members/batchunblacklist
+http: post
+params: access_token

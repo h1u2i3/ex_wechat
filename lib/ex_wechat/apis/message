@@ -1,0 +1,9 @@
+#---------------------
+#  message
+#---------------------
+
+# send custom message to user
+function: send_custom_message
+path: /message/custom/send
+http: post
+params: access_token

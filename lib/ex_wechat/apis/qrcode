@@ -1,0 +1,21 @@
+#--------------------
+#  wechat qrcode
+#--------------------
+
+# generate temp qrcode
+function: get_temp_qrcode_ticket
+path: /qrcode/create
+http: post
+params: access_token
+
+# generate permanent qrcode
+function: get_permanent_qrcode_ticket
+path: /qrcode/create
+http: post
+params: access_token
+
+# get code with ticket
+function: get_qrcode
+path: /showqrcode
+http: get
+params: 

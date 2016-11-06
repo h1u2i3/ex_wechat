@@ -1,0 +1,9 @@
+<xml>
+<ToUserName><![CDATA[<%= @to %>]]></ToUserName>
+<FromUserName><![CDATA[<%= @from %>]]></FromUserName>
+<CreateTime><%= DateTime.to_unix(DateTime.utc_now) %></CreateTime>
+<MsgType><![CDATA[<%= @msgtype %>]]></MsgType>
+<Voice>
+<MediaId><![CDATA[<%= @media_id %>]]></MediaId>
+</Voice>
+</xml>

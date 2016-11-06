@@ -1,0 +1,9 @@
+#--------------------
+#  shorturl
+#--------------------
+
+# get the server ip
+function: get_short_url
+path: /shorturl
+http: post
+params: access_token

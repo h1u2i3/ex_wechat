@@ -1,0 +1,17 @@
+<xml>
+<ToUserName><![CDATA[<%= @to %>]]></ToUserName>
+<FromUserName><![CDATA[<%= @from %>]]></FromUserName>
+<CreateTime><%= DateTime.to_unix(DateTime.utc_now) %></CreateTime>
+<MsgType><![CDATA[<%= @msgtype %>]]></MsgType>
+<ArticleCount><%= Enum.count(@news) %></ArticleCount>
+<Articles>
+<%= for new <- @news do %>
+  <item>
+  <Title><![CDATA[<%= new.title %>]]></Title>
+  <Description><![CDATA[<%= new.description %>]]></Description>
+  <PicUrl><![CDATA[<%= new.pic_url %>]]></PicUrl>
+  <Url><![CDATA[<%= new.url %>]]></Url>
+  </item>
+<% end %>
+</Articles>
+</xml>

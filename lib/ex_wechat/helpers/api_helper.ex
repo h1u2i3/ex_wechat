@@ -9,13 +9,16 @@ defmodule ExWechat.Helpers.ApiHelper do
   @cgi_bin  "https://api.weixin.qq.com/cgi-bin"
 
   @api_endpoints %{
-    access_token: @cgi_bin,
-    grcode:       @cgi_bin,
-    menu:         @cgi_bin,
-    server_ip:    @cgi_bin,
-    card:         @base,
-    media:        @cgi_bin,
-    message:      @cgi_bin
+    access_token:   @cgi_bin,
+    custom_service: @base,
+    qrcode:         @cgi_bin,
+    menu:           @cgi_bin,
+    server_ip:      @cgi_bin,
+    card:           @base,
+    media:          @cgi_bin,
+    message:        @cgi_bin,
+    shorturl:       @cgi_bin,
+    user:           @cgi_bin
   }
 
   def get_api_endpoint(url) do
