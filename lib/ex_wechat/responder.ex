@@ -92,6 +92,10 @@ defmodule ExWechat.Responder do
         end
       end
 
+      def reply_with(conn, message) do
+        assign conn, :reply, message
+      end
+
       def signature_responder(conn) do
         case conn.assigns[:signature] do
           true  -> text(conn, conn.params["echostr"] )
