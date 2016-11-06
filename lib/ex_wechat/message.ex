@@ -1,6 +1,4 @@
 defmodule ExWechat.Message do
-  require Logger
-
   @text         "text.eex"
   @voice        "voice.eex"
   @video        "video.eex"

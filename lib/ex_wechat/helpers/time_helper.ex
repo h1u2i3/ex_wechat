@@ -1,4 +1,4 @@
-defmodule ExWechat.Utils.Time do
+defmodule ExWechat.Helpers.TimeHelper do
 
   @doc """
     get unix timestamp

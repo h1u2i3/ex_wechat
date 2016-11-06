@@ -1,5 +1,5 @@
-defmodule ExWechat.Utils.Crypto do
-  @module_doc """
+defmodule ExWechat.Helpers.CryptoHelper do
+  @moduledoc """
     generate sha1 and verify sha1  of given string.
   """
 

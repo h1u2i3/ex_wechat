@@ -1,7 +1,8 @@
 defmodule ExWechat.Api do
   use HTTPoison.Base
   use ExWechat.Base
-  import ExWechat.Api.Helper
+
+  import ExWechat.Helpers.ApiHelper
   alias ExWechat.Token
 
   @endpoint "https://api.weixin.qq.com/cgi-bin"

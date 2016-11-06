@@ -1,5 +1,5 @@
 defmodule ExWechat.Responder do
-  @module_doc """
+  @moduledoc """
     `ExWechat.Responder` is for make respond to wechat server.
     can be used with server verify and other things.
     or you can use it to import the reponder for uses's message responder.
@@ -27,7 +27,7 @@ defmodule ExWechat.Responder do
   """
 
   use ExWechat.Base # import token from ExWechat.Base
-  import ExWechat.Utils.Crypto
+  import ExWechat.Helpers.CryptoHelper
 
   @doc """
     check the signature with wechat server.

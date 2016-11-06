@@ -1,11 +1,11 @@
-defmodule ExWechat.Api.Helper do
-  @module_doc """
+defmodule ExWechat.Helpers.ApiHelper do
+  @moduledoc """
     praser data from api description file.
   """
 
   alias ExWechat.Api
 
-  @external_resource Path.join([__DIR__, "api_definition"])
+  @external_resource Path.join([__DIR__, "../api/api_definition"])
 
   @doc """
     get the data from external file and praser it.

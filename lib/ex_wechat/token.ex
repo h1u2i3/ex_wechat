@@ -1,7 +1,7 @@
 defmodule ExWechat.Token do
   use ExWechat.Api
   use ExWechat.Base
-  import ExWechat.Utils.Time
+  import ExWechat.Helpers.TimeHelper
 
   @api_methods [:get_access_token]
 
