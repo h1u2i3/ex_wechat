@@ -14,6 +14,25 @@ defmodule ExWechat.Message do
     Generate message for wechat.
     `msg` is a `Map` struct.
     You can find what you need for generate message from the template file.
+
+        build_message(%{
+          from: "userid",
+          to: "server_app_id",
+          msgtype: "text",
+          content: "Hello World!"
+        })
+
+    will generate:
+
+        <xml>
+        <ToUserName><![CDATA[userid]]></ToUserName>
+        <FromUserName><![CDATA[server_app_id]]></FromUserName>
+        <CreateTime>1478449547</CreateTime>
+        <MsgType><![CDATA[text]]></MsgType>
+        <Content><![CDATA[Hello World!]]></Content>
+        </xml>
+
+    This method will automatic check the `msgtype`, and choose the right template to render message.
   """
   def build_message(msg) do
     render_message(msg)
@@ -21,6 +40,20 @@ defmodule ExWechat.Message do
 
   @doc """
     Parser xml wechat message to Map.
+    Get xml data from `Plug.Conn`:
+
+      <xml>
+      <ToUserName><![CDATA[userid]]></ToUserName>
+      <FromUserName><![CDATA[server_app_id]]></FromUserName>
+      <CreateTime>1478449547</CreateTime>
+      <MsgType><![CDATA[text]]></MsgType>
+      <Content><![CDATA[Hello World!]]></Content>
+      </xml>
+
+    and then will convert this xml data to Map.
+    You can get this Map by:
+
+        conn.assigns[:message]
   """
   def parser_message(xml_msg) do
     [{"xml", [], attrs}] = Floki.find(xml_msg, "xml")

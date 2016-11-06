@@ -2,7 +2,7 @@
 #  shorturl
 #--------------------
 
-# get the server ip
+doc: get the short url
 function: get_short_url
 path: /shorturl
 http: post

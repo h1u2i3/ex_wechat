@@ -40,7 +40,7 @@ defmodule ExWechat.Helpers.ApiHelper do
       |> Stream.map(&String.trim/1)
       |> Stream.reject(&(String.length(&1) == 0))
       |> Stream.reject(&(String.starts_with?(&1, "#")))
-      |> Enum.chunk(4)
+      |> Enum.chunk(5)
   end
 
   @doc """
@@ -96,8 +96,8 @@ defmodule ExWechat.Helpers.ApiHelper do
     case data do
       [] -> []
       _ ->  data
-            |> Enum.map(fn([function, path, verb, params]) ->
-                 [function_name(function), url_path(path), http_verb(verb), url_params(params)]
+            |> Enum.map(fn([doc, function, path, verb, params]) ->
+                 [get_doc(doc), function_name(function), url_path(path), http_verb(verb), url_params(params)]
                end)
     end
   end
@@ -109,6 +109,12 @@ defmodule ExWechat.Helpers.ApiHelper do
         _               -> false
       end
     end)
+  end
+
+  defp get_doc(doc_string) do
+    doc_string
+    |> split_colon
+    |> List.last
   end
 
   defp url_path(path_string) do

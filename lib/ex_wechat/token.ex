@@ -1,6 +1,19 @@
 defmodule ExWechat.Token do
   @moduledoc """
     Wechat access_token.
+
+    First get the token from cache, if invalid then get from the wechat server,
+    `access_token` cache can be set in `config.exs`.
+
+        config :ex_wechat, ExWechat,
+          appid: System.get_env("WECHAT_APPID") || "your appid",
+          secret: System.get_env("WECHAT_APPSECRET") || "your app secret",
+          token: System.get_env("WECHAT_TOKEN") || "yout token",
+          access_token_cache: "/tmp/access_token"
+
+        use ExWechat.Api
+        @api [:access_token]  # only add the access_token api method.
+
   """
 
   use ExWechat.Api
@@ -10,9 +23,7 @@ defmodule ExWechat.Token do
   @api [:access_token] # only need the access_token api definition
 
   @doc """
-    first get the token from cache, if invalid then get from the wechat server.
-    use Wechat.Api to get access_token from wechat server.
-    or maybe we should try to use Agent or ETS to save the access_token
+    Get the access_token.
   """
   def _access_token do
     case File.stat(access_token_cache) do

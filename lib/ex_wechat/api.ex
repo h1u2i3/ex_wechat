@@ -9,26 +9,6 @@ defmodule ExWechat.Api do
 
     then you can test the method it in your termnal.
     if you don't add the `@api` attribute, it will import all the api methods.
-
-    All the methods in definition file are like this:
-
-        #---------------------
-        #  access_token
-        #---------------------
-        # get the access_token
-        function: get_access_token
-        path: /token
-        http: get
-        params: grant_type=client_credential, appid, secret
-
-    and each method is a `get` or `post` http method.
-
-        # post method
-        create_menu(post_body, extra_params \\ [])
-        # get method
-        get_menu(extra_params \\ [])
-
-    When use a `post` method, it is you responsibility to offer the right data.
   """
 
   use HTTPoison.Base
@@ -54,10 +34,13 @@ defmodule ExWechat.Api do
   @doc """
     Generate all the methods define in the api definitions.
   """
-  def define_api_method([name, path, verb, params]) do
+  def define_api_method([doc, name, path, verb, params]) do
     case verb do
       :get ->
         quote do
+          @doc """
+            #{unquote(doc)}
+          """
           def unquote(name)(added_params \\ []) do
             case unquote(__MODULE__).get(unquote(path), [],
               params: unquote(__MODULE__).make_params(unquote(params), added_params)) do
@@ -70,6 +53,9 @@ defmodule ExWechat.Api do
         end
       :post ->
         quote do
+          @doc """
+            #{unquote(doc)}
+          """
           def unquote(name)(post_body, added_params \\ []) do
             case unquote(__MODULE__).post!(unquote(path), Poison.encode!(post_body), [],
               params: unquote(__MODULE__).make_params(unquote(params), added_params)) do
@@ -85,6 +71,7 @@ defmodule ExWechat.Api do
 
   @doc """
     Merge the `added_params` into params.
+    Module.add_doc(__MODULE__, __ENV__.line + 1, :def, {unquote(name)}, [], unquote(doc))
   """
   def make_params(params, added_params) do
     params = List.delete(params, "")

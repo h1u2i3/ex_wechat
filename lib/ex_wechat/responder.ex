@@ -12,7 +12,7 @@ defmodule ExWechat.Responder do
           use ExWechat.Responder
         end
 
-    you can wirte your own responder method.
+    you can wirte your own responder method(all responder must return with `Plug.Conn`).
 
         def on_text_responder(conn),         do: conn
         def on_image_responder(conn),        do: conn
@@ -23,7 +23,101 @@ defmodule ExWechat.Responder do
         def on_link_responder(conn),         do: conn
         def on_event_responder(conn),        do: conn
 
-    message will be treat as custom message in default.
+    Example:
+
+        defmodule Wechat.WechatController do
+          require Logger
+
+          use Wechat.Web, :controller
+          use ExWechat.Responder
+
+          import ExWechat.Message
+
+          defp on_text_responder(conn) do
+            message = conn.assigns[:message]
+            case message do
+              %{content: content} ->
+                reply_with(conn, build_message(%{
+                    msgtype: "text",
+                    from: message.tousername,
+                    to: message.fromusername,
+                    content: String.reverse(content)
+                  }))
+              _   ->
+                conn
+            end
+          end
+        end
+
+    And this module automaticly generate the method for your Phoenix controller use.
+
+    Helper method `reply_with` will set `:reply` in conn.assigns, and then this reply message can be use with other helper method.
+
+        def reply_with(conn, message) do
+          assign conn, :reply, message
+        end
+
+    Helper method `signature_responder` to set respond with Wechat Server. See [http://mp.weixin.qq.com/wiki/8/f9a0b8382e0b77d87b3bcc1ce6fbc104.html](http://mp.weixin.qq.com/wiki/8/f9a0b8382e0b77d87b3bcc1ce6fbc104.html).
+    Helper method `message_responder` is to react with user sent message.
+
+        def signature_responder(conn) do
+          case conn.assigns[:signature] do
+            true  -> text(conn, conn.params["echostr"] )
+            false -> halt(conn)
+          end
+        end
+
+        def message_responder(conn) do
+          message = conn.assigns[:message]
+          reply_conn = case message do
+            %{msgtype: "text"} ->
+              on_text_responder(conn)
+            %{msgtype: "voice"} ->
+              on_voice_responder(conn)
+            %{msgtype: "video"} ->
+              on_video_responder(conn)
+            %{msgtype: "image"} ->
+              on_image_responder(conn)
+            %{msgtype: "location"} ->
+              on_location_responder(conn)
+            %{msgtype: "shortvideo"} ->
+              on_shortvideo_responder(conn)
+            %{msgtype: "link"} ->
+              on_link_responder(conn)
+            %{msgtype: "event"} ->
+              on_event_responder(conn)
+            _ ->
+              conn
+          end
+          case reply_conn do
+            %Plug.Conn{}  ->
+              conn = reply_conn
+              if conn.assigns[:reply] do
+                text conn, conn.assigns[:reply]
+              else
+                text conn, "success"
+              end
+            _             ->
+              Logger.error "When use your own on_*_responder function, you should return a Plug.Conn"
+              text conn, "success"
+          end
+        end
+
+    Following are the methods generate for Wechat controller use.
+
+        def index(conn, _) do
+          signature_responder(conn)
+        end
+
+        def show(conn, _) do
+          signature_responder(conn)
+        end
+
+        def create(conn, _) do
+          message_responder(conn)
+        end
+
+    And all the above controller methods are overrideable. You can redefine your method, or just use the default.
   """
 
   use ExWechat.Base # import token from ExWechat.Base

@@ -1,7 +1,8 @@
 #---------------------
 #  access_token
 #---------------------
-# get the access_token
+
+doc: get the access_token from wechat server
 function: get_access_token
 path: /token
 http: get

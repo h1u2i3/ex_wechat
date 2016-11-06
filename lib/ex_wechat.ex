@@ -1,17 +1,42 @@
 defmodule ExWechat do
   @moduledoc """
     An elixir Wechat api. Functional and clear.
-    You can add
+    All the methods in definition file are like this:
+
+        #---------------------
+        #  access_token
+        #---------------------
+        doc: get the access_token
+        function: get_access_token
+        path: /token
+        http: get
+        params: grant_type=client_credential, appid, secret
+
+    When you add:
 
         use ExWechat.Api
 
-    to the module you want to have the api methods.
-    The api methods are split into different file, you can import the function you want.
+    to your module, this module will read all the api definition files, and parse the method data,
+    then use these definitions to dinamyicly define methods, each method is a `get` or `post` http request.
+    All the Http methods use `HTTPosion`.
 
-        use ExWechat.Api
-        @api [:access_token, :user]
+        defmodule MenuController do
+          use ExWechat.Api
 
-    This will import the api method about access_token and user.
+          @api [:menu]
+
+          # post method
+          create_menu(post_body, extra_params \\ [])
+          # get method
+          get_menu(extra_params \\ [])
+        end
+
+    You can only import the menu api by add:
+
+        @api [:menu]
+
+    When use a `post` method, it is you responsibility to offer the right data(Elixir Map), when post data,
+    it will convert to json by the api.
   """
 
   use ExWechat.Api

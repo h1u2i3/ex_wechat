@@ -1,7 +1,8 @@
 #--------------------
 #  server ip
 #--------------------
-# get the server ip
+
+doc: get the server ip
 function: get_server_ip
 path: /getcallbackip
 http: get

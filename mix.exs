@@ -1,16 +1,21 @@
 defmodule ExWechat.Mixfile do
   use Mix.Project
 
+  @version "0.1.0"
+
   def project do
     [
       app: :ex_wechat,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.3",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       description: description(),
       package: package(),
-      deps: deps()
+      deps: deps(),
+      docs: [extras: ["README.md"], main: "readme",
+       source_ref: "v#{@version}",
+       source_url: "https://github.com/h1u2i3/ex_wechat"]
      ]
   end
 

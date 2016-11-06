@@ -1,4 +1,7 @@
 defmodule ExWechat.Helpers.TimeHelper do
+  @moduledoc """
+    Helper methods for time calucate.
+  """
 
   @doc """
     get unix timestamp
