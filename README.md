@@ -85,7 +85,7 @@ The following is an esay example(when receive text message from user, return use
 For more document, please goto ([documentation](http://hexdocs.pm/ex_wechat/)).
 
 ## Wechat Api
-You can import the Wechat Api to any module by:
+1. You can import the Wechat Api to any module by:
 
     ```elixir
     use ExWechat.Api
@@ -98,12 +98,12 @@ And the api function are well classified by their function. If you only want to 
 
       @api [:user]
 
-      def inde(conn, _opts) do
+      def index(conn, _opts) do
         # your code you want.
       end
     end
     ```
-For more api methods, please view the api definition files in `lib/ex_wechat/apis` folder.
+2. You can add more api methods by add method definitions file, for more api methods, please view the api definition files in `lib/ex_wechat/apis` folder.
 
 ## License
 MIT license.
