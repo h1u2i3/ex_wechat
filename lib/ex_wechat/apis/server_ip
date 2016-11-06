@@ -1,0 +1,8 @@
+#--------------------
+#  server ip
+#--------------------
+# get the server ip
+function: get_server_ip
+path: /getcallbackip
+http: get
+params: access_token

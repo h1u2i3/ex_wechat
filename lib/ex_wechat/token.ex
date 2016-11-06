@@ -3,7 +3,7 @@ defmodule ExWechat.Token do
   use ExWechat.Base
   import ExWechat.Helpers.TimeHelper
 
-  @api_methods [:get_access_token]
+  @api [:access_token]
 
   @doc """
     first get the token from cache, if invalid then get from the wechat server.

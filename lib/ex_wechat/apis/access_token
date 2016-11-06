@@ -1,0 +1,8 @@
+#---------------------
+#  access_token
+#---------------------
+# get the access_token
+function: get_access_token
+path: /token
+http: get
+params: grant_type=client_credential, appid, secret

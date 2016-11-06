@@ -1,0 +1,8 @@
+#--------------------
+#  wechat media
+#--------------------
+# get media list
+function: get_media_list
+path: /material/batchget_material
+http: post
+params: access_token

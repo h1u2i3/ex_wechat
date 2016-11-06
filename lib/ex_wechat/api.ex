@@ -1,11 +1,44 @@
 defmodule ExWechat.Api do
+  @modeldoc """
+    Generate api methods base on the api definitions.
+    You also can `use` it to import all the api methods.
+
+        use ExWechat.Api
+        @api_methods [:access_token]  # just import the method in access_token definition
+        @api_methods :all             # import all the method
+
+    then you can test the method it in your termnal.
+
+    All the methods in definition file are like this:
+
+        #---------------------
+        #  access_token
+        #---------------------
+        # get the access_token
+        function: get_access_token
+        path: /token
+        http: get
+        params: grant_type=client_credential, appid, secret
+
+    and all the methods is a `get` or `post` http method.
+
+        # post method
+        create_menu(post_body, extra_params \\ [])
+        # get method
+        get_menu(extra_params \\ [])
+
+    When use a `post` method, it is you responsibility to offer the right data.
+  """
+
   use HTTPoison.Base
   use ExWechat.Base
 
   import ExWechat.Helpers.ApiHelper
   alias ExWechat.Token
 
-  @endpoint "https://api.weixin.qq.com/cgi-bin"
+  defp process_url(url) do
+    ExWechat.Helpers.ApiHelper.get_api_endpoint(url) <> url
+  end
 
   def access_token do
     Token._access_token
@@ -43,19 +76,29 @@ defmodule ExWechat.Api do
   end
 
   def compile(origin) do
-    ast_data = for method_data <- origin do
-      define_api_method(method_data)
+    values = origin
+           |> Map.values
+           |> Enum.reject(&Enum.empty?/1)
+           |> Enum.flat_map(fn(x) ->
+                case x do
+                  [[[head | tail]]] -> [head | tail]
+                  _ -> x
+                end
+              end)
+
+    ast_data = for data <- values do
+      define_api_method(data)
     end
+
     quote do
       unquote(ast_data)
     end
   end
 
-
   defmacro __before_compile__(env) do
     env.module
-    |> Module.get_attribute(:api_methods)
-    |> process_api_data
+    |> Module.get_attribute(:api)
+    |> process_api_definition_data
     |> compile
   end
 
@@ -63,9 +106,5 @@ defmodule ExWechat.Api do
     quote do
       @before_compile unquote(__MODULE__)
     end
-  end
-
-  defp process_url(url) do
-    @endpoint <> url
   end
 end
