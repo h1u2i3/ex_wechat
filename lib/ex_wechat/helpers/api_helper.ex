@@ -2,6 +2,7 @@ defmodule ExWechat.Helpers.ApiHelper do
   @moduledoc """
     praser data from api description file.
   """
+  use ExWechat.Base
 
   def process_api_definition_data(needed_api_kinds) do
     case needed_api_kinds do
@@ -15,7 +16,7 @@ defmodule ExWechat.Helpers.ApiHelper do
   end
 
   # read single file and return api definition data
-  defp api_definition(path) do
+  defp api_definition_data(path) do
     data = File.stream!(path, [], :line)
            |> Stream.map(&String.trim/1)
            |> Stream.reject(&(String.length(&1) == 0))
@@ -25,8 +26,12 @@ defmodule ExWechat.Helpers.ApiHelper do
 
   # get all the data of all the api definition file
   defp all_api_definition_data do
-    for path <- Path.wildcard(Path.join(__DIR__, "../apis/*")), into: %{} do
-      {path |> String.replace(__DIR__ <> "/../apis/", "") |> String.to_atom, path |> api_definition}
+    all_definition_files =  case api_definition_files do
+                              nil -> Path.wildcard(Path.join(__DIR__, "../apis/*"))
+                              _   -> Path.wildcard(Path.join(__DIR__, "../apis/*")) ++ Path.wildcard(api_definition_files <> "/*")
+                            end
+    for path <- all_definition_files, into: %{} do
+      {path |> String.split("/") |> List.last |> String.to_atom, path |> api_definition_data}
     end
   end
 

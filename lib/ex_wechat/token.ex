@@ -39,6 +39,13 @@ defmodule ExWechat.Token do
     end
   end
 
+  @doc """
+    Force to get the new access_token
+  """
+  def _force_get_access_token do
+    fetch_access_token_and_write_cache
+  end
+
   defp read_access_token_from_cache do
     {:ok, access_token} = File.read(access_token_cache)
     access_token

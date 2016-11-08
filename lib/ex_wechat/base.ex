@@ -25,11 +25,12 @@ defmodule ExWechat.Base do
   """
 
   defmacro __using__(_opts) do
-    for {key, value} <- Application.get_env(:ex_wechat, ExWechat) do
+    for key <- [:appid, :secret, :token, :access_token_cache,
+                :api_definition_files] do
       quote do
         @doc false
         def unquote(key)() do
-          unquote(value)
+          unquote(Application.get_env(:ex_wechat, ExWechat)[key])
         end
       end
     end

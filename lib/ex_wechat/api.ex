@@ -23,6 +23,13 @@ defmodule ExWechat.Api do
     Token._access_token
   end
 
+  @doc """
+    Use when access_token invalid
+  """
+  def renew_access_token do
+    Token._force_get_access_token
+  end
+
   @doc false
   def encode_post_body(body) do
     case body do
@@ -53,9 +60,20 @@ defmodule ExWechat.Api do
                       |> unquote(__MODULE__).do_parse_params([], "", "")
                       |> Keyword.merge(added_params)) do
                 {:ok, response} ->
-                  response.body
+                  body = response.body
+                  case body do
+                    %{errcode: 40001} ->
+                      unquote(__MODULE__).renew_access_token
+                      apply(__MODULE__, unquote(function), [added_params])
+                    _ ->  body
+                  end
                 {:error, error} ->
-                  %{error: error.reason}
+                  case error.reason do
+                    :closed ->
+                      apply(__MODULE__, unquote(function), [added_params])
+                    _  ->
+                      %{error: error.reason}
+                  end
             end
           end
         end
@@ -75,9 +93,20 @@ defmodule ExWechat.Api do
                       |> unquote(__MODULE__).do_parse_params([], "", "")
                       |> Keyword.merge(added_params)) do
                 {:ok, response} ->
-                  response.body
+                  body = response.body
+                  case body do
+                    %{errcode: 40001} ->
+                      unquote(__MODULE__).renew_access_token
+                      apply(__MODULE__, unquote(function), [added_params])
+                    _ ->  body
+                  end
                 {:error, error} ->
-                  %{error: error.reason}
+                  case error.reason do
+                    :closed ->
+                      apply(__MODULE__, unquote(function), [added_params])
+                    _  ->
+                      %{error: error.reason}
+                  end
             end
           end
         end
