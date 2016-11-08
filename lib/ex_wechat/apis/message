@@ -1,8 +1,10 @@
-#---------------------
-#  message
-#---------------------
+//---------------------
+//  message
+//---------------------
 
-doc: send custom message to user
+@endpoint https://api.weixin.qq.com/cgi-bin
+
+# send custom message to user
 function: send_custom_message
 path: /message/custom/send
 http: post

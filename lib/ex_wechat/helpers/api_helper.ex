@@ -2,50 +2,7 @@ defmodule ExWechat.Helpers.ApiHelper do
   @moduledoc """
     praser data from api description file.
   """
-  require Logger
-  alias ExWechat.Api
 
-  @base     "https://api.weixin.qq.com"
-  @cgi_bin  "https://api.weixin.qq.com/cgi-bin"
-
-  @api_endpoints %{
-    access_token:   @cgi_bin,
-    custom_service: @base,
-    qrcode:         @cgi_bin,
-    menu:           @cgi_bin,
-    server_ip:      @cgi_bin,
-    card:           @base,
-    media:          @cgi_bin,
-    message:        @cgi_bin,
-    shorturl:       @cgi_bin,
-    user:           @cgi_bin
-  }
-
-  def get_api_endpoint(url) do
-    @api_endpoints[
-      Enum.find_value(all_api_definition_data, fn({key, value})->
-        case url_is_member_of_value(url, value) do
-          true -> key
-          false -> :access_token
-        end
-      end)
-    ]
-  end
-
-  @doc """
-    get the data from api definition file and praser it.
-  """
-  def api_definition(path) do
-    File.stream!(path, [], :line)
-      |> Stream.map(&String.trim/1)
-      |> Stream.reject(&(String.length(&1) == 0))
-      |> Stream.reject(&(String.starts_with?(&1, "#")))
-      |> Enum.chunk(5)
-  end
-
-  @doc """
-    fetch api definition data from the definition file.
-  """
   def process_api_definition_data(needed_api_kinds) do
     case needed_api_kinds do
       nil ->
@@ -57,102 +14,68 @@ defmodule ExWechat.Helpers.ApiHelper do
     end
   end
 
-  @doc """
-    make string to atom to get the param key.
-    when string contains =, then get the params key.
-  """
-  def param_key(param) do
-    case String.match?(param, ~r/=/) do
-      true ->
-        String.split(param, "=")
-          |> List.first
-          |> String.to_atom
-      false ->
-        String.to_atom(param)
-    end
+  # read single file and return api definition data
+  defp api_definition(path) do
+    data = File.stream!(path, [], :line)
+           |> Stream.map(&String.trim/1)
+           |> Stream.reject(&(String.length(&1) == 0))
+           |> Enum.to_list
+    do_parse_api_data([], [], data)
   end
 
-  @doc """
-    get the value of the param
-    when the param string contains =, then split it to get the value.
-  """
-  def param_value(param) do
-    case String.match?(param, ~r/=/) do
-      true ->
-        String.split(param, "=")
-          |> List.last
-      false ->
-        apply(Api, String.to_atom(param), [])
-    end
-  end
-
+  # get all the data of all the api definition file
   defp all_api_definition_data do
     for path <- Path.wildcard(Path.join(__DIR__, "../apis/*")), into: %{} do
-      {path |> String.replace(__DIR__ <> "/../apis/", "") |> String.to_atom, path |> api_definition |> process_data}
+      {path |> String.replace(__DIR__ <> "/../apis/", "") |> String.to_atom, path |> api_definition}
     end
   end
 
-  defp process_data(data) do
-    case data do
-      [] -> []
-      _ ->  data
-            |> Enum.map(fn([doc, function, path, verb, params]) ->
-                 [get_doc(doc), function_name(function), url_path(path), http_verb(verb), url_params(params)]
-               end)
-    end
+  # parse data from api definition file with parttern match
+  defp do_parse_api_data(temp, result, endpoint \\ "", lines)
+  defp do_parse_api_data(temp, result, endpoint, [ "//"  <> _    | tail ]) do
+    do_parse_api_data(temp, result, endpoint, tail)
   end
-
-  defp url_is_member_of_value(url, value) do
-    Enum.any?(value, fn(definition)->
-      case definition do
-        [_, ^url, _, _] -> true
-        _               -> false
+  defp do_parse_api_data(temp, result, endpoint, [ "# " <> rest | tail ]) do
+    {_, temp} = Keyword.get_and_update(temp, :doc, fn(current) ->
+      case current do
+        nil ->  {current, rest}
+        _   ->  {current, current <> "\n" <> rest}
       end
     end)
+    do_parse_api_data(temp, result, endpoint, tail)
   end
-
-  defp get_doc(doc_string) do
-    doc_string
-    |> split_colon
-    |> List.last
+  defp do_parse_api_data(temp, result, _, [ "@endpoint " <> rest | tail ]) do
+    do_parse_api_data(temp, result, String.trim(rest), tail)
   end
-
-  defp url_path(path_string) do
-    path_string
-    |> split_colon
-    |> List.last
+  defp do_parse_api_data(temp, result, endpoint, [ "function: " <> rest | tail ]) do
+    temp
+    |> Keyword.put(:function, rest |> String.trim |> String.to_atom)
+    |> do_parse_api_data(result, endpoint, tail)
   end
-
-  defp http_verb(verb_string) do
-    verb_string
-    |> split_colon
-    |> List.last
-    |> String.to_atom
+  defp do_parse_api_data(temp, result, endpoint, [ "path: " <> rest | tail ]) do
+    temp
+    |> Keyword.put(:path, rest |> String.trim)
+    |> do_parse_api_data(result, endpoint, tail)
   end
-
-  defp function_name(function_string) do
-    function_string
-    |> split_colon
-    |> List.last
-    |> String.to_atom
+  defp do_parse_api_data(temp, result, endpoint, [ "http: " <> rest | tail ]) do
+    temp
+    |> Keyword.put(:http, rest |> String.trim |> String.to_atom)
+    |> do_parse_api_data(result, endpoint, tail)
   end
-
-  defp url_params(params_string) do
-    params_string
-    |> split_colon
-    |> List.last
-    |> split_comma
+  defp do_parse_api_data(temp, result, endpoint, [ "params: " <> rest | tail ]) do
+    params = rest |> String.trim
+    temp = temp
+           |> Keyword.put(:params, params)
+           |> Keyword.put(:endpoint, endpoint)
+    do_parse_api_data([], result ++ [temp], endpoint,tail)
   end
-
-  defp split_colon(string) do
-    string
-    |> String.split(":")
-    |> Enum.map(&String.trim/1)
+  defp do_parse_api_data(temp, result, endpoint, [ "params:" | tail ]) do
+    temp = temp
+           |> Keyword.put(:params, "")
+           |> Keyword.put(:endpoint, endpoint)
+    do_parse_api_data([], result ++ [temp], endpoint, tail)
   end
-
-  defp split_comma(string) do
-    string
-    |> String.split(~r/,/)
-    |> Enum.map(&String.trim/1)
+  defp do_parse_api_data(_temp, result, _, []) do
+    result
   end
 end

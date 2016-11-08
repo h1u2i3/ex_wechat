@@ -1,20 +1,16 @@
-#--------------------
-#  wechat qrcode
-#--------------------
+//---------------------
+//  Qrcode
+//---------------------
 
-doc: generate temp qrcode
-function: get_temp_qrcode_ticket
+@endpoint https://api.weixin.qq.com/cgi-bin
+
+# generate qrcode ticket
+function: create_qrcode_ticket
 path: /qrcode/create
 http: post
 params: access_token
 
-doc: generate permanent qrcode
-function: get_permanent_qrcode_ticket
-path: /qrcode/create
-http: post
-params: access_token
-
-doc: get code with ticket
+# get code with ticket
 function: get_qrcode
 path: /showqrcode
 http: get

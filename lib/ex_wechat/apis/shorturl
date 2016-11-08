@@ -1,8 +1,10 @@
-#--------------------
-#  shorturl
-#--------------------
+//---------------------
+//  generate shorturl
+//---------------------
 
-doc: get the short url
+@endpoint https://api.weixin.qq.com/cgi-bin
+
+# get the short url
 function: get_short_url
 path: /shorturl
 http: post

@@ -1,38 +1,40 @@
-#--------------------
-#  menu
-#--------------------
+//---------------------
+//  menu
+//---------------------
 
-doc: get the menu
+@endpoint https://api.weixin.qq.com/cgi-bin
+
+# get the menu
 function: get_menu
 path: /menu/get
 http: get
 params: access_token
 
-doc: create the menu
+# create the menu
 function: create_menu
 path: /menu/create
 http: post
 params: access_token
 
-doc: delete the menu
+# delete the menu
 function: delete_menu
 path: /menu/delete
 http: get
 params: access_token
 
-doc: special menu create
+# special menu create
 function: create_special_menu
 path: /menu/addconditional
 http: post
 params: access_token
 
-doc: delete special menu
+# delete special menu
 function: delete_special_menu
 path: /menu/delconditional
 http: post
 params: access_token
 
-doc: get all the menu config
+# get all the menu config
 function: get_menu_conf
 path: /get_current_selfmenu_info
 http: get
