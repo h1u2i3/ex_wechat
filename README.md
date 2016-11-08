@@ -173,6 +173,45 @@ For example:
     iex(2)> File.write! "/Users/xiaohui/Desktop/y.jpg", ExWechat.get_media media_id: "NgGUXaSTGizWyG5Kc0xpydHHIm2PGy68ZViXmpXnojYLV7pw-6zuZaRkTu1cnhja"
     :ok
     ```
+3. Because we got the base usage with Wechat Api, we can define our own module to do more semantic work.
+Media example:
 
+    ```elixir
+    defmodule Wechat.Media do
+      use ExWechat.Api
+
+      @api [:media]
+
+      def upload_image(path) do
+        upload_media {:multipart, [{:file, path}]}, type: "image"
+      end
+
+      def download(media_id) do
+        get_media media_id: media_id
+      end
+    end
+
+    Wechat.Media.upload_media("/Users/xiaohui/Desktop/xyz.jpg")
+    Wechat.Media.download("NgGUXaSTGizWyG5Kc0xpydHHIm2PGy68ZViXmpXnojYLV7pw-6zuZaRkTu1cnhja")
+    ```
+User example:
+
+    ```elixir
+    defmodule Wechat.User do
+      use ExWechat.Api
+
+      @api [:user]
+
+      def info(openid)
+        get_user_info openid: openid
+      end
+
+      def list do
+        get_user_list
+      end
+    end
+    ```
+in this Wechat Api sdk, I don't add these modules, I let you to create your own.
+ 
 ## License
 MIT license.
