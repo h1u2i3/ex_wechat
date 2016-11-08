@@ -97,13 +97,13 @@ defmodule ExWechat.Api do
                   case body do
                     %{errcode: 40001} ->
                       unquote(__MODULE__).renew_access_token
-                      apply(__MODULE__, unquote(function), [added_params])
+                      apply(__MODULE__, unquote(function), [post_body, added_params])
                     _ ->  body
                   end
                 {:error, error} ->
                   case error.reason do
                     :closed ->
-                      apply(__MODULE__, unquote(function), [added_params])
+                      apply(__MODULE__, unquote(function), [post_body, added_params])
                     _  ->
                       %{error: error.reason}
                   end
