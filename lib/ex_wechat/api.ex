@@ -41,8 +41,8 @@ defmodule ExWechat.Api do
   @doc """
     Generate all the methods define in the api definitions.
   """
-  def define_api_method([endpoint: endpoint, params: params, http: http,
-                         path: path, function: function, doc: doc]) do
+  def define_api_method(%{endpoint: endpoint, params: params, http: http,
+                         path: path, function: function, doc: doc}) do
     case http do
       :get ->
         quote do

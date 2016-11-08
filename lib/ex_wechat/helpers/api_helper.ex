@@ -21,7 +21,7 @@ defmodule ExWechat.Helpers.ApiHelper do
            |> Stream.map(&String.trim/1)
            |> Stream.reject(&(String.length(&1) == 0))
            |> Enum.to_list
-    do_parse_api_data([], [], data)
+    do_parse_api_data(%{}, [], data)
   end
 
   # get all the data of all the api definition file
@@ -36,12 +36,12 @@ defmodule ExWechat.Helpers.ApiHelper do
   end
 
   # parse data from api definition file with parttern match
-  defp do_parse_api_data(temp, result, endpoint \\ "", lines)
-  defp do_parse_api_data(temp, result, endpoint, [ "//"  <> _    | tail ]) do
+  defp do_parse_api_data(temp, result, endpoint \\ nil, lines)
+  defp do_parse_api_data(temp, result, endpoint, [ "//"  <> _     | tail ]) do
     do_parse_api_data(temp, result, endpoint, tail)
   end
-  defp do_parse_api_data(temp, result, endpoint, [ "# " <> rest | tail ]) do
-    {_, temp} = Keyword.get_and_update(temp, :doc, fn(current) ->
+  defp do_parse_api_data(temp, result, endpoint, [ "# "  <> rest  | tail ]) do
+    {_, temp} = Map.get_and_update(temp, :doc, fn(current) ->
       case current do
         nil ->  {current, rest}
         _   ->  {current, current <> "\n" <> rest}
@@ -49,36 +49,39 @@ defmodule ExWechat.Helpers.ApiHelper do
     end)
     do_parse_api_data(temp, result, endpoint, tail)
   end
-  defp do_parse_api_data(temp, result, _, [ "@endpoint " <> rest | tail ]) do
-    do_parse_api_data(temp, result, String.trim(rest), tail)
+  defp do_parse_api_data(temp, result, endpoint, [ "@endpoint " <> rest | tail ]) do
+    temp = temp |> Map.put(:endpoint, rest |> String.trim)
+    case endpoint do
+      nil  ->  do_parse_api_data(temp, result, rest, tail)
+      _    ->  do_parse_api_data(temp, result, endpoint, tail)
+    end
   end
   defp do_parse_api_data(temp, result, endpoint, [ "function: " <> rest | tail ]) do
     temp
-    |> Keyword.put(:function, rest |> String.trim |> String.to_atom)
+    |> Map.put(:function, rest |> String.trim |> String.to_atom)
     |> do_parse_api_data(result, endpoint, tail)
   end
   defp do_parse_api_data(temp, result, endpoint, [ "path: " <> rest | tail ]) do
     temp
-    |> Keyword.put(:path, rest |> String.trim)
+    |> Map.put(:path, rest |> String.trim)
     |> do_parse_api_data(result, endpoint, tail)
   end
   defp do_parse_api_data(temp, result, endpoint, [ "http: " <> rest | tail ]) do
     temp
-    |> Keyword.put(:http, rest |> String.trim |> String.to_atom)
+    |> Map.put(:http, rest |> String.trim |> String.to_atom)
     |> do_parse_api_data(result, endpoint, tail)
   end
-  defp do_parse_api_data(temp, result, endpoint, [ "params: " <> rest | tail ]) do
-    params = rest |> String.trim
-    temp = temp
-           |> Keyword.put(:params, params)
-           |> Keyword.put(:endpoint, endpoint)
-    do_parse_api_data([], result ++ [temp], endpoint,tail)
-  end
-  defp do_parse_api_data(temp, result, endpoint, [ "params:" | tail ]) do
-    temp = temp
-           |> Keyword.put(:params, "")
-           |> Keyword.put(:endpoint, endpoint)
-    do_parse_api_data([], result ++ [temp], endpoint, tail)
+  defp do_parse_api_data(temp, result, endpoint, [ "params:" <> rest | tail ]) do
+    temp = case Map.get(temp, :endpoint) do
+             nil ->
+               temp
+               |> Map.put(:endpoint, endpoint)
+               |> Map.put(:params, rest |> String.trim)
+             _   ->
+               temp
+               |> Map.put(:params, rest |> String.trim)
+           end
+    do_parse_api_data(%{}, result ++ [temp], endpoint, tail)
   end
   defp do_parse_api_data(_temp, result, _, []) do
     result
