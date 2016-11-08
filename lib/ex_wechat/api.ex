@@ -188,8 +188,8 @@ defmodule ExWechat.Api do
 
       @doc false
       def process_url(url) do
-        func_name = url |> String.split("?") |> List.first
-        endpoint = apply __MODULE__, (String.replace(func_name, "/", "_") <> "url") |> String.to_atom, []
+        path = url |> String.split("?") |> List.first
+        endpoint = apply __MODULE__, (String.replace(path, "/", "_") <> "url") |> String.to_atom, []
         endpoint <> url
       end
     end

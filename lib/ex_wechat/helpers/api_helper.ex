@@ -30,9 +30,15 @@ defmodule ExWechat.Helpers.ApiHelper do
                               nil -> Path.wildcard(Path.join(__DIR__, "../apis/*"))
                               _   -> Path.wildcard(Path.join(__DIR__, "../apis/*")) ++ Path.wildcard(api_definition_files <> "/*")
                             end
-    for path <- all_definition_files, into: %{} do
-      {path |> String.split("/") |> List.last |> String.to_atom, path |> api_definition_data}
-    end
+    Enum.reduce(all_definition_files, %{}, fn(path, acc) ->
+      {_, acc} =  Map.get_and_update(acc, path |> String.split("/") |> List.last |> String.to_atom, fn(current) ->
+                    case current do
+                      nil   -> {current, path |> api_definition_data }
+                      _     -> {current, current ++ (path |> api_definition_data)}
+                    end
+                  end)
+      acc
+    end)
   end
 
   # parse data from api definition file with parttern match

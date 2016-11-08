@@ -33,7 +33,8 @@ config :ex_wechat, ExWechat,
   appid: System.get_env("WECHAT_APPID") || "wx96f0c06c7dfb1cb3",
   secret: System.get_env("WECHAT_APPSECRET") || "d4624c36b6795d1d99dcf0547af5443d",
   token: System.get_env("WECHAT_TOKEN") || "06d53b73e95af362de834a20",
-  access_token_cache: "/tmp/access_token"
+  access_token_cache: "/tmp/access_token",
+  api_definition_files: Path.join(__DIR__, "../apis")
 
 # add this config to prevent the accidental error when make a request.
 # https://github.com/edgurgel/httpoison/issues/130
