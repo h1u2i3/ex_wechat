@@ -11,9 +11,6 @@ defmodule ExWechat.Token do
           token: System.get_env("WECHAT_TOKEN") || "yout token",
           access_token_cache: "/tmp/access_token"
 
-        use ExWechat.Api
-        @api [:access_token]  # only add the access_token api method.
-
   """
 
   use ExWechat.Api

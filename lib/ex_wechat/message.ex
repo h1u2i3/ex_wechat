@@ -1,6 +1,6 @@
 defmodule ExWechat.Message do
   @moduledoc """
-    Parse wechat message from `Plug.Conn`, generate wechat message.
+    Parse wechat message from `Plug.Conn` && Generate wechat message from `Map`.
   """
 
   @text         "text.eex"
@@ -12,7 +12,6 @@ defmodule ExWechat.Message do
 
   @doc """
     Generate message for wechat.
-    `msg` is a `Map` struct.
     You can find what you need for generate message from the template file.
 
         build_message(%{
@@ -32,26 +31,15 @@ defmodule ExWechat.Message do
         <Content><![CDATA[Hello World!]]></Content>
         </xml>
 
-    This method will automatic check the `msgtype`, and choose the right template to render message.
+    This method will automaticlly check the `msgtype`, and choose the right template to render message.
   """
   def build_message(msg) do
     render_message(msg)
   end
 
   @doc """
-    Parser xml wechat message to Map.
-    Get xml data from `Plug.Conn`:
-
-      <xml>
-      <ToUserName><![CDATA[userid]]></ToUserName>
-      <FromUserName><![CDATA[server_app_id]]></FromUserName>
-      <CreateTime>1478449547</CreateTime>
-      <MsgType><![CDATA[text]]></MsgType>
-      <Content><![CDATA[Hello World!]]></Content>
-      </xml>
-
-    and then will convert this xml data to Map.
-    You can get this Map by:
+    Get xml data from `Plug.Conn` ant then parse xml wechat message to Map.
+    You can get this message by use:
 
         conn.assigns[:message]
   """

@@ -7,8 +7,7 @@ defmodule ExWechat.Api do
         @api [:access_token]  # just import the method in `access_token` definition
         @api :all             # import all the method
 
-    then you can test the method it in your termnal.
-    if you don't add the `@api` attribute, it will import all the api methods.
+    If you didn't add the `@api` attribute, it will import all the api methods.
   """
 
   use ExWechat.Base
@@ -183,7 +182,12 @@ defmodule ExWechat.Api do
 
       @doc false
       def process_response_body(body) do
-        Poison.decode!(body, keys: :atoms)
+        case body do
+          "{" <> _ ->
+            Poison.decode!(body, keys: :atoms)
+          _   ->
+            body
+        end
       end
 
       @doc false
