@@ -21,6 +21,7 @@ defmodule ExWechat.Helpers.MethodGenerator do
       def unquote(endpoint_method_name(path))() do
         unquote(endpoint)
       end
+      defoverridable Keyword.put([] ,unquote(endpoint_method_name(path)), 0)
     end
     define_endpoint_method(tail, result ++ [ast_data])
   end
