@@ -19,7 +19,7 @@ defmodule ExWechat.Plugs.WechatMessageParser do
     case conn.method do
       "POST" ->
         {:ok, body, conn} = read_body(conn)
-        message = parser_message(body)
+        message = parse_message(body)
         assign(conn, :message, message)
       _      ->
         conn

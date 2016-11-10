@@ -135,17 +135,9 @@ defmodule ExWechat.Responder do
         end
       end
 
-      def index(conn, _) do
-        signature_responder(conn)
-      end
-
-      def show(conn, _) do
-        signature_responder(conn)
-      end
-
-      def create(conn, _) do
-        message_responder(conn)
-      end
+      def index(conn, _),  do: signature_responder(conn)
+      def show(conn, _),   do: signature_responder(conn)
+      def create(conn, _), do: message_responder(conn)
 
       defoverridable Module.definitions_in(__MODULE__)
     end

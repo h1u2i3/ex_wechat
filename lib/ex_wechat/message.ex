@@ -2,6 +2,8 @@ defmodule ExWechat.Message do
   @moduledoc """
     Parse wechat message from `Plug.Conn` && Generate wechat message from `Map`.
   """
+  import ExWechat.Helpers.XmlParser
+  import ExWechat.Helpers.XmlRender
 
   @text         "text.eex"
   @voice        "voice.eex"
@@ -33,9 +35,7 @@ defmodule ExWechat.Message do
 
     This method will automaticlly check the `msgtype`, and choose the right template to render message.
   """
-  def build_message(msg) do
-    render_message(msg)
-  end
+  def build_message(msg), do: render_message(msg)
 
   @doc """
     Get xml data from `Plug.Conn` ant then parse xml wechat message to Map.
@@ -43,21 +43,12 @@ defmodule ExWechat.Message do
 
         conn.assigns[:message]
   """
-  def parser_message(xml_msg) do
-    [{"xml", [], attrs}] = Floki.find(xml_msg, "xml")
-    for {key, _, [value]} <- attrs, into: %{} do
-      {String.to_atom(key), value}
-    end
-  end
+  def parse_message(xml_msg), do: parse_xml(xml_msg)
 
-  defp render_message(msg = %{msgtype: "text"}),       do: render(@text,       msg)
-  defp render_message(msg = %{msgtype: "video"}),      do: render(@video,      msg)
-  defp render_message(msg = %{msgtype: "music"}),      do: render(@music,      msg)
-  defp render_message(msg = %{msgtype: "voice"}),      do: render(@voice,      msg)
-  defp render_message(msg = %{msgtype: "image"}),      do: render(@image,      msg)
-  defp render_message(msg = %{msgtype: "news"}),       do: render(@news,       msg)
-
-  defp render(file, msg) do
-    EEx.eval_file Path.join([__DIR__, "templates", file]), assigns: Enum.map(msg, fn ({key, value}) -> {key, value} end)
-  end
+  defp render_message(msg = %{msgtype: "text"}),       do: render_xml(@text,       msg)
+  defp render_message(msg = %{msgtype: "video"}),      do: render_xml(@video,      msg)
+  defp render_message(msg = %{msgtype: "music"}),      do: render_xml(@music,      msg)
+  defp render_message(msg = %{msgtype: "voice"}),      do: render_xml(@voice,      msg)
+  defp render_message(msg = %{msgtype: "image"}),      do: render_xml(@image,      msg)
+  defp render_message(msg = %{msgtype: "news"}),       do: render_xml(@news,       msg)
 end
