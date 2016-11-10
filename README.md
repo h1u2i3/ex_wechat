@@ -71,6 +71,31 @@ Then your application should work.
       defp on_text_responder(conn) do
         message = conn.assigns[:message]
         case message do
+          %{content: "我要图"} ->
+            conn |> reply_with(build_message(%{
+              msgtype: "news",
+              from: message.tousername,
+              to: message.fromusername,
+              news: [
+                %{
+                  title: "sjsjssjsj",
+                  description: "xxxxlaldsaldskl",
+                  pic_url: "http://www.sd.xinhuanet.com/news/2008-03/12/xin_403032001131626062323633.jpg",
+                  url: "http://baidu.com"
+                  },
+                %{
+                  title: "sjsjssjsj",
+                  description: "xxxxlaldsaldskl",
+                  pic_url: "http://www.sd.xinhuanet.com/news/2008-03/12/xin_403032001131626062323633.jpg",
+                  url: "http://baidu.com"
+                  },
+                %{
+                  title: "sjsjssjsj",
+                  description: "xxxxlaldsaldskl",
+                  pic_url: "http://www.sd.xinhuanet.com/news/2008-03/12/xin_403032001131626062323633.jpg",
+                  url: "http://baidu.com"
+                  }
+                ]}))
           %{content: content} ->
             reply_with(conn, build_message(%{
                 msgtype: "text",
@@ -78,7 +103,7 @@ Then your application should work.
                 to: message.fromusername,
                 content: String.reverse(content)
               }))
-          _   ->
+          _ ->
             conn
         end
       end
@@ -212,6 +237,6 @@ User example:
     end
     ```
 in this Wechat Api sdk, I don't add these modules, I let you to create your own.
- 
+
 ## License
 MIT license.
