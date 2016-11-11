@@ -119,7 +119,7 @@ defmodule ExWechat.Responder do
               text conn, "success"
             end
           _             ->
-            Logger.error "When use your own on_*_responder function, you should return a Plug.Conn"
+            #Logger.error "When use your own on_*_responder function, you should return a Plug.Conn"
             text conn, "success"
         end
       end
