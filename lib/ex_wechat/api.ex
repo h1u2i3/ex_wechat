@@ -23,11 +23,6 @@ defmodule ExWechat.Api do
   def access_token, do: Token._access_token
 
   @doc """
-    Use when access_token invalid
-  """
-  def renew_access_token, do: Token._force_get_access_token
-
-  @doc """
     Generate the AST data of method definiitons.
   """
   def compile(origin) do

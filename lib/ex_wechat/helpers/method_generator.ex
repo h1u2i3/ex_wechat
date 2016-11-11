@@ -42,7 +42,7 @@ defmodule ExWechat.Helpers.MethodGenerator do
       @doc unquote(doc)
       def unquote(function)(added_params \\ []) do
         do_request(unquote(http), unquote(path), union_params(unquote(params), added_params))
-        |> parse_response(unquote(http), unquote(path), union_params(unquote(params), added_params))
+        |> parse_response(unquote(function), added_params)
       end
     end
   end
@@ -52,7 +52,7 @@ defmodule ExWechat.Helpers.MethodGenerator do
       @doc unquote(doc)
       def unquote(function)(body, added_params \\ []) do
         do_request(unquote(http), unquote(path), body, union_params(unquote(params), added_params))
-        |> parse_response(unquote(http), unquote(path), body, union_params(unquote(params), added_params))
+        |> parse_response(unquote(function), body, added_params)
       end
     end
   end
@@ -63,11 +63,26 @@ defmodule ExWechat.Helpers.MethodGenerator do
       defp do_request(:get,  path, _   , params), do: __MODULE__.get(path, [], params: params)
       defp do_request(:post, path, body, params), do: __MODULE__.post(path, encode_post_body(body), [], params: params)
 
-      defp parse_response(response, http, path, body \\ nil, params)
-      defp parse_response({:ok, %HTTPoison.Response{body: %{errcode: 40001}}}, http, path, body, params), do: do_request(http, path, encode_post_body(body), params)
-      defp parse_response({:ok, %HTTPoison.Response{} = response}, _http, _path, _body, _params), do: response.body
-      defp parse_response({:error, %HTTPoison.Error{reason: :closed}}, http, path, body, params), do: do_request(http, path, encode_post_body(body), params)
-      defp parse_response({:error, %HTTPoison.Error{} = error}, _http, _path, _body, _params), do: %{error: error.reason}
+      defp parse_response(response, function, body \\ nil, params)
+      defp parse_response({:ok, %HTTPoison.Response{body: %{errcode: 40001}} = response}, function, nil, params) do
+        ExWechat.Token._force_get_access_token
+        apply(__MODULE__, function, [params])
+      end
+      defp parse_response({:ok, %HTTPoison.Response{body: %{errcode: 40001}}}, function, body, params) do
+        ExWechat.Token._force_get_access_token
+        apply(__MODULE__, function, [body, params])
+      end
+      defp parse_response({:ok, %HTTPoison.Response{} = response}, _function, _body, _params) do
+        IO.inspect response.body
+        response.body
+      end
+      defp parse_response({:error, %HTTPoison.Error{reason: :closed}}, function, nil, params) do
+        apply(__MODULE__, function, [params])
+      end
+      defp parse_response({:error, %HTTPoison.Error{reason: :closed}}, function, body, params) do
+        apply(__MODULE__, function, [body, params])
+      end
+      defp parse_response({:error, %HTTPoison.Error{} = error}, _function, _body, _params), do: %{error: error.reason}
 
       defp union_params(params_string, added_params), do: params_string |> do_parse_params |> Keyword.merge(added_params)
 
