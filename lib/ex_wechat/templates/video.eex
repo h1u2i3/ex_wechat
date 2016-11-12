@@ -1,11 +1,11 @@
 <xml>
-<ToUserName><![CDATA[<%= @to %>]]></ToUserName>
-<FromUserName><![CDATA[<%= @from %>]]></FromUserName>
-<CreateTime><%= DateTime.to_unix(DateTime.utc_now) %></CreateTime>
+<ToUserName><![CDATA[<%= @tousername %>]]></ToUserName>
+<FromUserName><![CDATA[<%= @fromusername %>]]></FromUserName>
+<CreateTime><%= ExWechat.Helpers.TimeHelper.current_unix_time %></CreateTime>
 <MsgType><![CDATA[<%= @msgtype %>]]></MsgType>
 <Video>
-<MediaId><![CDATA[<%= @media_id %>]]></MediaId>
-<Title><![CDATA[<%= @title %>]]></Title>
-<Description><![CDATA[<%= @description %>]]></Description>
+<MediaId><![CDATA[<%= @video.mediaid %>]]></MediaId>
+<Title><![CDATA[<%= @video.title %>]]></Title>
+<Description><![CDATA[<%= @video.description %>]]></Description>
 </Video>
 </xml>

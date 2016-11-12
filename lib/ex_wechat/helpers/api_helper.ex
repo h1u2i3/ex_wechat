@@ -17,15 +17,22 @@ defmodule ExWechat.Helpers.ApiHelper do
   defp _all_definition_files(nil), do: all_files_in_folder(@api_path)
   defp _all_definition_files(user_define_path), do: all_files_in_folder(@api_path) ++ all_files_in_folder(user_define_path)
 
-  defp all_files_in_folder(path), do: Path.wildcard(path <> "/*")
+  defp all_files_in_folder(path) do
+    Path.wildcard(path <> "/*")
+  end
 
   # get all the data of all the api definition file
   defp all_api_definition_data, do: _all_definition_data(all_definition_files)
   defp _all_definition_data(files, result \\ %{})
-  defp _all_definition_data([], result), do: result
+  defp _all_definition_data([], result) do
+    # IO.inspect result
+    result
+  end
   defp _all_definition_data([file | tail], result) do
-    _all_definition_data(tail, Map.put(result, get_key_from_path(file),
-      Map.get(result, get_key_from_path(file), []) ++ (file |> api_definition_data)))
+    key = get_key_from_path(file)
+    data = Map.put(result, key,
+              Map.get(result, key, []) ++ (file |> api_definition_data))
+    _all_definition_data(tail, data)
   end
 
   defp get_key_from_path(path), do: path |> String.split("/") |> List.last |> String.to_atom

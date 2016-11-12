@@ -1,13 +1,13 @@
 <xml>
-<ToUserName><![CDATA[<%= @to %>]]></ToUserName>
-<FromUserName><![CDATA[<%= @from %>]]></FromUserName>
-<CreateTime><%= DateTime.to_unix(DateTime.utc_now) %></CreateTime>
+<ToUserName><![CDATA[<%= @tousername %>]]></ToUserName>
+<FromUserName><![CDATA[<%= @fromusername %>]]></FromUserName>
+<CreateTime><%= ExWechat.Helpers.TimeHelper.current_unix_time %></CreateTime>
 <MsgType><![CDATA[<%= @msgtype %>]]></MsgType>
 <Music>
-<Title><![CDATA[<%= @title %>]]></Title>
-<Description><![CDATA[<%= @description %>]]></Description>
-<MusicUrl><![CDATA[<%= @music_url %>]]></MusicUrl>
-<HQMusicUrl><![CDATA[<%= @hq_music_url %>]]></HQMusicUrl>
-<ThumbMediaId><![CDATA[<%= @media_id %>]]></ThumbMediaId>
+<Title><![CDATA[<%= @music.title %>]]></Title>
+<Description><![CDATA[<%= @music.description %>]]></Description>
+<MusicUrl><![CDATA[<%= @music.musicurl %>]]></MusicUrl>
+<HQMusicUrl><![CDATA[<%= @music.hqmusicurl %>]]></HQMusicUrl>
+<ThumbMediaId><![CDATA[<%= @music.thumbmediaid %>]]></ThumbMediaId>
 </Music>
 </xml>

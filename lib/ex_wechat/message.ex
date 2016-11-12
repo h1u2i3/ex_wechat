@@ -45,10 +45,14 @@ defmodule ExWechat.Message do
   """
   def parse_message(xml_msg), do: parse_xml(xml_msg)
 
-  defp render_message(msg = %{msgtype: "text"}),       do: render_xml(@text,       msg)
-  defp render_message(msg = %{msgtype: "video"}),      do: render_xml(@video,      msg)
-  defp render_message(msg = %{msgtype: "music"}),      do: render_xml(@music,      msg)
-  defp render_message(msg = %{msgtype: "voice"}),      do: render_xml(@voice,      msg)
-  defp render_message(msg = %{msgtype: "image"}),      do: render_xml(@image,      msg)
-  defp render_message(msg = %{msgtype: "news"}),       do: render_xml(@news,       msg)
+  defp render_message(msg = %{msgtype: "text"}),       do: render_xml(template_path(@text),       msg)
+  defp render_message(msg = %{msgtype: "video"}),      do: render_xml(template_path(@video),      msg)
+  defp render_message(msg = %{msgtype: "music"}),      do: render_xml(template_path(@music),      msg)
+  defp render_message(msg = %{msgtype: "voice"}),      do: render_xml(template_path(@voice),      msg)
+  defp render_message(msg = %{msgtype: "image"}),      do: render_xml(template_path(@image),      msg)
+  defp render_message(msg = %{msgtype: "news"}),       do: render_xml(template_path(@news),       msg)
+
+  defp template_path(file) do
+    Path.join([__DIR__, "templates", file])
+  end
 end

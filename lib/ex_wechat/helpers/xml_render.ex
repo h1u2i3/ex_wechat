@@ -8,6 +8,6 @@ defmodule ExWechat.Helpers.XmlRender do
   """
   def render_xml(file, assigns)
   def render_xml(file, %{} = assigns), do: render_xml(file, Enum.map(assigns, fn ({key, value}) -> {key, value} end))
-  def render_xml(file, assigns), do: EEx.eval_file Path.join([__DIR__, "../templates", file]), assigns: assigns
+  def render_xml(file, assigns), do: EEx.eval_file file, assigns: assigns
 
 end

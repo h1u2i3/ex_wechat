@@ -41,6 +41,15 @@ defmodule ExWechat.Api do
 
       @before_compile unquote(__MODULE__)
 
+      @doc """
+        This method can be used in you own defined module.
+        You can add this method in your module and afford the needed params.
+      """
+      def get_params(param) do
+        :not_set
+      end
+      defoverridable [get_params: 1]
+
       defp process_response_body(body)
       defp process_response_body("{" <> _ = body), do: Poison.decode!(body, keys: :atoms)
       defp process_response_body(body), do: body

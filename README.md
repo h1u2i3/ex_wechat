@@ -72,35 +72,35 @@ Then your application should work.
         message = conn.assigns[:message]
         case message do
           %{content: "我要图"} ->
-            conn |> reply_with(build_message(%{
-              msgtype: "news",
-              from: message.tousername,
-              to: message.fromusername,
-              news: [
-                %{
-                  title: "sjsjssjsj",
-                  description: "xxxxlaldsaldskl",
-                  pic_url: "http://www.sd.xinhuanet.com/news/2008-03/12/xin_403032001131626062323633.jpg",
-                  url: "http://baidu.com"
-                  },
-                %{
-                  title: "sjsjssjsj",
-                  description: "xxxxlaldsaldskl",
-                  pic_url: "http://www.sd.xinhuanet.com/news/2008-03/12/xin_403032001131626062323633.jpg",
-                  url: "http://baidu.com"
-                  },
-                %{
-                  title: "sjsjssjsj",
-                  description: "xxxxlaldsaldskl",
-                  pic_url: "http://www.sd.xinhuanet.com/news/2008-03/12/xin_403032001131626062323633.jpg",
-                  url: "http://baidu.com"
-                  }
-                ]}))
+            reply_with(conn, build_message(
+              %{
+                  fromusername: message.tousername,
+                  tousername: message.fromusername,
+                  msgtype: "news",
+                  articlecount: "2",
+                  articles:
+                    %{
+                      item: [
+                        %{
+                            title: "title",
+                            description: "description",
+                            picurl: "picurl",
+                            url: "url"
+                          },
+                         %{
+                            title: "title",
+                            description: "description",
+                            picurl: "picurl",
+                            url: "url"
+                         }]
+                     }
+                }))
           %{content: content} ->
-            reply_with(conn, build_message(%{
+            reply_with(conn, build_message(
+              %{
+                fromusername: message.tousername,
+                tousername: message.fromusername,
                 msgtype: "text",
-                from: message.tousername,
-                to: message.fromusername,
                 content: String.reverse(content)
               }))
           _ ->

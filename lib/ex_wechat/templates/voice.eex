@@ -1,9 +1,9 @@
 <xml>
-<ToUserName><![CDATA[<%= @to %>]]></ToUserName>
-<FromUserName><![CDATA[<%= @from %>]]></FromUserName>
-<CreateTime><%= DateTime.to_unix(DateTime.utc_now) %></CreateTime>
+<ToUserName><![CDATA[<%= @tousername %>]]></ToUserName>
+<FromUserName><![CDATA[<%= @fromusername %>]]></FromUserName>
+<CreateTime><%= ExWechat.Helpers.TimeHelper.current_unix_time %></CreateTime>
 <MsgType><![CDATA[<%= @msgtype %>]]></MsgType>
 <Voice>
-<MediaId><![CDATA[<%= @media_id %>]]></MediaId>
+<MediaId><![CDATA[<%= @voice.mediaid %>]]></MediaId>
 </Voice>
 </xml>

@@ -44,6 +44,8 @@ defmodule ExWechat.Helpers.MethodGenerator do
         do_request(unquote(http), unquote(path), union_params(unquote(params), added_params))
         |> parse_response(unquote(function), added_params)
       end
+      defoverridable Keyword.put([], unquote(function), 0)
+      defoverridable Keyword.put([], unquote(function), 1)
     end
   end
 
@@ -54,6 +56,8 @@ defmodule ExWechat.Helpers.MethodGenerator do
         do_request(unquote(http), unquote(path), body, union_params(unquote(params), added_params))
         |> parse_response(unquote(function), body, added_params)
       end
+      defoverridable Keyword.put([], unquote(function), 1)
+      defoverridable Keyword.put([], unquote(function), 2)
     end
   end
 
@@ -73,7 +77,6 @@ defmodule ExWechat.Helpers.MethodGenerator do
         apply(__MODULE__, function, [body, params])
       end
       defp parse_response({:ok, %HTTPoison.Response{} = response}, _function, _body, _params) do
-        IO.inspect response.body
         response.body
       end
       defp parse_response({:error, %HTTPoison.Error{reason: :closed}}, function, nil, params) do
@@ -84,7 +87,7 @@ defmodule ExWechat.Helpers.MethodGenerator do
       end
       defp parse_response({:error, %HTTPoison.Error{} = error}, _function, _body, _params), do: %{error: error.reason}
 
-      defp union_params(params_string, added_params), do: params_string |> do_parse_params |> Keyword.merge(added_params)
+      defp union_params(params_string, added_params), do: params_string |> parse_params(__MODULE__) |> Keyword.merge(added_params)
 
       defp encode_post_body(body)
       defp encode_post_body(body) when is_map(body), do: Poison.encode!(body)

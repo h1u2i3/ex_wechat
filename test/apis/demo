@@ -1,0 +1,12 @@
+//---------------------
+//  access_token
+//---------------------
+
+@endpoint https://localhost
+
+# get the access_token from wechat server
+
+function: some_method
+path: /haha
+http: get
+params: grant_type=client_credential, appid, secret
