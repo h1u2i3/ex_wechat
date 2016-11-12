@@ -215,9 +215,6 @@ Media example:
         get_media media_id: media_id
       end
     end
-
-    Wechat.Media.upload_media("/Users/xiaohui/Desktop/xyz.jpg")
-    Wechat.Media.download("NgGUXaSTGizWyG5Kc0xpydHHIm2PGy68ZViXmpXnojYLV7pw-6zuZaRkTu1cnhja")
     ```
 User example:
 
