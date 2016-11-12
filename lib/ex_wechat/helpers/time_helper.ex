@@ -7,7 +7,7 @@ defmodule ExWechat.Helpers.TimeHelper do
     get unix timestamp
   """
   def current_unix_time do
-    :os.system_time(:second)
+    DateTime.to_unix(DateTime.utc_now)
   end
 
   @doc """
