@@ -11,7 +11,7 @@ Still in development, so there may be some bugs.
 
     ```elixir
     def deps do
-      [{:ex_wechat, "~> 0.1.3"}]
+      [{:ex_wechat, "~> 0.1.4"}]
     end
     ```
 
