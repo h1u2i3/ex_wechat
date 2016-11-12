@@ -1,4 +1,4 @@
-# ExWechat
+# ExWechat [![Build Status](https://travis-ci.org/h1u2i3/ex_wechat.svg?branch=master)](https://travis-ci.org/h1u2i3/ex_wechat.svg?branch=master)
 
 Elixir/Phoenix wechat api, ([documentation](http://hexdocs.pm/ex_wechat/)).
 Issues and pullrequests are welcome.
