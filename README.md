@@ -1,4 +1,4 @@
-# ExWechat [![Build Status](https://travis-ci.org/h1u2i3/ex_wechat.svg?branch=master)](https://travis-ci.org/h1u2i3/ex_wechat.svg?branch=master)
+# ExWechat [![Build Status](https://travis-ci.org/h1u2i3/ex_wechat.svg?branch=master)](https://travis-ci.org/h1u2i3/ex_wechat.svg?branch=master) [![Coverage Status](https://coveralls.io/repos/github/h1u2i3/ex_wechat/badge.svg?branch=master)](https://coveralls.io/github/h1u2i3/ex_wechat?branch=master)
 
 Elixir/Phoenix wechat api, ([documentation](http://hexdocs.pm/ex_wechat/)).
 Issues and pullrequests are welcome.
