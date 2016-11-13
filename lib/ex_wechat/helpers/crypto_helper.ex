@@ -11,6 +11,9 @@ defmodule ExWechat.Helpers.CryptoHelper do
   end
 
   defp sha1_hash(string) do
-    :crypto.hash(:sha, string) |> Base.encode16 |> String.downcase
+    :sha
+    |> :crypto.hash(string)
+    |> Base.encode16
+    |> String.downcase
   end
 end

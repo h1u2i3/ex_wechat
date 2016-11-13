@@ -1,4 +1,7 @@
 defmodule ExWechat.Helpers.ParamsParser do
+  @moduledoc """
+    Try to generate params keyword list base on params string.
+  """
   alias ExWechat.Api
 
   @doc """

@@ -16,7 +16,8 @@ defmodule ExWechat.Helpers.ParamsParserTest do
   end
 
   test "should get right value in ExWechat.Base" do
-    assert [appid: "yourappid", secret: "yourappsecret", token: "yourtoken"] = parse_params("appid, secret, token")
+    assert [appid: "yourappid", secret: "yourappsecret", token: "yourtoken"] =
+      parse_params("appid, secret, token")
   end
 
   test "should get :no_set when there is no method in api" do

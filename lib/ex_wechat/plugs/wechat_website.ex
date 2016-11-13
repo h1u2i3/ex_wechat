@@ -1,4 +1,7 @@
 defmodule ExWechat.Plugs.WechatWebsite do
+  @moduledoc """
+    Plug use for wechat site. A lot helper method.
+  """
   use ExWechat.Base
   import Plug.Conn
 
@@ -19,16 +22,24 @@ defmodule ExWechat.Plugs.WechatWebsite do
   end
 
   def request_auth_url(code) do
-    "https://api.weixin.qq.com/sns/oauth2/access_token?appid=#{appid}&secret=#{secret}" <>
+    "#{api_base_url}?appid=#{appid}&secret=#{secret}" <>
     "&code=#{code}&grant_type=authorization_code"
   end
 
   def request_code_url(scope \\ "snsapi_base") do
-    "https://open.weixin.qq.com/connect/oauth2/authorize?appid=#{appid}&redirect_uri=#{redirect_uri}" <>
+    "#{open_base_url}appid=#{appid}&redirect_uri=#{redirect_uri}" <>
     "&response_type=code&scope=#{scope}&state=123456#wechat_redirect"
   end
 
   def redirect_uri do
     URI.encode_www_form "http://wechat.one-picture.com"
+  end
+
+  defp api_base_url do
+    "https://api.weixin.qq.com/sns/oauth2/access_token"
+  end
+
+  defp open_base_url do
+    "https://open.weixin.qq.com/connect/oauth2/authorize?appid"
   end
 end

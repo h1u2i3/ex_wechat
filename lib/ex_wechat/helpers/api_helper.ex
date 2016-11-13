@@ -8,14 +8,27 @@ defmodule ExWechat.Helpers.ApiHelper do
   @api_path Path.join(__DIR__, "../apis")
 
   def process_api_definition_data(needed)
-  def process_api_definition_data(nil),     do: process_api_definition_data(:all)
-  def process_api_definition_data(:all),    do: all_api_definition_data
-  def process_api_definition_data(needed),  do: Map.take(all_api_definition_data, needed)
+  def process_api_definition_data(nil) do
+    process_api_definition_data(:all)
+  end
+  def process_api_definition_data(:all) do
+    all_api_definition_data
+  end
+  def process_api_definition_data(needed) do
+    Map.take(all_api_definition_data, needed)
+  end
 
-  defp all_definition_files, do: _all_definition_files(api_definition_files)
+  defp all_definition_files do
+    _all_definition_files(api_definition_files)
+  end
+
   defp _all_definition_files(user_define_path)
-  defp _all_definition_files(nil), do: all_files_in_folder(@api_path)
-  defp _all_definition_files(user_define_path), do: all_files_in_folder(@api_path) ++ all_files_in_folder(user_define_path)
+  defp _all_definition_files(nil) do
+    all_files_in_folder(@api_path)
+  end
+  defp _all_definition_files(user_define_path) do
+    all_files_in_folder(@api_path) ++ all_files_in_folder(user_define_path)
+  end
 
   defp all_files_in_folder(path) do
     Path.wildcard(path <> "/*")
@@ -35,10 +48,16 @@ defmodule ExWechat.Helpers.ApiHelper do
     _all_definition_data(tail, data)
   end
 
-  defp get_key_from_path(path), do: path |> String.split("/") |> List.last |> String.to_atom
+  defp get_key_from_path(path) do
+    path
+    |> String.split("/")
+    |> List.last
+    |> String.to_atom
+  end
 
   defp api_definition_data(path) do
-    File.stream!(path, [], :line)
+    path
+    |> File.stream!([], :line)
     |> Stream.map(&String.trim/1)
     |> Stream.reject(&(String.length(&1) == 0))
     |> Enum.to_list

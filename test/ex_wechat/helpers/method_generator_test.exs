@@ -24,7 +24,8 @@ defmodule ExWechat.Helpers.MethodGeneratorTest do
   end
 
   test "shoud add method that actually work" do
-    expect_response(@endpoint, "/haha", [grant_type: "client_credential", appid: appid, secret: secret], @data)
+    expect_response("#{@endpoint}/haha",
+      [grant_type: "client_credential", appid: appid, secret: secret], @data)
 
     result = ApiDemo.some_method
 

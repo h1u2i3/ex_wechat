@@ -13,6 +13,11 @@ defmodule ExWechat.Mixfile do
       description: description(),
       package: package(),
       deps: deps(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: ["coveralls": :test,
+                          "coveralls.detail": :test,
+                          "coveralls.post": :test,
+                          "coveralls.html": :test],
       docs: [extras: ["README.md"], main: "readme",
        source_ref: "v#{@version}",
        source_url: "https://github.com/h1u2i3/ex_wechat"]
@@ -48,7 +53,11 @@ defmodule ExWechat.Mixfile do
       {:poison, "~> 2.0"},
       {:plug, "~> 1.2.2"},
       {:floki, "~> 0.11.0"},
-      {:meck, "~> 0.8.2", only: :test}
+      {:meck, "~> 0.8.2", only: :test},
+      {:excoveralls, "~> 0.5", only: :test},
+      {:dogma, "~> 0.1", only: :dev},
+      {:mix_test_watch, "~> 0.2", only: :dev},
+      {:benchfella, "~> 0.3", only: :dev},
     ]
   end
 

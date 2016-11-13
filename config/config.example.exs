@@ -33,7 +33,7 @@ config :ex_wechat, ExWechat,
   appid: System.get_env("WECHAT_APPID") || "your appid",
   secret: System.get_env("WECHAT_APPSECRET") || "your app secret",
   token: System.get_env("WECHAT_TOKEN") || "yout token",
-  access_token_cache: "/tmp/access_token"
+  access_token_cache: "/tmp/access_token",
   api_definition_files: "your_api_definition_folder"
 
 # add this config to prevent the accidental error when make a request.

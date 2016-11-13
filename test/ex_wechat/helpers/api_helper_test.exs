@@ -30,9 +30,12 @@ defmodule ExWechat.Helpers.ApiHelperTest do
   end
 
   defp get_file_keys(path) do
-    Path.wildcard(path <> "/*")
+    grab_string = path <> "/*"
+    grab_string
+    |> Path.wildcard
     |> Enum.map(fn(file) ->
-         String.split(file, "/") |> List.last |> String.to_atom
+         key_string = String.split(file, "/")
+         key_string |> List.last |> String.to_atom
        end)
   end
 end

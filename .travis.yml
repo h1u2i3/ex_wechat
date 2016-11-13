@@ -7,4 +7,7 @@ elixir:
 otp_release:
   - 19.0
 sudo: false
-script: mix test
+env:
+  - MIX_ENV=test
+
+script: mix coveralls.travis

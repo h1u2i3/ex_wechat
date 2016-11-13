@@ -198,7 +198,8 @@ defmodule ExWechat.MessageTest do
   for message_kind <- [:text, :voice, :video, :image, :news, :music] do
     test "should get the right #{message_kind} xml message" do
       expect(ExWechat.Helpers.TimeHelper, :current_unix_time, 0, 1478942475)
-      xml_msg = apply(__MODULE__, unquote(message_kind), [])
+      xml_msg = __MODULE__
+                |> apply(unquote(message_kind), [])
                 |> Message.build_message
 
       assert_equal_string xml_msg,
@@ -206,7 +207,8 @@ defmodule ExWechat.MessageTest do
     end
 
     test "should get the right #{message_kind} map value" do
-      msg_map = apply(__MODULE__, unquote("#{message_kind}_xml" |> String.to_atom), [])
+      msg_map = __MODULE__
+                |> apply(unquote(String.to_atom("#{message_kind}_xml")), [])
                 |> Message.parse_message
                 |> Map.delete(:createtime)
       assert msg_map ==

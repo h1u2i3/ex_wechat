@@ -2,16 +2,21 @@ defmodule ExWechat.Responder do
   @moduledoc """
     `ExWechat.Responder` is to make respond to wechat server.
     It can be used with server verify and other things.
-    This module will automaticlly generate needed methods for your Phoenix controller.
+    This module will automaticlly generate needed
+    methods for your Phoenix controller.
 
     For simple use:
 
         defmodule Demo.WechatController do
-          use ExWechat.Responder    # interact with user, return message to user
-          import ExWechat.Message   # function that parse and render wechat message
+          # interact with user, return message to user
+          use ExWechat.Responder
+
+           # function that parse and render wechat message
+          import ExWechat.Message
         end
 
-    More complex example(when receives text message from user, it will return a text message with reverse text):
+    More complex example(when receives text message from user,
+    it will return a text message with reverse text):
 
         defmodule Wechat.WechatController do
           require Logger
@@ -48,7 +53,8 @@ defmodule ExWechat.Responder do
         defp on_link_responder(conn),         do: conn
         defp on_event_responder(conn),        do: conn
 
-    these methods must return a `Plug.Conn`, just choose what you need.
+    these methods must return a `Plug.Conn`,
+    just choose what you need.
   """
 
   use ExWechat.Base # import token from ExWechat.Base
@@ -57,7 +63,8 @@ defmodule ExWechat.Responder do
   @doc """
     check the signature with wechat server.
   """
-  def wechat_verify_responder(%{"signature" => signature, "timestamp" => timestamp,
+  def wechat_verify_responder(%{"signature" => signature,
+          "timestamp" => timestamp,
           "nonce" => nonce}) do
     check_signature(signature, timestamp, nonce)
   end
@@ -71,11 +78,11 @@ defmodule ExWechat.Responder do
 
   defmacro __using__(_opts) do
     quote do
-      if !Code.ensure_loaded?(Plug.Conn) do
+      unless Code.ensure_loaded?(Plug.Conn) do
         import Plug.Conn
       end
 
-      if !Code.ensure_loaded?(Phoenix.Controller) do
+      unless Code.ensure_loaded?(Phoenix.Controller) do
         import Phoenix.Controller
       end
 
@@ -119,7 +126,6 @@ defmodule ExWechat.Responder do
               text conn, "success"
             end
           _             ->
-            #Logger.error "When use your own on_*_responder function, you should return a Plug.Conn"
             text conn, "success"
         end
       end

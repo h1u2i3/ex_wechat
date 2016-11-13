@@ -4,8 +4,12 @@ defmodule ExWechat.Api do
     You also can `use` it to import all the api methods.
 
         use ExWechat.Api
-        @api [:access_token]  # just import the method in `access_token` definition
-        @api :all             # import all the method
+
+        # just import the method in `access_token` definition
+        @api [:access_token]
+
+        # import all the method
+        @api :all
 
     If you didn't add the `@api` attribute, it will import all the api methods.
   """
@@ -51,7 +55,9 @@ defmodule ExWechat.Api do
       defoverridable [get_params: 1]
 
       defp process_response_body(body)
-      defp process_response_body("{" <> _ = body), do: Poison.decode!(body, keys: :atoms)
+      defp process_response_body("{" <> _ = body) do
+        Poison.decode!(body, keys: :atoms)
+      end
       defp process_response_body(body), do: body
 
       defp process_url(url) do

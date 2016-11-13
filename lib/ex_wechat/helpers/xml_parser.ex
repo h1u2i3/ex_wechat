@@ -11,7 +11,8 @@ defmodule ExWechat.Helpers.XmlParser do
   def parse_xml([], result), do: result
 
   def parse_xml(xml, result) when is_binary(xml) do
-    Floki.find(xml, "xml")
+    xml
+    |> Floki.find("xml")
     |> parse_xml(result)
   end
 
@@ -19,18 +20,21 @@ defmodule ExWechat.Helpers.XmlParser do
     parse_xml(attrs, result)
   end
 
-  def parse_xml([{key, _, [value]} | tail], result) when is_binary(value) do
+  def parse_xml([{key, _, [value]} | tail], result)
+                when is_binary(value) do
     result = Map.put(result, String.to_atom(key), value)
     parse_xml(tail, result)
   end
 
-  def parse_xml([{node, [], [{_, [], _} | _tail] = attrs}], result) when is_list(attrs) do
-    Map.put(result, String.to_atom(node), parse_xml(attrs, %{}))
+  def parse_xml([{node, [], [{_, [], _} | _tail] = attrs}], result) do
+    key = String.to_atom(node)
+    value = parse_xml(attrs, %{})
+    Map.put(result, key, value)
   end
 
-  def parse_xml([{node, [], _attrs} | _tail] = attrs, result) when is_list(attrs) do
+  def parse_xml([{node, [], _attrs} | _tail] = attrs, result) do
     key = String.to_atom(node)
-    value = Enum.map(attrs, fn(attr)-> parse_xml(attr, %{}) end)
+    value = Enum.map(attrs, fn(attr) -> parse_xml(attr, %{}) end)
     Map.put(result, key, value)
   end
 

@@ -2,7 +2,8 @@ defmodule ExWechat do
   @moduledoc ~S"""
     An elixir Wechat api. Functional and clear.
 
-    This sdk will read api definition from definition files(`lib/ex_wechat/apis`), then it will automaticlly add all the function you define
+    This sdk will read api definition from definition files.
+    then it will automaticlly add all the function you define
     in these definition files.
 
     All the methods in definition file are like this:
@@ -21,7 +22,8 @@ defmodule ExWechat do
         params: the params needed for make the http request
 
     You also can add your own api definition files.
-    Set the api definition folder in `config.exs`, then you can use the api you define.
+    Set the api definition folder in `config.exs`,
+    then you can use the api you define.
     For example:
 
         # config/config.exs
@@ -77,7 +79,8 @@ defmodule ExWechat do
 
         @api [:menu]
 
-    When use a `post` method, it is you responsibility to offer the right data(Elixir Map), when post data,
+    When use a `post` method, it is you responsibility to offer
+    the right data(Elixir Map), when post data,
     it will convert to json by the api.
   """
 
