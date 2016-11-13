@@ -13,18 +13,16 @@ defmodule ExWechat.Api do
 
     If you didn't add the `@api` attribute, it will import all the api methods.
   """
-
   use ExWechat.Base
-
   import ExWechat.Helpers.ApiHelper
   import ExWechat.Helpers.MethodGenerator
 
-  alias ExWechat.Token
-
   @doc """
-    Return the access_token
+    For params
   """
-  def access_token, do: Token._access_token
+  def get_params(key, module) do
+    apply module, :get_params, [key]
+  end
 
   @doc """
     Generate the AST data of method definiitons.
@@ -37,10 +35,23 @@ defmodule ExWechat.Api do
     end
   end
 
-  defmacro __using__(_opts) do
+  defmacro __using__(which) do
+    which = if Enum.empty?(which), do: ExWechat.Api, else: which[:base]
+    use_ast_data =
+       quote do
+         defdelegate appid(), to: unquote(which)
+         defdelegate secret(), to: unquote(which)
+         defdelegate token(), to: unquote(which)
+         defdelegate access_token_cache(), to: unquote(which)
+         defdelegate api_definition_files(), to: ExWechat.Api
+       end
+
     quote do
       use HTTPoison.Base
 
+      unquote(use_ast_data)
+
+      alias ExWechat.Token
       import ExWechat.Helpers.ParamsParser
 
       @before_compile unquote(__MODULE__)
@@ -52,6 +63,18 @@ defmodule ExWechat.Api do
       def get_params(param) do
         :not_set
       end
+
+      @doc """
+        Return the access_token
+      """
+      def access_token, do: Token._access_token(__MODULE__)
+
+      @doc """
+        When error code 400001, renew access_token
+      """
+      def renew_access_token, do: Token._force_get_access_token(__MODULE__)
+
+
       defoverridable [get_params: 1]
 
       defp process_response_body(body)

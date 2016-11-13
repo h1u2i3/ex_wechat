@@ -2,7 +2,6 @@ defmodule ExWechat.Helpers.ApiHelper do
   @moduledoc """
     praser data from api description file.
   """
-  use ExWechat.Base
   import ExWechat.Helpers.ApiParser
 
   @api_path Path.join(__DIR__, "../apis")
@@ -15,11 +14,14 @@ defmodule ExWechat.Helpers.ApiHelper do
     all_api_definition_data
   end
   def process_api_definition_data(needed) do
-    Map.take(all_api_definition_data, needed)
+    all_api_definition_data
+    |> Map.take(needed ++ [:access_token])
   end
 
-  defp all_definition_files do
-    _all_definition_files(api_definition_files)
+  def all_definition_files(module) do
+    module
+    |> apply(:api_definition_files, [])
+    |> _all_definition_files
   end
 
   defp _all_definition_files(user_define_path)
@@ -35,10 +37,14 @@ defmodule ExWechat.Helpers.ApiHelper do
   end
 
   # get all the data of all the api definition file
-  defp all_api_definition_data, do: _all_definition_data(all_definition_files)
+  defp all_api_definition_data do
+    ExWechat.Api
+    |> all_definition_files
+    |> _all_definition_data
+  end
+
   defp _all_definition_data(files, result \\ %{})
   defp _all_definition_data([], result) do
-    # IO.inspect result
     result
   end
   defp _all_definition_data([file | tail], result) do

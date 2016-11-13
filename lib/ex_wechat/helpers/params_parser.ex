@@ -23,9 +23,9 @@ defmodule ExWechat.Helpers.ParamsParser do
         {String.to_atom(key), value}
       false ->
         key = String.to_atom(param)
-        case Keyword.has_key?(Api.__info__(:functions), key) do
-          true   -> {key, apply(Api, key, [])}
-          false  -> {key, apply(module, :get_params, [key])}
+        case Keyword.has_key?(module.__info__(:functions), key) do
+          true   -> {key, apply(module, key, [])}
+          false  -> {key, apply(Api, :get_params, [key, module])}
         end
     end
   end

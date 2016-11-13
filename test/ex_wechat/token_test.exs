@@ -1,9 +1,11 @@
-defmodule ExWechat.TokenTest do
+defmodule ExWechat.DemoTest do
   use ExUnit.Case
   use ExWechat.Base
   use ExWechat.TestHelper.Http
 
-  alias ExWechat.Token
+  defmodule Demo do
+    use ExWechat.Api
+  end
 
   @endpoint "https://api.weixin.qq.com/cgi-bin"
   @data %{access_token: "token,", expire_in: "7200"}
@@ -15,14 +17,14 @@ defmodule ExWechat.TokenTest do
   end
 
   test "should get the right endpoint" do
-    assert Token._token_url == "https://api.weixin.qq.com/cgi-bin"
+    assert Demo._token_url == "https://api.weixin.qq.com/cgi-bin"
   end
 
   test "expect get the data from server" do
     expect_response("#{@endpoint}/token",
       [grant_type: "client_credential", appid: appid, secret: secret], @data)
 
-    assert @data == Token.get_access_token
+    assert @data == Demo.get_access_token
   end
 
   test "get access_token should write to cache" do
@@ -30,7 +32,7 @@ defmodule ExWechat.TokenTest do
     expect_response("#{@endpoint}/token",
       [grant_type: "client_credential", appid: appid, secret: secret], @data)
 
-    access_token = Token._access_token
+    access_token = Demo.access_token
 
     assert File.exists?(access_token_cache)
     assert access_token == String.trim(File.read!(access_token_cache))
@@ -42,7 +44,7 @@ defmodule ExWechat.TokenTest do
       [grant_type: "client_credential", appid: appid, secret: secret],
       %{access_token: "bad_token", expire_in: "7200"})
 
-    access_token = Token._access_token
+    access_token = Demo.access_token
 
     refute access_token == "bad_token"
     assert access_token == "token"
@@ -54,7 +56,7 @@ defmodule ExWechat.TokenTest do
       [grant_type: "client_credential", appid: appid, secret: secret],
       %{access_token: "new_token", expire_in: "7200"})
 
-    access_token = Token._force_get_access_token
+    access_token = Demo.renew_access_token
 
     assert access_token == "new_token"
   end
@@ -70,7 +72,7 @@ defmodule ExWechat.TokenTest do
       [grant_type: "client_credential", appid: appid, secret: secret],
       %{access_token: "new_token", expire_in: "7200"})
 
-    access_token = Token._access_token
+    access_token = Demo.access_token
 
     assert access_token == "new_token"
   end

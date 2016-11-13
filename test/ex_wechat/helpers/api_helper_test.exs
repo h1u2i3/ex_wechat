@@ -1,6 +1,6 @@
 defmodule ExWechat.Helpers.ApiHelperTest do
   use ExUnit.Case, async: true
-
+  use ExWechat.Base
   import ExWechat.Helpers.ApiHelper
 
   test "should get all the api data from the api definition file" do

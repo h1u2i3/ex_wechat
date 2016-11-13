@@ -25,16 +25,25 @@ defmodule ExWechat.Base do
           access_token_cache: "/tmp/access_token"
           ...
   """
-
-  defmacro __using__(_opts) do
-    for key <- [:appid, :secret, :token, :access_token_cache,
-                :api_definition_files] do
-      quote do
-        @doc false
-        def unquote(key)() do
-          unquote(Application.get_env(:ex_wechat, ExWechat)[key])
+  
+  defmacro __using__(opts) do
+    config_methods =
+      for key <- [:appid, :secret, :token, :access_token_cache,
+                  :api_definition_files] do
+        configs = case opts do
+                    []  -> Application.get_env(:ex_wechat, ExWechat)
+                    _   -> opts
+                  end
+        quote do
+          @doc false
+          def unquote(key)() do
+            unquote(configs[key])
+          end
         end
       end
+
+    quote do
+      unquote(config_methods)
     end
   end
 end

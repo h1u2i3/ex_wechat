@@ -12,49 +12,50 @@ defmodule ExWechat.Token do
           access_token_cache: "/tmp/access_token"
 
   """
-
-  use ExWechat.Api
-  use ExWechat.Base
   import ExWechat.Helpers.TimeHelper
-
-  @api [:access_token] # only need the access_token api definition
 
   @doc """
     Get the access_token.
   """
-  def _access_token do
-    case File.stat(access_token_cache) do
+  def _access_token(module) do
+    cache = token_cache(module)
+    case File.stat(cache) do
       {:ok, %File.Stat{mtime: mtime}} ->
         access_token_generate_time = erl_datetime_to_unix_time(mtime)
         if access_token_valid?(access_token_generate_time) do
-          read_access_token_from_cache
+          read_access_token_from_cache(module)
         else
-          fetch_access_token_and_write_cache
+          fetch_access_token_and_write_cache(module)
         end
       {:error, _} ->
-        fetch_access_token_and_write_cache
+        fetch_access_token_and_write_cache(module)
     end
   end
 
   @doc """
     Force to get the new access_token
   """
-  def _force_get_access_token do
-    fetch_access_token_and_write_cache
+  def _force_get_access_token(module) do
+    fetch_access_token_and_write_cache(module)
   end
 
-  defp read_access_token_from_cache do
-    {:ok, access_token} = File.read(access_token_cache)
+  defp read_access_token_from_cache(module) do
+    {:ok, access_token} = File.read(token_cache(module))
     access_token
   end
 
-  defp fetch_access_token_and_write_cache do
-    token = get_access_token.access_token
-    File.write access_token_cache, token
+  defp fetch_access_token_and_write_cache(module) do
+    response = apply(module, :get_access_token, [])
+    token = response.access_token
+    File.write token_cache(module), token
     token
   end
 
   defp access_token_valid?(timestamp) do
     current_unix_time - timestamp < 7190
+  end
+
+  defp token_cache(module) do
+    apply(module, :access_token_cache, [])
   end
 end

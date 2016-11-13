@@ -112,14 +112,14 @@ defmodule ExWechat.Helpers.MethodGenerator do
       defp parse_response({:ok,
         %HTTPoison.Response{body: %{errcode: 40001}} = response},
         function, nil, params) do
-        ExWechat.Token._force_get_access_token
+        __MODULE__.renew_access_token
         apply(__MODULE__, function, [params])
       end
 
       defp parse_response({:ok,
         %HTTPoison.Response{body: %{errcode: 40001}}},
         function, body, params) do
-        ExWechat.Token._force_get_access_token
+        __MODULE__.renew_access_token
         apply(__MODULE__, function, [body, params])
       end
 
