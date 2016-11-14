@@ -31,13 +31,13 @@ defmodule ExWechat.Base do
       for key <- [:appid, :secret, :token, :access_token_cache,
                   :api_definition_files] do
         configs = case opts do
-                    []  -> Application.get_env(:ex_wechat, ExWechat)
+                    []  -> Application.get_env(:ex_wechat, ExWechat) || []
                     _   -> opts
                   end
         quote do
           @doc false
           def unquote(key)() do
-            unquote(configs[key])
+            unquote(Keyword.get(configs, key, nil))
           end
         end
       end
