@@ -3,11 +3,16 @@ defmodule ExWechat.Helpers.MethodGenerator do
     Generate AST method data base on api definition data.
   """
 
+  @doc """
+    Generate methods base on the api defintion data.
+  """
   def generate_methods(origin) do
-    origin
-    |> to_keyword_list
-    |> do_generate_methods
+    origin |> do_generate_methods
   end
+
+
+  #  Generate the AST data fro the methods
+  #  [access_token: [get_access_token: [doc: _, endpoint: _ ...]], menu: [ ... ]]
 
   defp do_generate_methods(origin, result \\ [])
 
@@ -21,24 +26,35 @@ defmodule ExWechat.Helpers.MethodGenerator do
     do_generate_methods(tail, result ++ define_api_method(value))
   end
 
-  defp to_keyword_list(map) do
-    Enum.map(map, fn({key, value}) -> {key, value} end)
+
+  #  Generate the main api methods.
+
+  defp define_api_method(list) do
+    define_endpoint_method(list) ++ define_request_method(list)
   end
 
-  defp define_api_method(map) do
-    define_endpoint_method(map) ++ define_request_method(map)
-  end
+
+  #  Generate the url function name:
+  #  from /path to _path_url
 
   defp endpoint_method_name(path) do
     String.to_atom "#{String.replace(path, "/", "_")}_url"
   end
 
+
+
+  #  Define the method to be used in the HTTPoison.process_url.
+  #  We should get the endpoint url base on the path name
+  #  eg: _menu_get_url => get the endpoint the funciton needed.
+
   defp define_endpoint_method(data, result \\ [])
 
   defp define_endpoint_method([], result), do: result
 
-  defp define_endpoint_method([map | tail], result) do
-    %{path: path, endpoint: endpoint} = map
+  defp define_endpoint_method([ {_key, list} | tail], result) do
+    path = list[:path]
+    endpoint = list[:endpoint]
+
     ast_data = quote do
       @doc false
       def unquote(endpoint_method_name(path))() do
@@ -47,6 +63,7 @@ defmodule ExWechat.Helpers.MethodGenerator do
       defoverridable Keyword.put([],
                       unquote(endpoint_method_name(path)), 0)
     end
+
     define_endpoint_method(tail, result ++ [ast_data])
   end
 
@@ -54,16 +71,17 @@ defmodule ExWechat.Helpers.MethodGenerator do
 
   defp define_request_method([], result), do: result
 
-  defp define_request_method([map | tail], result) do
-    %{function: function, path: path,
-      params: params, doc: doc, http: http} = map
+  defp define_request_method([ {key, list} | tail], result) do
+    [doc: doc, endpoint: _, path: path,
+      http: http, params: params] = list
 
     ast_data = case http do
       :get  ->
-        define_get_request_method(function, path, doc, params)
+        define_get_request_method(key, path, doc, params)
       :post ->
-        define_post_request_method(function, path, doc, params)
+        define_post_request_method(key, path, doc, params)
     end
+
     define_request_method(tail, result ++ [ast_data])
   end
 
@@ -94,6 +112,15 @@ defmodule ExWechat.Helpers.MethodGenerator do
       defoverridable Keyword.put([], unquote(function), 2)
     end
   end
+
+
+
+  #  All the helper method that will be used above.
+  #
+  #    - do_request
+  #    - parse_response
+  #    - encode_post_body
+  #    - union_params
 
   defp define_helper_method do
     quote do
@@ -139,20 +166,22 @@ defmodule ExWechat.Helpers.MethodGenerator do
       end
 
       defp parse_response({:error,
-        %HTTPoison.Error{} = error}, _, _, _), do: %{error: error.reason}
+        %HTTPoison.Error{} = error}, _, _, _) do
+          %{error: error.reason}
+      end
 
-      defp union_params(params_string, added_params) do
-        params_string
+      defp union_params(params, added_params) do
+        params
         |> parse_params(__MODULE__)
         |> Keyword.merge(added_params)
       end
 
       defp encode_post_body(body)
+      defp encode_post_body(nil), do: nil
+      defp encode_post_body(body) when is_binary(body), do: body
       defp encode_post_body(body) when is_map(body) do
         Poison.encode!(body)
       end
-      defp encode_post_body(body) when is_binary(body), do: body
-      defp encode_post_body(nil), do: nil
     end
   end
 end

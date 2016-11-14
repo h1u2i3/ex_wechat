@@ -1,7 +1,8 @@
 defmodule Mix.Tasks.Wechat do
   use Mix.Task
 
-  def run(_args) do
+  def run(args) do
+    IO.inspect args
     print_help_message
   end
 
@@ -22,6 +23,7 @@ defmodule Mix.Tasks.Wechat do
       end
 
       unquote(print)
+      unquote(module)
     end
   end
 
@@ -30,6 +32,19 @@ defmodule Mix.Tasks.Wechat do
       use Mix.Task
 
       unquote(print)
+      unquote(module)
+    end
+  end
+
+  defp module do
+    quote do
+      defmacro module_get(string) do
+        atom_list =
+          string
+          |> String.split(".")
+          |> Enum.map(&String.to_atom/1)
+        {:__aliases__, [alias: false], atom_list}
+      end
     end
   end
 

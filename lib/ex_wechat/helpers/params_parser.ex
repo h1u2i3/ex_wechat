@@ -8,25 +8,23 @@ defmodule ExWechat.Helpers.ParamsParser do
     Parse params string to params keyword list.
   """
   def parse_params(params, module \\ Api)
-  def parse_params("", _module), do: []
-  def parse_params(params, module) when is_binary(params) do
+  def parse_params([], _module), do: []
+  def parse_params(params, module) do
     params
-    |> String.split(", ")
     |> Enum.sort
-    |> Enum.map(&parse_param(&1, module))
+    |> Enum.map(fn({key, value}) ->
+         if value do
+           {key, value}
+         else
+           {key, get_param(key, module)}
+         end
+       end)
   end
 
-  defp parse_param(param, module) do
-    case String.contains?(param, "=") do
-      true  ->
-        [key, value] = String.split(param, "=")
-        {String.to_atom(key), value}
-      false ->
-        key = String.to_atom(param)
-        case Keyword.has_key?(module.__info__(:functions), key) do
-          true   -> {key, apply(module, key, [])}
-          false  -> {key, apply(Api, :get_params, [key, module])}
-        end
+  defp get_param(key, module) do
+    case Keyword.has_key?(module.__info__(:functions), key) do
+      true   -> apply(module, key, [])
+      false  -> apply(Api, :get_params, [key, module])
     end
   end
 end
