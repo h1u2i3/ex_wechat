@@ -8,9 +8,12 @@ defmodule Mix.Tasks.Wechat.User do
   defp print_help_message do
     Mix.shell.info """
     # Wechat User functions:
-    mix wechat.user           # Help message
-    mix wechat.user.list      # Get user list
-    mix wechat.user.info      # Get the infomation about user
+
+    mix wechat.user           Help message
+    mix wechat.user.list      Get user list
+      --api ExWechat            use --api to use the specific Api (muti account), default is ExWechat
+    mix wechat.user.info      Get the infomation about user
+      --api ExWechat            use --api to use the specific Api (muti account), default is ExWechat
     """
   end
 
@@ -18,15 +21,20 @@ defmodule Mix.Tasks.Wechat.User do
     use Mix.Tasks.Wechat, :http
 
     def run_http(args) do
-      case args do
+      options = parse_args(args)
+      api = options[:api] || "ExWechat"
+      module = api |> module_get
+      options = Keyword.delete(options, :api)
+
+      case options do
         []  ->
           Mix.shell.error "Please call with an openid. " <>
-            "eg: mix wechat.user.info oN6zawh-nQLvAbeN11KkKCZZVbKM"
+            "eg: mix wechat.user.info --api Manager oN6zawh-nQLvAbeN11KkKCZZVbKM"
         [id | []] ->
-          pp ExWechat.get_user_info(openid: id)
+          pp apply(module, :get_user_info, [openid: id])
         _   ->
           pp Enum.map(args, fn(id)->
-               ExWechat.get_user_info(openid: id)
+               apply(module, :get_user_info, [openid: id])
              end)
       end
     end
@@ -35,8 +43,12 @@ defmodule Mix.Tasks.Wechat.User do
   defmodule List do
     use Mix.Tasks.Wechat, :http
 
-    def run_http(_) do
-      pp ExWechat.get_user_list
+    def run_http(args) do
+      options = parse_args(args)
+      api = options[:api] || "ExWechat"
+      module = api |> module_get
+
+      pp apply(module, :get_user_list, [])
     end
   end
 end
