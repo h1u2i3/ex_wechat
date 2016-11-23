@@ -37,6 +37,7 @@ defmodule ExWechat.Api do
 
   defmacro __using__(which) do
     which = if Enum.empty?(which), do: ExWechat.Api, else: which[:base]
+
     use_ast_data =
        quote do
          defdelegate appid(), to: unquote(which)

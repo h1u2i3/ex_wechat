@@ -9,7 +9,7 @@ defmodule ExWechat.Plugs.WechatMessageParser do
   """
 
   import Plug.Conn
-  import ExWechat.Message
+  import ExWechat.Message.XmlMessage
 
   def init(options) do
     options

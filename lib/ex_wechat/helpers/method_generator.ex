@@ -170,6 +170,10 @@ defmodule ExWechat.Helpers.MethodGenerator do
           %{error: error.reason}
       end
 
+      defp union_params(params, added_params)
+      defp union_params(nil, nil), do: []
+      defp union_params(nil, added_params), do: added_params
+      defp union_params(params, nil), do: params
       defp union_params(params, added_params) do
         params
         |> parse_params(__MODULE__)

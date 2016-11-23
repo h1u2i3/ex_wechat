@@ -1,71 +1,56 @@
 defmodule ExWechat.Message do
   @moduledoc """
-    Parse wechat message from `Plug.Conn` && Generate wechat message from `Map`.
+  Wechat Message.
   """
-  import ExWechat.Helpers.XmlParser
-  import ExWechat.Helpers.XmlRender
 
-  @text         "text.eex"
-  @voice        "voice.eex"
-  @video        "video.eex"
-  @image        "image.eex"
-  @news         "news.eex"
-  @music        "music.eex"
+  alias ExWechat.Message.XmlMessage
+  alias ExWechat.Message.JsonMessage
 
   @doc """
-    Generate message for wechat.
-    You can find what you need for generate message from the template file.
+  Send custom message to a special openid.
+  If user don't react with your wechat in 24 hours, you cann't send this
+  kind of message to user.
+  message_params:
 
-        build_message(%{
-          from: "userid",
-          to: "server_app_id",
-          msgtype: "text",
-          content: "Hello World!"
-        })
-
-    will generate:
-
-        <xml>
-        <ToUserName><![CDATA[userid]]></ToUserName>
-        <FromUserName><![CDATA[server_app_id]]></FromUserName>
-        <CreateTime>1478449547</CreateTime>
-        <MsgType><![CDATA[text]]></MsgType>
-        <Content><![CDATA[Hello World!]]></Content>
-        </xml>
-
-    This method will automaticlly check the `msgtype`,
-    and choose the right template to render message.
+      %{ voice: %{media_id: "id"} }
+      %{ text: %{content: "content"} }
+      %{ image: %{media_id: "id"} }
   """
-  def build_message(msg), do: render_message(msg)
+  @spec send_custom(Module.t, String.t, Map.t) :: Map.t | Tuple.t
+  def send_custom(module \\ ExWechat, openid,  message_params) do
+    message_params
+    |> JsonMessage.build_custom(openid)
+    |> module.send_custom_message
+  end
 
   @doc """
-    Get xml data from `Plug.Conn` ant then parse xml wechat message to Map.
-    You can get this message by use:
-
-        conn.assigns[:message]
+  Passive Message, react to user.
+  Just need to generate the xml message, don't need to send to wechat server.
   """
-  def parse_message(xml_msg), do: parse_xml(xml_msg)
-
-  defp render_message(msg = %{msgtype: "text"}) do
-    render_xml(template_path(@text),  msg)
-  end
-  defp render_message(msg = %{msgtype: "video"}) do
-    render_xml(template_path(@video), msg)
-  end
-  defp render_message(msg = %{msgtype: "music"}) do
-    render_xml(template_path(@music), msg)
-  end
-  defp render_message(msg = %{msgtype: "voice"}) do
-    render_xml(template_path(@voice), msg)
-  end
-  defp render_message(msg = %{msgtype: "image"}) do
-    render_xml(template_path(@image), msg)
-  end
-  defp render_message(msg = %{msgtype: "news"}) do
-    render_xml(template_path(@news),  msg)
+  def generate_passive(origin_message, message_params) do
+    message_params
+    |> Enum.to_list
+    |> Keyword.put(:tousername, origin_message.fromusername)
+    |> Keyword.put(:fromusername, origin_message.tousername)
+    |> XmlMessage.build
   end
 
-  defp template_path(file) do
-    Path.join([__DIR__, "templates", file])
+  @doc """
+  Template Message, should send to wechat server.
+  """
+  def send_template(module \\ ExWechat, openid, message_params) do
+    message_params
+    |> JsonMessage.build_template(openid)
+    |> module.send_template_message
+  end
+
+  @doc """
+  Mass Message.
+  Mass message should send to wechat server.
+  """
+  def send_mass(module \\ ExWechat, target, message_params) do
+    message_params
+    |> JsonMessage.build_mass(target)
+    |> module.send_mass_message
   end
 end

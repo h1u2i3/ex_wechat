@@ -8,19 +8,6 @@ defmodule ExWechat do
 
     All the methods in definition file are like this:
 
-        //---------------------
-        //  access_token
-        //---------------------
-
-        @endpoint https://api.weixin.qq.com/cgi-bin
-
-        # this is the doc you set for the function.
-
-        function: function_name
-        path: http request path
-        http: the method use for request(get or post)
-        params: the params needed for make the http request
-
     You also can add your own api definition files.
     Set the api definition folder in `config.exs`,
     then you can use the api you define.
@@ -35,13 +22,15 @@ defmodule ExWechat do
           api_definition_files: Path.join(__DIR__, "lib/demo/apis")
 
         # lib/demo/apis/simple_user
-        @endpoint https://api.weixin.qq.com/cgi-bin
 
-        # get user list
-        function: get_user_list
-        path: /user/get
-        http: get
-        params: access_token
+        use Mix.Config
+
+        config :create_user_tag,
+          doc: "create user tag"
+          endpoint: "https://api.weixin.qq.com/cgi-bin",
+          path: "/tags/create",
+          http: :post,
+          params: [access_token: nil]
 
         # web/controller/user_controller.ex
         defmodule Demo.UserController do
@@ -49,10 +38,6 @@ defmodule ExWechat do
           use ExWechat.Api
 
           @api [:simple_user] # file name of the api definition file
-
-          def index(conn, _) do
-            get_user_list
-          end
         end
 
     Normally, when you add:
@@ -62,7 +47,7 @@ defmodule ExWechat do
     to your module, this module will read all the api definition files,
     define and import all the medthod you put in api definition file,
     each method is a `get` or `post` http request.
-    All the Http methods use `HTTPosion`.
+    All the Http methods use `HTTPosion` for request.
 
         defmodule MenuController do
           use ExWechat.Api

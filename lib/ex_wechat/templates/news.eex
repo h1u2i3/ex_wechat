@@ -5,7 +5,7 @@
 <MsgType><![CDATA[<%= @msgtype %>]]></MsgType>
 <ArticleCount><%= @articlecount %></ArticleCount>
 <Articles>
-<%= for article <- @articles.item do %>
+<%= for article <- @articles do %>
   <item>
   <Title><![CDATA[<%= article.title %>]]></Title>
   <Description><![CDATA[<%= article.description %>]]></Description>

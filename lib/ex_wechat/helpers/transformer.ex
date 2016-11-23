@@ -1,6 +1,11 @@
 defmodule ExWechat.Helpers.Transformer do
-  require IEx
+  @moduledoc """
+    Data tranform.
+  """
 
+  @doc """
+    Transform from keyword to map.
+  """
   def keyword_to_map(keyword, result \\ %{})
 
   def keyword_to_map([], result), do: result

@@ -4,6 +4,9 @@ defmodule ExWechat.Helpers.ApiHelper do
   """
   @api_path Path.join(__DIR__, "../apis")
 
+  for file <- Path.wildcard("../apis/*") do
+    @external_resource file
+  end
 
   @doc """
     Process for needed api definition data.
