@@ -22,14 +22,12 @@ defmodule ExWechat.Base do
           appid: System.get_env("WECHAT_APPID") || "your appid",
           secret: System.get_env("WECHAT_APPSECRET") || "your app secret",
           token: System.get_env("WECHAT_TOKEN") || "yout token",
-          access_token_cache: "/tmp/access_token"
-          ...
+
   """
 
   defmacro __using__(opts) do
     config_methods =
-      for key <- [:appid, :secret, :token, :access_token_cache,
-                  :api_definition_files] do
+      for key <- [:appid, :secret, :token] do
         configs = case opts do
                     []  -> Application.get_env(:ex_wechat, ExWechat) || []
                     _   -> opts
@@ -56,16 +54,12 @@ defmodule ExWechat.Base do
         defdelegate appid(), to: ExWechat.Api
         defdelegate secret(), to: ExWechat.Api
         defdelegate token(), to: ExWechat.Api
-        defdelegate access_token_cache(), to: ExWechat.Api
-        defdelegate api_definition_files(), to: ExWechat.Api
       end
     else
       quote do
         def appid, do: unquote(config)[:appid]
         def secret, do: unquote(config)[:secret]
         def token, do: unquote(config)[:token]
-        def access_token_cache, do: unquote(config)[:access_token_cache]
-        defdelegate api_definition_files(), to: ExWechat.Api
       end
     end
   end

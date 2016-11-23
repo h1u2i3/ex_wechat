@@ -5,10 +5,10 @@ defmodule ExWechat.Helpers.MethodGeneratorTest do
 
   defmodule ApiDemo do
     use ExWechat.Api
-    @api [:demo]
+    @api [:access_token]
   end
 
-  @endpoint "https://localhost"
+  @endpoint "https://api.weixin.qq.com/cgi-bin"
   @data "get real data"
 
   setup do
@@ -20,14 +20,14 @@ defmodule ExWechat.Helpers.MethodGeneratorTest do
   test "shoud generate the right methods" do
     methods = ApiDemo.__info__(:functions)
 
-    assert Keyword.has_key?(methods, :some_method)
+    assert Keyword.has_key?(methods, :access_token)
   end
 
   test "shoud add method that actually work" do
-    expect_response("#{@endpoint}/haha",
+    expect_response("#{@endpoint}/token",
       [grant_type: "client_credential", appid: appid, secret: secret], @data)
 
-    result = ApiDemo.some_method
+    result = ApiDemo.get_access_token
 
     assert result == @data
   end

@@ -4,13 +4,16 @@ defmodule ExWechat.Helpers.CryptoHelper do
   """
 
   @doc """
-    Check the sha hash of `string` with `signature`.
+  Check the sha hash of `string` with `signature`.
   """
   def sha1_equal?(string, signature) do
     sha1_hash(string) == signature
   end
 
-  defp sha1_hash(string) do
+  @doc """
+  Get the sha hash with string
+  """
+  def sha1_hash(string) do
     :sha
     |> :crypto.hash(string)
     |> Base.encode16

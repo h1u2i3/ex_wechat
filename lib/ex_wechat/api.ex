@@ -38,7 +38,7 @@ defmodule ExWechat.Api do
   """
   def get(url, params) do
     ensure_httpoison_start
-    HTTPoison.get(url, [], params: params)
+    HTTPoison.get(url, [], params: params, hackney: [pool: :wechat_pool])
   end
 
   @doc """
@@ -46,7 +46,8 @@ defmodule ExWechat.Api do
   """
   def post(url, body, params) do
     ensure_httpoison_start
-    HTTPoison.post(url, encode_post_body(body), [], params: params)
+    HTTPoison.post(url, encode_post_body(body), [], params: params,
+      hackney: [pool: :wechat_pool])
   end
 
   defp ensure_httpoison_start, do: :application.ensure_all_started(:httpoison)
@@ -79,12 +80,30 @@ defmodule ExWechat.Api do
       @doc """
         Return the access_token
       """
-      def access_token, do: Token._access_token(__MODULE__)
+      def access_token do
+        Token._access_token(__MODULE__)
+      end
 
       @doc """
         When error code 400001, renew access_token
       """
-      def renew_access_token, do: Token._force_get_access_token(__MODULE__)
+      def renew_access_token do
+        Token._force_get_token(__MODULE__, :access_token)
+      end
+
+      @doc """
+      Return the jsapi_ticket
+      """
+      def jsapi_ticket do
+        Token._jsapi_ticket(__MODULE__)
+      end
+
+      @doc """
+      Return the wxcard_ticket
+      """
+      def wxcard_ticket do
+        Token._wxcard_ticket(__MODULE__)
+      end
     end
   end
 

@@ -13,14 +13,16 @@ defmodule ExWechat.TestHelper.Http do
       def expect_response(url, params, "", result) do
         expect(:hackney,
                :request,
-               [{ [:get, "#{url}?#{params_url(params)}", [], "", []],
+               [{ [:get, "#{url}?#{params_url(params)}", [], "",
+                  [pool: :wechat_pool]],
                   {:ok, 200, "headers", :client} }])
         expect(:hackney, :body, 1, {:ok, encode(result)})
       end
       def expect_response(url, params, body, result) do
         expect(:hackney,
                :request,
-               [{ [:post, "#{url}?#{params_url(params)}", [], encode(body), []],
+               [{ [:post, "#{url}?#{params_url(params)}", [], encode(body),
+                  [pool: :wechat_pool]],
                   {:ok, 200, "headers", :client} }])
         expect(:hackney, :body, 1, {:ok, encode(result)})
       end

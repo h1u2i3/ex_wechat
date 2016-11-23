@@ -13,9 +13,4 @@ defmodule ExWechat.BaseTest do
   test "should get token" do
     assert token == Application.get_env(:ex_wechat, ExWechat)[:token]
   end
-
-  test "should get user defined api folder" do
-    assert api_definition_files ==
-      Application.get_env(:ex_wechat, ExWechat)[:api_definition_files]
-  end
 end

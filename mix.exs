@@ -28,7 +28,10 @@ defmodule ExWechat.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :httpoison, :floki]]
+    [
+      mod: {ExWechat, []},
+      applications: [:logger, :httpoison, :floki, :con_cache]
+    ]
   end
 
   defp description do
@@ -58,6 +61,7 @@ defmodule ExWechat.Mixfile do
       {:dogma, "~> 0.1", only: :dev},
       {:mix_test_watch, "~> 0.2", only: :dev},
       {:benchfella, "~> 0.3", only: :dev},
+      {:con_cache, "~> 0.11.1"}
     ]
   end
 

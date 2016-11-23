@@ -6,9 +6,8 @@ defmodule ExWechat.DemoTest do
   defmodule Demo do
     use ExWechat.Api
   end
-
-  @endpoint "https://api.weixin.qq.com/cgi-bin"
-  @data %{access_token: "token,", expire_in: "7200"}
+@endpoint "https://api.weixin.qq.com/cgi-bin"
+  @data %{access_token: "token", expire_in: "7200"}
 
   setup do
     new :hackney
@@ -29,9 +28,10 @@ defmodule ExWechat.DemoTest do
       [grant_type: "client_credential", appid: appid, secret: secret], @data)
 
     access_token = Demo.access_token
+    cache = ConCache.get(:ex_wechat_token, 
+                         :"ExWechat.DemoTest.Demo.access_token")
 
-    assert File.exists?(access_token_cache)
-    assert access_token == String.trim(File.read!(access_token_cache))
+    assert access_token == cache
   end
 
   test "when cache exists should read from cache" do
@@ -47,7 +47,7 @@ defmodule ExWechat.DemoTest do
   end
 
   test "force get access_token will get the new access_token" do
-    prepare_for_access_token_cache("old_token")
+    prepare_for_access_token_cache("token")
     expect_response("#{@endpoint}/token",
       [grant_type: "client_credential", appid: appid, secret: secret],
       %{access_token: "new_token", expire_in: "7200"})
@@ -57,35 +57,18 @@ defmodule ExWechat.DemoTest do
     assert access_token == "new_token"
   end
 
-  test "get the new token from server when cache old" do
-    prepare_for_access_token_cache("old_token")
-    new ExWechat.Helpers.TimeHelper
-    expect(ExWechat.Helpers.TimeHelper, :current_unix_time,
-           0, 1000000000 + 7200)
-    expect(ExWechat.Helpers.TimeHelper, :erl_datetime_to_unix_time,
-           1, 1000000000)
-    expect_response("#{@endpoint}/token",
-      [grant_type: "client_credential", appid: appid, secret: secret],
-      %{access_token: "new_token", expire_in: "7200"})
-
-    access_token = Demo.access_token
-
-    assert access_token == "new_token"
-  end
-
   defp del_access_token_cache do
-    if File.exists?(access_token_cache) do
-      File.rm!(access_token_cache)
-    end
+    :ex_wechat_token
+    |> ConCache.ets
+    |> :ets.tab2list
+    |> Enum.each(fn({key, _}) ->
+         ConCache.delete(:ex_wechat_token, key)
+       end)
   end
 
   defp prepare_for_access_token_cache(data) do
-    case File.exists?(access_token_cache) do
-      true  ->
-        File.rm!(access_token_cache)
-        File.write!(access_token_cache, data)
-      false ->
-        File.write!(access_token_cache, data)
-    end
+    del_access_token_cache
+    ConCache.put(:ex_wechat_token,
+                 :"ExWechat.DemoTest.Demo.access_token", data)
   end
 end

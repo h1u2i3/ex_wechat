@@ -1,6 +1,6 @@
 defmodule ExWechat.Token do
   @moduledoc """
-    Wechat access_token.
+    Wechat Token fetcher.
 
     First get the token from cache, if invalid then get from the wechat server,
     `access_token` cache can be set in `config.exs`.
@@ -9,54 +9,60 @@ defmodule ExWechat.Token do
           appid: System.get_env("WECHAT_APPID") || "your appid",
           secret: System.get_env("WECHAT_APPSECRET") || "your app secret",
           token: System.get_env("WECHAT_TOKEN") || "yout token",
-          access_token_cache: "/tmp/access_token"
 
   """
-  import ExWechat.Helpers.TimeHelper
 
   @doc """
-    Get the access_token.
+  Get the access token from wechat server.
   """
   def _access_token(module) do
-    cache = token_cache(module)
-    unless cache, do: raise "did not set the access_token_cache"
-    case File.stat(cache) do
-      {:ok, %File.Stat{mtime: mtime}} ->
-        access_token_generate_time = erl_datetime_to_unix_time(mtime)
-        if access_token_valid?(access_token_generate_time) do
-          read_access_token_from_cache(module)
-        else
-          fetch_access_token_and_write_cache(module)
-        end
-      {:error, _} ->
-        fetch_access_token_and_write_cache(module)
+    _token(module, :access_token)
+  end
+
+  @doc """
+  Get the jsapi ticket from wechat server.
+  """
+  def _jsapi_ticket(module) do
+    _token(module, :jsapi_ticket)
+  end
+
+  @doc """
+  Get the wxcard ticket from wechat server.
+  """
+  def _wxcard_ticket(module) do
+    _token(module, :wxcard_ticket)
+  end
+
+  @doc """
+    Force to get the new token
+  """
+  def _force_get_token(module, token_kind) do
+    fetch_token_and_write_cache(module, token_kind)
+  end
+
+  defp _token(module, token_kind) do
+    token = ConCache.get(:ex_wechat_token, token_key(module, token_kind))
+    case token do
+      nil -> fetch_token_and_write_cache(module, token_kind)
+      _   -> token
     end
   end
 
-  @doc """
-    Force to get the new access_token
-  """
-  def _force_get_access_token(module) do
-    fetch_access_token_and_write_cache(module)
-  end
+  defp fetch_token_and_write_cache(module, token_kind) do
+    method = "get_#{token_kind}" |> String.to_atom
+    response = apply(module, method, [])
 
-  defp read_access_token_from_cache(module) do
-    {:ok, access_token} = File.read(token_cache(module))
-    access_token
-  end
+    token = case token_kind do
+      :access_token -> response[token_kind]
+      _             -> response[:ticket]
+    end
 
-  defp fetch_access_token_and_write_cache(module) do
-    response = apply(module, :get_access_token, [])
-    token = response.access_token
-    File.write token_cache(module), token
+    ConCache.put(:ex_wechat_token, token_key(module, token_kind), token)
     token
   end
 
-  defp access_token_valid?(timestamp) do
-    current_unix_time - timestamp < 7190
-  end
-
-  defp token_cache(module) do
-    apply(module, :access_token_cache, [])
+  defp token_key(module, token_kind) do
+    "#{Macro.to_string(module)}.#{token_kind}"
+    |> String.to_atom
   end
 end
