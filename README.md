@@ -21,9 +21,8 @@ Elixir/Phoenix wechat api, ([documentation](http://hexdocs.pm/ex_wechat/)).
     config :ex_wechat, ExWechat,
       appid: System.get_env("WECHAT_APPID") || "your appid",
       secret: System.get_env("WECHAT_APPSECRET") || "your app secret",
-      token: System.get_env("WECHAT_TOKEN") || "yout token",
-      access_token_cache: "/tmp/access_token",
-      api_definition_files: "your_api_definition_folder"
+      token: System.get_env("WECHAT_TOKEN") || "your token",
+      access_token_cache: "/tmp/access_token"
     ```
 
 2. Use api with `ExWechat` or other ExWechat module, you can get the methods
@@ -33,7 +32,7 @@ Elixir/Phoenix wechat api, ([documentation](http://hexdocs.pm/ex_wechat/)).
     ExWechat.get_user_list
     ExWechat.get_menu
 
-    ExWechat.Message.to(Wechat.User, openid, wechat_message_params)
+    ExWechat.Message.send_custom(openid, wechat_message_params)
     ```
 
 ### For multi accounts.
