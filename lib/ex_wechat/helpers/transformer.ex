@@ -30,19 +30,7 @@ defmodule ExWechat.Helpers.Transformer do
     end
   end
 
-  def keyword_to_map([{key, value} | tail], result) when is_map(value) do
-    result = result
-             |> Map.put(key, value)
-    keyword_to_map(tail, result)
-  end
-
-  def keyword_to_map([{key, value} | tail], result) when is_binary(value) do
-    result = result
-             |> Map.put(key, value)
-    keyword_to_map(tail, result)
-  end
-
-  def keyword_to_map([{key, value} | tail], result) when is_atom(value) do
+  def keyword_to_map([{key, value} | tail], result) do
     result = result
              |> Map.put(key, value)
     keyword_to_map(tail, result)

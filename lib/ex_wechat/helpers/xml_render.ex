@@ -1,6 +1,6 @@
 defmodule ExWechat.Helpers.XmlRender do
   @moduledoc """
-    Render elixir data to xml.
+  Render elixir data to xml.
   """
   @template_folder Path.join(__DIR__, "../templates")
 
@@ -13,7 +13,7 @@ defmodule ExWechat.Helpers.XmlRender do
   EEx.function_from_file :def, :news,  @template_folder <> "/news.eex",  [:assigns]
 
   @doc """
-    Render `.eex` file to xml base on assigned value.
+  Render `.eex` file to xml base on assigned value.
   """
   def render_xml(assigns)
 
@@ -25,5 +25,12 @@ defmodule ExWechat.Helpers.XmlRender do
 
   def render_xml(assigns) do
     apply(__MODULE__, assigns[:msgtype] |> String.to_atom, [assigns])
+  end
+
+  @doc """
+  Render file to xml data.
+  """
+  def render_xml(file, assigns) do
+    EEx.eval_file file, assigns: assigns
   end
 end

@@ -27,6 +27,11 @@ defmodule ExWechat.Message do
   Passive Message, react to user.
   Just need to generate the xml message, don't need to send to wechat server.
   """
+  def generate_passive(origin_message \\ nil, message_params)
+  def generate_passive(nil, message_params) do
+    message_params
+    |> XmlMessage.build
+  end
   def generate_passive(origin_message, message_params) do
     message_params
     |> Enum.to_list

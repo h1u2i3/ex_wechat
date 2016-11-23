@@ -1,7 +1,7 @@
-defmodule ExWechat.MessageTest do
+defmodule ExWechat.XmlMessageTest do
   use ExUnit.Case, async: true
 
-  alias ExWechat.Message
+  alias ExWechat.Message.XmlMessage
   import :meck
   import ExWechat.TestHelper.AssertHelper
 
@@ -12,6 +12,15 @@ defmodule ExWechat.MessageTest do
   end
 
   def text do
+    %{
+      fromusername: "from",
+      tousername: "to",
+      msgtype: "text",
+      content: "hello"
+    }
+  end
+
+  def text_params do
     %{
       fromusername: "from",
       tousername: "to",
@@ -43,6 +52,15 @@ defmodule ExWechat.MessageTest do
     }
   end
 
+  def voice_params do
+    %{
+      fromusername: "from",
+      tousername: "to",
+      msgtype: "voice",
+      mediaid: "id"
+    }
+  end
+
   def voice_xml do
     """
     <xml>
@@ -70,6 +88,17 @@ defmodule ExWechat.MessageTest do
     }
   end
 
+  def video_params do
+    %{
+      fromusername: "from",
+      tousername: "to",
+      msgtype: "video",
+      title: "title",
+      mediaid: "id",
+      description: "description"
+    }
+  end
+
   def video_xml do
     """
     <xml>
@@ -94,6 +123,15 @@ defmodule ExWechat.MessageTest do
       image: %{
         mediaid: "id"
       }
+    }
+  end
+
+  def image_params do
+    %{
+      fromusername: "from",
+      tousername: "to",
+      msgtype: "image",
+      mediaid: "id"
     }
   end
 
@@ -133,6 +171,28 @@ defmodule ExWechat.MessageTest do
                 url: "url"
              }]
          }
+    }
+  end
+
+  def news_params do
+    %{
+      fromusername: "from",
+      tousername: "to",
+      msgtype: "news",
+      articlecount: "2",
+      articles:
+           [%{
+                title: "title",
+                description: "description",
+                picurl: "picurl",
+                url: "url"
+              },
+             %{
+                title: "title",
+                description: "description",
+                picurl: "picurl",
+                url: "url"
+             }]
     }
   end
 
@@ -177,6 +237,19 @@ defmodule ExWechat.MessageTest do
     }
   end
 
+  def music_params do
+    %{
+      fromusername: "from",
+      tousername: "to",
+      msgtype: "music",
+      title: "title",
+      description: "description",
+      musicurl: "musicurl",
+      hqmusicurl: "hqmusicurl",
+      thumbmediaid: "thumbmediaid"
+    }
+  end
+
   def music_xml do
     """
     <xml>
@@ -199,8 +272,8 @@ defmodule ExWechat.MessageTest do
     test "should get the right #{message_kind} xml message" do
       expect(ExWechat.Helpers.TimeHelper, :current_unix_time, 0, 1478942475)
       xml_msg = __MODULE__
-                |> apply(unquote(message_kind), [])
-                |> Message.build_message
+                |> apply(unquote(String.to_atom("#{message_kind}_params")), [])
+                |> XmlMessage.build
 
       assert_equal_string xml_msg,
         apply(__MODULE__, unquote("#{message_kind}_xml" |> String.to_atom), [])
@@ -209,7 +282,7 @@ defmodule ExWechat.MessageTest do
     test "should get the right #{message_kind} map value" do
       msg_map = __MODULE__
                 |> apply(unquote(String.to_atom("#{message_kind}_xml")), [])
-                |> Message.parse_message
+                |> XmlMessage.parse
                 |> Map.delete(:createtime)
       assert msg_map ==
         apply(__MODULE__, unquote(message_kind), [])

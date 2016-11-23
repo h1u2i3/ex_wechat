@@ -28,8 +28,7 @@ defmodule ExWechat.Message.XmlMessage do
         <FromUserName><![CDATA[server_app_id]]></FromUserName>
         <CreateTime>1478449547</CreateTime>
         <MsgType><![CDATA[text]]></MsgType>
-        <Content><![CDATA[Hello World!]]></Content>
-        </xml>
+        <Content><![CDATA[Hello World!]]></Content> </xml>
 
     This method will automaticlly check the `msgtype`,
     and choose the right template to render message.
@@ -51,7 +50,7 @@ defmodule ExWechat.Message.XmlMessage do
 
         conn.assigns[:message]
   """
-  def parse_message(xml_msg) do
+  def parse(xml_msg) do
     parse_xml(xml_msg)
   end
 
@@ -76,7 +75,7 @@ defmodule ExWechat.Message.XmlMessage do
       |> Map.delete(:__struct__)
       |> Map.take([:tousername, :fromusername, :msgtype])
       |> Map.put(:createtime, current_unix_time)
-      |> Map.put(:image, Map.take(struct, :mediaid))
+      |> Map.put(:image, Map.take(struct, [:mediaid]))
     end
   end
 

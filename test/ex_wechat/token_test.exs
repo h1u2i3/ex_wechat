@@ -16,10 +16,6 @@ defmodule ExWechat.DemoTest do
     :ok
   end
 
-  test "should get the right endpoint" do
-    assert Demo._token_url == "https://api.weixin.qq.com/cgi-bin"
-  end
-
   test "expect get the data from server" do
     expect_response("#{@endpoint}/token",
       [grant_type: "client_credential", appid: appid, secret: secret], @data)

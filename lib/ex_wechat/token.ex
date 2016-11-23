@@ -18,7 +18,8 @@ defmodule ExWechat.Token do
     Get the access_token.
   """
   def _access_token(module) do
-    cache = token_cache(module) || ""
+    cache = token_cache(module)
+    unless cache, do: raise "did not set the access_token_cache"
     case File.stat(cache) do
       {:ok, %File.Stat{mtime: mtime}} ->
         access_token_generate_time = erl_datetime_to_unix_time(mtime)
@@ -27,8 +28,6 @@ defmodule ExWechat.Token do
         else
           fetch_access_token_and_write_cache(module)
         end
-      {:error, :enoent} ->
-        raise "did not set the access_token_cache"
       {:error, _} ->
         fetch_access_token_and_write_cache(module)
     end
