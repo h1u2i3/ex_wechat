@@ -6,16 +6,17 @@ defmodule ExWechat.Plugs.WechatSignatureResponder do
   """
 
   import Plug.Conn
-  import ExWechat.Responder, only: [wechat_verify_responder: 1]
+  import ExWechat.Helpers.WechatVerify
 
   def init(options) do
     options
   end
 
-  def call(conn = %Plug.Conn{params: params}, _opts) do
+  def call(conn = %Plug.Conn{params: params}, options) do
+    api = options[:api] || ExWechat
     case params do
       %{"signature" => _, "timestamp" => _, "nonce" => _} ->
-        assign(conn, :signature, wechat_verify_responder(params))
+        assign(conn, :signature, verify(api, params))
       _ ->
         assign(conn, :signature, false)
     end

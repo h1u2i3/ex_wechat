@@ -3,10 +3,11 @@ defmodule ExWechat.Helpers.CryptoHelperTest do
 
   import ExWechat.Helpers.CryptoHelper
 
-  @string "test"
-  @sha1_string "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3"
+  @string ["test", "xyz"]
+  @sha1_string "0ea65fdc73d811ed137f385478285cd146236a06"
 
   test "the sha hash match the string should return true" do
-    assert sha1_equal? @string, @sha1_string
+    assert wechat_sha(@string)
+    assert wechat_hash_equal?(@string, @sha1_string)
   end
 end

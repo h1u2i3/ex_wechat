@@ -57,25 +57,6 @@ defmodule ExWechat.Responder do
     just choose what you need.
   """
 
-  use ExWechat.Base # import token from ExWechat.Base
-  import ExWechat.Helpers.CryptoHelper
-
-  @doc """
-    check the signature with wechat server.
-  """
-  def wechat_verify_responder(%{"signature" => signature,
-          "timestamp" => timestamp,
-          "nonce" => nonce}) do
-    check_signature(signature, timestamp, nonce)
-  end
-
-  defp check_signature(signature, timestamp, nonce) do
-    [token, timestamp, nonce]
-    |> Enum.sort
-    |> Enum.join
-    |> sha1_equal?(signature)
-  end
-
   defmacro __using__(_opts) do
     quote do
       unless Code.ensure_loaded?(Plug.Conn) do
@@ -137,7 +118,7 @@ defmodule ExWechat.Responder do
       def signature_responder(conn) do
         case conn.assigns[:signature] do
           true  -> text(conn, conn.params["echostr"] )
-          false -> halt(conn)
+          false -> text(conn, "forbidden")
         end
       end
 

@@ -6,14 +6,29 @@ defmodule ExWechat.Helpers.CryptoHelper do
   @doc """
   Check the sha hash of `string` with `signature`.
   """
-  def sha1_equal?(string, signature) do
-    sha1_hash(string) == signature
+  def wechat_hash_equal?(params, signature) do
+    wechat_sha(params) == signature
   end
 
   @doc """
-  Get the sha hash with string
+  Wechat sha hash
   """
-  def sha1_hash(string) do
+  def wechat_sha(params)
+  def wechat_sha(params) when is_map(params) do
+    params
+    |> Enum.sort
+    |> Enum.map(fn({key, value}) -> "#{key}=#{value}" end)
+    |> Enum.join("&")
+    |> sha1_hash
+  end
+  def wechat_sha(params) when is_list(params) do
+    params
+    |> Enum.sort
+    |> Enum.join
+    |> sha1_hash
+  end
+
+  defp sha1_hash(string) do
     :sha
     |> :crypto.hash(string)
     |> Base.encode16
