@@ -14,19 +14,17 @@ defmodule ExWechat.Api do
     If you didn't add the `@api` attribute, it will import all the api methods.
   """
   use ExWechat.Base
+
+  import ExWechat.Base
   import ExWechat.Helpers.ApiHelper
   import ExWechat.Helpers.MethodGenerator
 
-  @doc """
-    For params
-  """
+  @doc false
   def get_params(key, module) do
     apply module, :get_params, [key]
   end
 
-  @doc """
-    Generate the AST data of method definiitons.
-  """
+  @doc false
   def compile(origin) do
     ast_data = generate_methods(origin)
 
@@ -35,27 +33,39 @@ defmodule ExWechat.Api do
     end
   end
 
-  defmacro __using__(which) do
-    which = if Enum.empty?(which), do: ExWechat.Api, else: which[:base]
+  @doc """
+  Do http get request with HTTPoison.
+  """
+  def get(url, params) do
+    ensure_httpoison_start
+    HTTPoison.get(url, [], params: params)
+  end
 
-    use_ast_data =
-       quote do
-         defdelegate appid(), to: unquote(which)
-         defdelegate secret(), to: unquote(which)
-         defdelegate token(), to: unquote(which)
-         defdelegate access_token_cache(), to: unquote(which)
-         defdelegate api_definition_files(), to: ExWechat.Api
-       end
+  @doc """
+  Do http post request with HTTPoison.
+  """
+  def post(url, body, params) do
+    ensure_httpoison_start
+    HTTPoison.post(url, encode_post_body(body), [], params: params)
+  end
+
+  defp ensure_httpoison_start, do: :application.ensure_all_started(:httpoison)
+
+  defp encode_post_body(body)
+  defp encode_post_body(nil), do: nil
+  defp encode_post_body(body) when is_binary(body), do: body
+  defp encode_post_body(body) when is_map(body), do: Poison.encode!(body)
+
+  defmacro __using__(config) do
+    base_method_ast = quoted_base_method(config)
 
     quote do
-      use HTTPoison.Base
-
-      unquote(use_ast_data)
-
       alias ExWechat.Token
       import ExWechat.Helpers.ParamsParser
 
       @before_compile unquote(__MODULE__)
+
+      unquote(base_method_ast)
 
       @doc """
         This method can be used in you own defined module.
@@ -64,6 +74,7 @@ defmodule ExWechat.Api do
       def get_params(param) do
         :not_set
       end
+      defoverridable [get_params: 1]
 
       @doc """
         Return the access_token
@@ -74,25 +85,6 @@ defmodule ExWechat.Api do
         When error code 400001, renew access_token
       """
       def renew_access_token, do: Token._force_get_access_token(__MODULE__)
-
-
-      defoverridable [get_params: 1]
-
-      defp process_response_body(body)
-      defp process_response_body("{" <> _ = body) do
-        Poison.decode!(body, keys: :atoms)
-      end
-      defp process_response_body(body), do: body
-
-      defp process_url(url) do
-        apply(__MODULE__, url_method_name(url), []) <> url
-      end
-
-      defp url_method_name(url) do
-        "#{Regex.named_captures(~r/(?<name>.+)\?/, url)["name"]}/url"
-        |> String.replace("/", "_")
-        |> String.to_atom
-      end
     end
   end
 

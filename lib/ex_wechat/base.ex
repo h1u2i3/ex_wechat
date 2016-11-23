@@ -46,4 +46,27 @@ defmodule ExWechat.Base do
       unquote(config_methods)
     end
   end
+
+  @doc """
+  Define base method in ast format to support multi-accounts.
+  """
+  def quoted_base_method(config) do
+    if Enum.empty?(config) do
+      quote do
+        defdelegate appid(), to: ExWechat.Api
+        defdelegate secret(), to: ExWechat.Api
+        defdelegate token(), to: ExWechat.Api
+        defdelegate access_token_cache(), to: ExWechat.Api
+        defdelegate api_definition_files(), to: ExWechat.Api
+      end
+    else
+      quote do
+        def appid, do: unquote(config)[:appid]
+        def secret, do: unquote(config)[:secret]
+        def token, do: unquote(config)[:token]
+        def access_token_cache, do: unquote(config)[:access_token_cache]
+        defdelegate api_definition_files(), to: ExWechat.Api
+      end
+    end
+  end
 end

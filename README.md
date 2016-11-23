@@ -40,24 +40,16 @@ Elixir/Phoenix wechat api, ([documentation](http://hexdocs.pm/ex_wechat/)).
 1. Add your own module with Wechat Api.
 
     ```elixir
-    defmodule Wechat.User.Base do
-      use ExWechat.Base,
+    defmodule Wechat.User do
+      use ExWechat.Api,
             appid: "", secret: "",
             token: "", access_token_cache: ""
     end
 
-    defmodule Wechat.Doctor.Base do
-      use ExWechat.Base,
+    defmodule Wechat.Doctor do
+      use ExWechat.Api,
         appid: "", secret: "",
         token: "", access_token_cache: ""
-    end
-
-    defmodule Wechat.User do
-      use ExWechat.Api, base: ExWechat.Yimei.Base
-    end
-
-    defmodule Wechat.Doctor do
-      use ExWechat.Api, base: ExWechat.Doctor.Base
     end
     ```
 
@@ -67,11 +59,11 @@ Elixir/Phoenix wechat api, ([documentation](http://hexdocs.pm/ex_wechat/)).
     Wechat.User.get_user_list
     Wechat.Doctor.get_user_list
 
-    ExWechat.Message.to(Wechat.User, openid, wechat_message_params)
-    ExWechat.Message.to(Wechat.Doctor, openid, wechat_message_params)
+    ExWechat.Message.send_custom(Wechat.User, openid, wechat_message_params)
+    ExWechat.Message.send_custom(Wechat.Doctor, openid, wechat_message_params)
     ```
 
-## For Phoenix
+## Phoenix
 
 
 ## License
