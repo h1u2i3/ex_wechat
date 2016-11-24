@@ -1,4 +1,4 @@
-# ExWechat [![Build Status](https://travis-ci.org/h1u2i3/ex_wechat.svg?branch=master)](https://travis-ci.org/h1u2i3/ex_wechat.svg?branch=master) [![Coverage Status](https://coveralls.io/repos/github/h1u2i3/ex_wechat/badge.svg?branch=master)](https://coveralls.io/github/h1u2i3/ex_wechat?branch=master) [![Hex version](https://img.shields.io/hexpm/v/ex_wechat.svg "Hex version")](https://hex.pm/packages/ex_wechat) [![Hex downloads](https://img.shields.io/hexpm/dt/ex_wechat.svg "Hex downloads")](https://hex.pm/packages/ex_wechat)
+# ExWechat [![Build Status](https://travis-ci.org/h1u2i3/ex_wechat.svg?branch=master)](https://travis-ci.org/h1u2i3/ex_wechat.svg?branch=master) [![Coverage Status](https://coveralls.io/repos/github/h1u2i3/ex_wechat/badge.svg?branch=master)](https://coveralls.io/github/h1u2i3/ex_wechat?branch=master) [![Hex version](https://img.shields.io/hexpm/v/ex_wechat.svg "Hex version")](https://hex.pm/packages/ex_wechat)
 
 Elixir/Phoenix wechat api, ([documentation](http://hexdocs.pm/ex_wechat/)).
 
@@ -131,7 +131,7 @@ example controller use with `on_text_responder`:
                    picurl: "picurl", url: "http://baidu.com" }
                 ]))
           %{content: content} ->
-            reply_with(conn, generate_passive(msgtype: "text",
+            reply_with(conn, generate_passive(message, msgtype: "text",
                content: String.reverse(content)))
           _ ->
             conn
@@ -200,6 +200,7 @@ in your controller you can get the openid and the authorize data from conn:
 
       def state(request_id) do
         # you can set the state you want.
+        # or you can use the request_id to do other things.
         request_id
       end
     end
