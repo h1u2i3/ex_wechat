@@ -100,12 +100,18 @@ defmodule ExWechat.Responder do
         end
         case reply_conn do
           %Plug.Conn{}  ->
-            conn = reply_conn
-            if conn.assigns[:reply] do
-              text conn, conn.assigns[:reply]
-            else
-              text conn, "success"
+            case reply_conn.assigns[:signature] do
+              true ->
+                if reply_conn.assigns[:reply] do
+                  text reply_conn, conn.assigns[:reply]
+                else
+                  text reply_conn, "success"
+                end
+
+              false ->
+                text reply_conn, "forbidden"
             end
+
           _             ->
             text conn, "success"
         end

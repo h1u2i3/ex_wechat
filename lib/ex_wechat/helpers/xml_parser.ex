@@ -11,9 +11,16 @@ defmodule ExWechat.Helpers.XmlParser do
   def parse_xml([], result), do: result
 
   def parse_xml(xml, result) when is_binary(xml) do
-    xml
-    |> Floki.find("xml")
-    |> parse_xml(result)
+    case xml do
+      "<xml>" <> _ ->
+        xml
+        |> Floki.find("xml")
+        |> parse_xml(result)
+      "{" <> _ ->
+        Poison.decode!(xml, keys: :atoms)
+      _ ->
+        xml
+    end
   end
 
   def parse_xml([{"xml", [], attrs}], result) do

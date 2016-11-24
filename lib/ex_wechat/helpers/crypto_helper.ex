@@ -22,10 +22,11 @@ defmodule ExWechat.Helpers.CryptoHelper do
     |> sha1_hash
   end
   def wechat_sha(params) when is_list(params) do
-    params
-    |> Enum.sort
-    |> Enum.join
-    |> sha1_hash
+    result = params
+              |> Enum.sort
+              |> Enum.join
+              |> sha1_hash
+    result
   end
 
   defp sha1_hash(string) do

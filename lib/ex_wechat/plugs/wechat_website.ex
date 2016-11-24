@@ -32,7 +32,8 @@ defmodule ExWechat.Plugs.WechatWebsite do
   end
 
   defp get_wechat_info(conn, code, options) do
-    case HTTPoison.get request_auth_url(code, options) do
+    case HTTPoison.get(request_auth_url(code, options),
+          hackney: [pool: :wechat_pool]) do
       {:ok, response} ->
         result = Poison.decode!(response.body, keys: :atoms)
         conn
