@@ -18,9 +18,7 @@ defmodule ExWechat.Responder do
     More complex example(when receives text message from user,
     it will return a text message with reverse text):
 
-        defmodule Wechat.WechatController do
-          require Logger
-
+        defmodule Wechat.CustomerWechatController do
           use Wechat.Web, :controller
           use ExWechat.Responder
 
@@ -29,14 +27,18 @@ defmodule ExWechat.Responder do
           defp on_text_responder(conn) do
             message = conn.assigns[:message]
             case message do
+              %{content: "我要图"} ->
+                reply_with(conn, generate_passive(message, msgtype: "news",
+                  articles: [
+                    %{ title: "sjsjssjsj", description: "xxxxlaldsaldskl",
+                       picurl: "picurl", url: "http://baidu.com" },
+                    %{ title: "sjsjssjsj", description: "xxxxlaldsaldskl",
+                       picurl: "picurl", url: "http://baidu.com" }
+                    ]))
               %{content: content} ->
-                reply_with(conn, build_message(%{
-                    msgtype: "text",
-                    from: message.tousername,
-                    to: message.fromusername,
-                    content: String.reverse(content)
-                  }))
-              _   ->
+                reply_with(conn, generate_passive(message, msgtype: "text",
+                   content: String.reverse(content)))
+              _ ->
                 conn
             end
           end

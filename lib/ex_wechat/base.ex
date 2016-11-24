@@ -13,7 +13,6 @@ defmodule ExWechat.Base do
         Wechat.appid  # your wechat app appid
         Wechat.secret # your wechat app appsecret
         Wechat.token  # your server's token for wechat
-        Wechat.access_token_cache  # place the access_token saved.
         ...
 
     You can set above config in `config.exs`:
