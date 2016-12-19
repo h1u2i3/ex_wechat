@@ -76,6 +76,7 @@ defmodule ExWechat.User do
   end
 
   defmodule Info do
+    @moduledoc false
     defstruct city: nil, country: nil, groupid: nil,
       headimgurl: nil, language: nil, nickname: nil, openid: nil,
       province: nil, remark: nil, sex: nil, subscribe: nil,
@@ -83,6 +84,7 @@ defmodule ExWechat.User do
   end
 
   defmodule Group do
+    @moduledoc false
     defstruct count: nil, id: nil, name: nil
   end
 end

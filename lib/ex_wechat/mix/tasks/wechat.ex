@@ -1,4 +1,5 @@
 defmodule Mix.Tasks.Wechat do
+  @moduledoc false
   use Mix.Task
 
   def run(_args) do

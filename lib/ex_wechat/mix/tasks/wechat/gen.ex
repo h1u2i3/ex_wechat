@@ -1,4 +1,5 @@
 defmodule Mix.Tasks.Wechat.Gen do
+  @moduledoc false
   use Mix.Tasks.Wechat, :base
 
   def run(_) do
@@ -13,6 +14,7 @@ defmodule Mix.Tasks.Wechat.Gen do
   end
 
   defmodule Menu do
+    @moduledoc false
     use Mix.Tasks.Wechat, :base
 
     def run(args) do
@@ -27,6 +29,7 @@ defmodule Mix.Tasks.Wechat.Gen do
   end
 
   defmodule New do
+    @moduledoc false
     use Mix.Tasks.Wechat, :base
 
     def run(args) do

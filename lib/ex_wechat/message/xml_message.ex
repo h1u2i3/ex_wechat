@@ -56,6 +56,7 @@ defmodule ExWechat.Message.XmlMessage do
 
 
   defmodule Text do
+    @moduledoc false
     defstruct tousername: nil, fromusername: nil,
       createtime: nil, msgtype: "text", content: nil
 
@@ -67,6 +68,7 @@ defmodule ExWechat.Message.XmlMessage do
   end
 
   defmodule Image do
+    @moduledoc false
     defstruct tousername: nil, fromusername: nil,
       createtime: nil, msgtype: "image", mediaid: nil
 
@@ -80,6 +82,7 @@ defmodule ExWechat.Message.XmlMessage do
   end
 
   defmodule Video do
+    @moduledoc false
     defstruct tousername: nil, fromusername: nil,
       createtime: nil, msgtype: "video", title: nil, mediaid: nil,
       description: nil
@@ -94,6 +97,7 @@ defmodule ExWechat.Message.XmlMessage do
   end
 
   defmodule Voice do
+    @moduledoc false
     defstruct tousername: nil, fromusername: nil,
       createtime: nil, msgtype: "voice", title: nil, mediaid: nil,
       description: nil
@@ -108,6 +112,7 @@ defmodule ExWechat.Message.XmlMessage do
   end
 
   defmodule Music do
+    @moduledoc false
     defstruct tousername: nil, fromusername: nil,
       createtime: nil, msgtype: "music", title: nil, description: nil,
       musicurl: nil, hqmusicurl: nil, thumbmediaid: nil
@@ -123,6 +128,7 @@ defmodule ExWechat.Message.XmlMessage do
   end
 
   defmodule News do
+    @moduledoc false
     alias ExWechat.Message.XmlMessage.New
 
     defstruct tousername: nil, fromusername: nil,
@@ -140,6 +146,7 @@ defmodule ExWechat.Message.XmlMessage do
   end
 
   defmodule New do
+    @moduledoc false
     defstruct title: nil, description: nil, picurl: nil, url: nil
 
     def to_map(struct) do

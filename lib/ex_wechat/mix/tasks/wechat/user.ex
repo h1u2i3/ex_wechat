@@ -1,4 +1,5 @@
 defmodule Mix.Tasks.Wechat.User do
+  @moduledoc false
   use Mix.Tasks.Wechat, :base
 
   def run(_) do
@@ -18,6 +19,7 @@ defmodule Mix.Tasks.Wechat.User do
   end
 
   defmodule Info do
+    @moduledoc false
     use Mix.Tasks.Wechat, :http
 
     def run_http(args) do
@@ -41,6 +43,7 @@ defmodule Mix.Tasks.Wechat.User do
   end
 
   defmodule List do
+    @moduledoc false
     use Mix.Tasks.Wechat, :http
 
     def run_http(args) do
