@@ -1,6 +1,6 @@
 # ExWechat [![Build Status](https://travis-ci.org/h1u2i3/ex_wechat.svg?branch=master)](https://travis-ci.org/h1u2i3/ex_wechat.svg?branch=master) [![Coverage Status](https://coveralls.io/repos/github/h1u2i3/ex_wechat/badge.svg?branch=master)](https://coveralls.io/github/h1u2i3/ex_wechat?branch=master) [![Hex version](https://img.shields.io/hexpm/v/ex_wechat.svg "Hex version")](https://hex.pm/packages/ex_wechat)
 
-Elixir/Phoenix wechat api, ([documentation](http://hexdocs.pm/ex_wechat/)).
+Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)).
 
 ## Installation
 
@@ -20,10 +20,10 @@ Elixir/Phoenix wechat api, ([documentation](http://hexdocs.pm/ex_wechat/)).
   end
   ```
 
-## Api Usage
+## Usage
 
-### For single Wechat App
-1. Add config data(you can use [`direnv`](https://github.com/direnv/direnv) to set you `ENV`):
+### Single Wechat api usage
+1. Add config data(you can use [`direnv`](https://github.com/direnv/direnv) to set your `ENV`):
 
     ```elixir
     config :ex_wechat, ExWechat,
@@ -32,8 +32,8 @@ Elixir/Phoenix wechat api, ([documentation](http://hexdocs.pm/ex_wechat/)).
       token: System.get_env("WECHAT_TOKEN") || "your token",
     ```
 
-2. Use api with `ExWechat` or other ExWechat module, you can get the methods
-   from docs or from definitions file in `lib/apis`.
+2. Use the methods in `ExWechat` module, you can get all the method name
+   from doc or from the definition files in `lib/apis`.
 
     ```elixir
     ExWechat.get_user_list
@@ -42,8 +42,8 @@ Elixir/Phoenix wechat api, ([documentation](http://hexdocs.pm/ex_wechat/)).
     ExWechat.Message.send_custom(openid, msgtype: "text", content: "Hello!")
     ```
 
-### For multi-accounts.
-1. Add your own module with Wechat Api.
+### Multi-account apis usage
+1. Add your own module:
 
     ```elixir
     defmodule Wechat.User do
@@ -55,7 +55,7 @@ Elixir/Phoenix wechat api, ([documentation](http://hexdocs.pm/ex_wechat/)).
     end
     ```
 
-2. User the module you define, or use ExWechat's other module.
+2. Use the methods in `ExWechat` with the module you define:
 
     ```elixir
     Wechat.User.get_user_list
@@ -66,7 +66,7 @@ Elixir/Phoenix wechat api, ([documentation](http://hexdocs.pm/ex_wechat/)).
     ```
 
 ## Phoenix Plugs
-1. Plugs with server verify and message responder:
+1. Example usage with server verify and message responder:
 
     ```elixir
     defmodule Wechat.Router do
@@ -98,7 +98,8 @@ Elixir/Phoenix wechat api, ([documentation](http://hexdocs.pm/ex_wechat/)).
       use ExWechat.Responde
     end
     ```
-in your controller you can use the helper method in `ExWechat.Responder` to respond to user:
+in your controller you can use the helper methods in `ExWechat.Responder`
+to respond with user:
 
     ```elixir
     defp on_text_responder(conn),         do: conn
@@ -140,7 +141,7 @@ example controller use with `on_text_responder`:
     end
     ```
 
-2. Plug with wechat site (get wechat user info)
+2. Example usage with wechat site (get wechat user info):
 
     ```elixir
     defmodule Wechat.Router do
@@ -176,7 +177,7 @@ example controller use with `on_text_responder`:
       end
     end
     ```
-in your controller you can get the openid and the authorize data from conn:
+in your controller you can get the user's openid and the authorize data from conn:
 
     ```elixir
     defmodule Wechat.PageController do
@@ -219,4 +220,4 @@ in your controller you can get the openid and the authorize data from conn:
 
 
 ## License
-MIT license.
+MIT license
