@@ -76,17 +76,21 @@ defmodule ExWechat do
     import Supervisor.Spec
 
     children = [
-      worker(ConCache, [[
-          ttl_check: :timer.seconds(1),
-          ttl: :timer.seconds(7190)
-        ], [name: :ex_wechat_token]]),
-
-      :hackney_pool.child_spec(:wechat_pool,
-        [timeout: 15000, max_connections: 100])
+      worker(ConCache, con_cache_config),
+      :hackney_pool.child_spec(:wechat_pool, hackney_config)
     ]
 
     opts = [strategy: :one_for_one, name: ExWechat.Supervisor]
-
     Supervisor.start_link(children, opts)
+  end
+
+  defp con_cache_config do
+    [[ttl_check: :timer.seconds(1),
+      ttl: :timer.seconds(7190)],
+      [name: :ex_wechat_token]]
+  end
+
+  defp hackney_config do
+    [timeout: 15000, max_connections: 100]
   end
 end

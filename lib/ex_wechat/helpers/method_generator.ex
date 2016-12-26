@@ -68,48 +68,51 @@ defmodule ExWechat.Helpers.MethodGenerator do
   #    - union_params
 
   defp define_helper_method do
+    parse_response_method =
+      quote do
+        defp parse_response(response, name, body \\ nil, params)
+        defp parse_response({:ok, %Response{body: %{errcode: 40001}}}, name, body, params) do
+          module = __MODULE__
+          module.renew_access_token
+          case body do
+            nil -> apply(module, name, [params])
+            _   -> apply(module, name, [body, params])
+          end
+        end
+
+        defp parse_response({:error, %Error{reason: :closed}}, name, body, params) do
+          module = __MODULE__
+          case body do
+            nil -> apply(module, name, [params])
+            _   -> apply(module, name, [body, params])
+          end
+        end
+        defp parse_response({:error, error}, _, _, _), do: %{error: error.reason}
+        defp parse_response({:ok, response}, _, _, _), do: response.body |> process_body
+      end
+
+    parse_body_method =
+      quote do
+        defp process_body(body)
+        defp process_body("{" <> _ = body), do: Poison.decode!(body, keys: :atoms)
+        defp process_body(body), do: body
+      end
+
+    union_params_method =
+      quote do
+        defp union_params(params, added_params)
+        defp union_params(nil, nil), do: []
+        defp union_params(nil, added_params), do: added_params
+        defp union_params(params, nil), do: params
+        defp union_params(params, added_params) do
+          params |> parse_params(__MODULE__) |> Keyword.merge(added_params)
+        end
+      end
+
     quote do
-      defp parse_response(response, name, body \\ nil, params)
-      defp parse_response({:ok, %Response{body: %{errcode: 40001}}},
-                           name, body, params) do
-        module = __MODULE__
-        module.renew_access_token
-        case body do
-          nil -> apply(module, name, [params])
-          _   -> apply(module, name, [body, params])
-        end
-      end
-
-      defp parse_response({:error, %Error{reason: :closed}},
-                           name, body, params) do
-        module = __MODULE__
-        case body do
-          nil -> apply(module, name, [params])
-          _   -> apply(module, name, [body, params])
-        end
-      end
-      defp parse_response({:error, error}, _, _, _) do
-          %{error: error.reason}
-      end
-      defp parse_response({:ok, response}, _, _, _) do
-        response.body |> process_body
-      end
-
-      defp process_body(body)
-      defp process_body("{" <> _ = body) do
-        Poison.decode!(body, keys: :atoms)
-      end
-      defp process_body(body), do: body
-
-      defp union_params(params, added_params)
-      defp union_params(nil, nil), do: []
-      defp union_params(nil, added_params), do: added_params
-      defp union_params(params, nil), do: params
-      defp union_params(params, added_params) do
-        params
-        |> parse_params(__MODULE__)
-        |> Keyword.merge(added_params)
-      end
+      unquote(parse_response_method)
+      unquote(parse_body_method)
+      unquote(union_params_method)
     end
   end
 end

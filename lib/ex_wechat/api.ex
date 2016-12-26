@@ -46,8 +46,7 @@ defmodule ExWechat.Api do
   """
   def post(url, body, params) do
     ensure_httpoison_start
-    HTTPoison.post(url, encode_post_body(body), [], params: params,
-      hackney: [pool: :wechat_pool])
+    HTTPoison.post(url, encode_post_body(body), [], params: params, hackney: [pool: :wechat_pool])
   end
 
   defp ensure_httpoison_start, do: :application.ensure_all_started(:httpoison)

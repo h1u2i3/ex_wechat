@@ -12,13 +12,15 @@ defmodule ExWechat.Helpers.ParamsParser do
   def parse_params(params, module) do
     params
     |> Enum.sort
-    |> Enum.map(fn({key, value}) ->
-         if value do
-           {key, value}
-         else
-           {key, get_param(key, module)}
-         end
-       end)
+    |> Enum.map(&generate_params(&1, module))
+  end
+
+  defp generate_params({key, value}, module) do
+    if value do
+      {key, value}
+    else
+      {key, get_param(key, module)}
+    end
   end
 
   defp get_param(key, module) do

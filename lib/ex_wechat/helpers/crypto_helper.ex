@@ -1,6 +1,6 @@
 defmodule ExWechat.Helpers.CryptoHelper do
   @moduledoc """
-    generate sha1 and verify sha1  of given string.
+  Generate sha1 hash and verify sha1 with given string.
   """
 
   @doc """
@@ -13,7 +13,6 @@ defmodule ExWechat.Helpers.CryptoHelper do
   @doc """
   Wechat sha hash
   """
-  def wechat_sha(params)
   def wechat_sha(params) when is_map(params) do
     params
     |> Enum.sort
@@ -21,12 +20,12 @@ defmodule ExWechat.Helpers.CryptoHelper do
     |> Enum.join("&")
     |> sha1_hash
   end
+
   def wechat_sha(params) when is_list(params) do
-    result = params
-              |> Enum.sort
-              |> Enum.join
-              |> sha1_hash
-    result
+    params
+    |> Enum.sort
+    |> Enum.join
+    |> sha1_hash
   end
 
   defp sha1_hash(string) do
