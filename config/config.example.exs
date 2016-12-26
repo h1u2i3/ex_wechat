@@ -32,9 +32,8 @@ use Mix.Config
 config :ex_wechat, ExWechat,
   appid: System.get_env("WECHAT_APPID") || "your appid",
   secret: System.get_env("WECHAT_APPSECRET") || "your app secret",
-  token: System.get_env("WECHAT_TOKEN") || "yout token",
-  access_token_cache: "/tmp/access_token",
-  api_definition_files: "your_api_definition_folder"
+  token: System.get_env("WECHAT_TOKEN") || "yout token"
+
 
 # add this config to prevent the accidental error when make a request.
 # https://github.com/edgurgel/httpoison/issues/130
