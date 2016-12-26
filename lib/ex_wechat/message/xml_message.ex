@@ -63,7 +63,7 @@ defmodule ExWechat.Message.XmlMessage do
     def to_map(struct) do
       struct
       |> Map.delete(:__struct__)
-      |> Map.put(:createtime, current_unix_time)
+      |> Map.put(:createtime, current_unix_time())
     end
   end
 
@@ -76,7 +76,7 @@ defmodule ExWechat.Message.XmlMessage do
       struct
       |> Map.delete(:__struct__)
       |> Map.take([:tousername, :fromusername, :msgtype])
-      |> Map.put(:createtime, current_unix_time)
+      |> Map.put(:createtime, current_unix_time())
       |> Map.put(:image, Map.take(struct, [:mediaid]))
     end
   end
@@ -91,7 +91,7 @@ defmodule ExWechat.Message.XmlMessage do
       struct
       |> Map.delete(:__struct__)
       |> Map.take([:tousername, :fromusername, :msgtype])
-      |> Map.put(:createtime, current_unix_time)
+      |> Map.put(:createtime, current_unix_time())
       |> Map.put(:video, Map.take(struct, ~w/title mediaid description/a))
     end
   end
@@ -106,7 +106,7 @@ defmodule ExWechat.Message.XmlMessage do
       struct
       |> Map.delete(:__struct__)
       |> Map.take([:tousername, :fromusername, :msgtype])
-      |> Map.put(:createtime, current_unix_time)
+      |> Map.put(:createtime, current_unix_time())
       |> Map.put(:voice, Map.take(struct, ~w/title mediaid description/a))
     end
   end
@@ -121,7 +121,7 @@ defmodule ExWechat.Message.XmlMessage do
       struct
       |> Map.delete(:__struct__)
       |> Map.take([:tousername, :fromusername, :msgtype])
-      |> Map.put(:createtime, current_unix_time)
+      |> Map.put(:createtime, current_unix_time())
       |> Map.put(:music, Map.take(struct,
                 ~w/title description musicurl hqmusicurl thumbmediaid/a))
     end
@@ -139,7 +139,7 @@ defmodule ExWechat.Message.XmlMessage do
       struct
       |> Map.delete(:__struct__)
       |> Map.take([:tousername, :fromusername, :msgtype])
-      |> Map.put(:createtime, current_unix_time)
+      |> Map.put(:createtime, current_unix_time())
       |> Map.put(:articlecount, length(struct.articles))
       |> Map.put(:articles, struct.articles |> Enum.map(&New.to_map/1))
     end

@@ -9,110 +9,85 @@ defmodule ExWechat.Helpers.MethodGenerator do
     Generate methods base on the api defintion data.
   """
   def generate_methods(origin) do
-    origin |> do_generate_methods
+    origin |> do_gen_methods
   end
 
 
   # Generate the AST data fro the methods
   # [access_token: [get_access_token: [doc: _, endpoint: _ ...]], menu: [ ... ]]
+  defp do_gen_methods(origin) do
+    main_methods =
+      Enum.map origin, fn({_, value}) ->
+        define_request_method(value)
+      end
 
-  defp do_generate_methods(origin, result \\ [])
-  defp do_generate_methods([], result), do: result
-  defp do_generate_methods(origin, []) do
-    do_generate_methods(origin, [define_helper_method])
-  end
-  defp do_generate_methods([{_key, value} | tail], result) do
-    do_generate_methods(tail, result ++ define_request_method(value))
-  end
+    helper_methods =
+      define_helper_method
 
-  defp define_request_method(data, result \\ [])
-  defp define_request_method([], result), do: result
-  defp define_request_method([ {key, list} | tail], result) do
-    [doc: doc, endpoint: endpoint, path: path,
-      http: http, params: params] = list
-
-    url = endpoint <> path
-    ast_data = case http do
-      :get  -> define_get_request_method(key,  url, doc, params)
-      :post -> define_post_request_method(key, url, doc, params)
+    quote do
+      unquote(helper_methods)
+      unquote(main_methods)
     end
-
-    define_request_method(tail, result ++ [ast_data])
   end
 
-  defp define_get_request_method(name, url, doc, params)  do
+  defp define_request_method(data) do
+    Enum.map data, fn({key, list}) ->
+      [doc: doc, endpoint: endpoint, path: path, http: http, params: params] = list
+      opts = [url: endpoint <> path, params: params]
+      gen_request_method(http, key, doc, opts)
+    end
+  end
+
+  defp gen_request_method(verb, name, doc, opts) do
+    case verb do
+      :get  -> gen_get_request_method(verb, name, doc, opts)
+      :post -> gen_post_request_method(verb, name, doc, opts)
+    end
+  end
+
+  defp gen_get_request_method(verb, name, doc, opts) do
+    [url: url, params: params] = opts
+
     quote do
       @doc unquote(doc)
-      def unquote(name)(added_params \\ []) do
-        unquote(url)
-        |> ExWechat.Api.get(union_params(unquote(params), added_params))
-        |> parse_response(unquote(name), added_params)
+      def unquote(name)(extra \\ []) do
+        name  = unquote(name)
+        verb  = unquote(verb)
+        url   = unquote(url)
+        params   = union_params(unquote(opts[:params]), extra)
+        callback = &ExWechat.Http.parse_response(&1, __MODULE__, name, nil, params)
+
+        apply(ExWechat.Http, verb, [[url: url, params: params], callback])
       end
     end
   end
 
-  defp define_post_request_method(name, url, doc, params) do
+  defp gen_post_request_method(verb, name, doc, opts) do
+    [url: url, params: params] = opts
+
     quote do
       @doc unquote(doc)
-      def unquote(name)(body, added_params \\ []) do
-        unquote(url)
-        |> ExWechat.Api.post(body, union_params(unquote(params), added_params))
-        |> parse_response(unquote(name), body, added_params)
+      def unquote(name)(body, extra \\ []) do
+        name  = unquote(name)
+        verb  = unquote(verb)
+        url   = unquote(url)
+        params   = union_params(unquote(params), extra)
+        callback = &ExWechat.Http.parse_response(&1, __MODULE__, name, body, params)
+
+        apply(ExWechat.Http, verb, [[url: url, body: body, params: params], callback])
       end
     end
   end
-
-  #  All the helper method that will be used above.
-  #
-  #    - parse_response
-  #    - union_params
 
   defp define_helper_method do
-    parse_response_method =
-      quote do
-        defp parse_response(response, name, body \\ nil, params)
-        defp parse_response({:ok, %Response{body: %{errcode: 40001}}}, name, body, params) do
-          module = __MODULE__
-          module.renew_access_token
-          case body do
-            nil -> apply(module, name, [params])
-            _   -> apply(module, name, [body, params])
-          end
-        end
-
-        defp parse_response({:error, %Error{reason: :closed}}, name, body, params) do
-          module = __MODULE__
-          case body do
-            nil -> apply(module, name, [params])
-            _   -> apply(module, name, [body, params])
-          end
-        end
-        defp parse_response({:error, error}, _, _, _), do: %{error: error.reason}
-        defp parse_response({:ok, response}, _, _, _), do: response.body |> process_body
-      end
-
-    parse_body_method =
-      quote do
-        defp process_body(body)
-        defp process_body("{" <> _ = body), do: Poison.decode!(body, keys: :atoms)
-        defp process_body(body), do: body
-      end
-
-    union_params_method =
-      quote do
-        defp union_params(params, added_params)
-        defp union_params(nil, nil), do: []
-        defp union_params(nil, added_params), do: added_params
-        defp union_params(params, nil), do: params
-        defp union_params(params, added_params) do
-          params |> parse_params(__MODULE__) |> Keyword.merge(added_params)
-        end
-      end
-
     quote do
-      unquote(parse_response_method)
-      unquote(parse_body_method)
-      unquote(union_params_method)
+      defp union_params(params, added_params)
+      defp union_params(nil, nil), do: []
+      defp union_params(nil, added_params), do: added_params
+      defp union_params(params, nil), do: params
+      defp union_params(params, added_params) do
+        params |> parse_params(__MODULE__) |> Keyword.merge(added_params)
+      end
     end
   end
 end

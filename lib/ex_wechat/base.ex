@@ -27,14 +27,16 @@ defmodule ExWechat.Base do
   defmacro __using__(opts) do
     config_methods =
       for key <- [:appid, :secret, :token] do
-        configs = case opts do
-                    []  -> Application.get_env(:ex_wechat, ExWechat) || []
-                    _   -> opts
-                  end
+        configs =
+          case opts do
+            []  -> Application.get_env(:ex_wechat, ExWechat) || []
+            _   -> opts
+          end
+
         quote do
           @doc false
           def unquote(key)() do
-            unquote(Keyword.get(configs, key, nil))
+            unquote(Keyword.get(configs, key, nil) |> get_value)
           end
         end
       end
@@ -62,4 +64,10 @@ defmodule ExWechat.Base do
       end
     end
   end
+
+  # get system env
+  defp get_value(value) when is_binary(value), do: value
+  defp get_value(key) when is_atom(key), do: to_string(key)
+  defp get_value({:system, key}), do: System.get_env(key)
+  defp get_value(_), do: nil
 end

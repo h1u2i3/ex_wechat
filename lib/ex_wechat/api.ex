@@ -20,44 +20,9 @@ defmodule ExWechat.Api do
   import ExWechat.Helpers.MethodGenerator
 
   @doc false
-  def get_params(key, module) do
-    apply module, :get_params, [key]
-  end
-
-  @doc false
-  def compile(origin) do
-    ast_data = generate_methods(origin)
-
-    quote do
-      unquote(ast_data)
-    end
-  end
-
-  @doc """
-  Do http get request with HTTPoison.
-  """
-  def get(url, params) do
-    ensure_httpoison_start
-    HTTPoison.get(url, [], params: params, hackney: [pool: :wechat_pool])
-  end
-
-  @doc """
-  Do http post request with HTTPoison.
-  """
-  def post(url, body, params) do
-    ensure_httpoison_start
-    HTTPoison.post(url, encode_post_body(body), [], params: params, hackney: [pool: :wechat_pool])
-  end
-
-  defp ensure_httpoison_start, do: :application.ensure_all_started(:httpoison)
-
-  defp encode_post_body(body)
-  defp encode_post_body(nil), do: nil
-  defp encode_post_body(body) when is_binary(body), do: body
-  defp encode_post_body(body) when is_map(body), do: Poison.encode!(body)
-
   defmacro __using__(config) do
-    base_method_ast = quoted_base_method(config)
+    base_method_ast =
+      quoted_base_method(config)
 
     quote do
       alias ExWechat.Token
@@ -67,49 +32,57 @@ defmodule ExWechat.Api do
 
       unquote(base_method_ast)
 
-      @doc """
-        This method can be used in you own defined module.
-        You can add this method in your module and afford the needed params.
-      """
-      def get_params(param) do
-        :not_set
-      end
-      defoverridable [get_params: 1]
-
-      @doc """
-        Return the access_token
-      """
-      def access_token do
-        Token._access_token(__MODULE__)
-      end
-
-      @doc """
-        When error code 400001, renew access_token
-      """
-      def renew_access_token do
-        Token._force_get_token(__MODULE__, :access_token)
-      end
-
-      @doc """
-      Return the jsapi_ticket
-      """
-      def jsapi_ticket do
-        Token._jsapi_ticket(__MODULE__)
-      end
-
-      @doc """
-      Return the wxcard_ticket
-      """
-      def wxcard_ticket do
-        Token._wxcard_ticket(__MODULE__)
-      end
+      unquote(params_method)
+      unquote(all_token_methods)
     end
   end
 
+  @doc false
   defmacro __before_compile__(env) do
     env.module
     |> Module.get_attribute(:api)
     |> process_api_definition_data
     |> compile
+  end
+
+  defp compile(origin) do
+    ast_data = generate_methods(origin)
+
+    quote do
+      unquote(ast_data)
+    end
+  end
+
+  defp all_token_methods do
+    for token_type <- [:access_token, :jsapi_ticket, :wxcard_ticket] do
+      quote do
+        @doc """
+        Get the #{unquote(token_type)}
+        """
+        def unquote(token_type)() do
+          apply(Token, :"_#{unquote(token_type)}", [__MODULE__])
+        end
+
+        @doc """
+        Renew the #{unquote(token_type)}
+        """
+        def unquote(:"renew_#{token_type}")() do
+          apply(Token, :"_force_get_token", [__MODULE__, unquote(token_type)])
+        end
+      end
+    end
+  end
+
+  defp params_method do
+    quote do
+      @doc """
+      This method can be used in you own defined module.
+      You can add this method in your module and afford the needed params.
+      """
+      def get_params(param) do
+        :not_set
+      end
+      defoverridable [get_params: 1]
+    end
   end
 end

@@ -26,7 +26,7 @@ defmodule ExWechat.Helpers.ParamsParser do
   defp get_param(key, module) do
     case Keyword.has_key?(module.__info__(:functions), key) do
       true   -> apply(module, key, [])
-      false  -> apply(Api, :get_params, [key, module])
+      false  -> apply(module, :get_params, [key])
     end
   end
 end
