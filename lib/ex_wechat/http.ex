@@ -1,6 +1,8 @@
 defmodule ExWechat.Http do
   @moduledoc """
-  Use HTTPoison to do http request
+  Http request module
+
+  Tery to make test easy.
   """
 
   @doc """
@@ -11,9 +13,16 @@ defmodule ExWechat.Http do
   def get(options, callback \\ &(&1)) do
     [url: url, params: params] = options
 
-    :get
-    |> httpoison([url, [], gen_opts(params)])
-    |> callback.()
+    # use test default value to make test easy, only modify by the HttpTestCase  
+    default = ExWechat.HttpTestCase.get({url: url, params: params})
+
+    if default do
+      default
+    else
+      :get
+      |> httpoison([url, [], gen_opts(params)])
+      |> callback.()
+    end
   end
 
   @doc """
@@ -22,9 +31,16 @@ defmodule ExWechat.Http do
   def post(options, callback \\ &(&1)) do
     [url: url, body: body, params: params] = options
 
-    :post
-    |> httpoison([url, encode_post_body(body), [], gen_opts(params)])
-    |> callback.()
+    # use test default value to make test easy, only modify by the HttpTestCase
+    default = ExWechat.HttpTestCase.get({url: url, params: params})
+
+    if default do
+      default
+    else
+      :post
+      |> httpoison([url, encode_post_body(body), [], gen_opts(params)])
+      |> callback.()
+    end
   end
 
   @doc """

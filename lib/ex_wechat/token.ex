@@ -1,68 +1,221 @@
 defmodule ExWechat.Token do
   @moduledoc """
-    Wechat Token fetcher.
+    Wechat Token(access_token, jsapi_ticket, wxcard_ticket) fetcher.
 
-    First get the token from cache, if invalid then get from the wechat server,
-    `access_token` cache can be set in `config.exs`.
-
-        config :ex_wechat, ExWechat,
-          appid: System.get_env("WECHAT_APPID") || "your appid",
-          secret: System.get_env("WECHAT_APPSECRET") || "your app secret",
-          token: System.get_env("WECHAT_TOKEN") || "yout token",
-
+    It contains a `Agent` to save tokens.
+    A token only survive for 7190 seconds.
   """
+  use GenServer
+
+  @type token :: {token_key, token_value}
+
+  @type token_key :: {api, token_type}
+  @type api :: atom
+  @type token_type :: :access_token | :jsapi_ticket | :wxcard_ticket
+
+  @type token_value :: {token_value, timestamp}
+  @type token_string :: binary
+  @type timestamp :: non_neg_integer
+
+  @type on_start :: {:ok, pid} | {:error, {:already_started, pid} | term}
+  @type options :: [option]
+  @type option :: {:debug, debug} |
+                  {:name, name} |
+                  {:timeout, timeout} |
+                  {:spawn_opt, Process.spawn_opt}
+
+  @type debug :: [:trace | :log | :statistics | {:log_to_file, Path.t}]
+  @type name :: atom | {:global, term} | {:via, module, term}
+
+
+  @cache ExWechat.Token.Cache
+
+  #================
+  # Server
+  #================
+
+  @doc """
+  Start the ExWechat.Token
+  """
+  @spec start_link(opts :: options) :: on_start
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, :ok, opts)
+  end
+
+  @doc """
+  Initialize the cache and the checker
+  """
+  @spec init(:ok) :: on_start
+  def init(:ok) do
+    # initialize the cache
+    cache = Agent.start_link(&Map.new/0, name: @cache)
+    # the loop checker, aim to abandon the token live long then 7190 seconds.
+    checker = Task.start_link(fn -> token_checker(cache) end)
+    # the waiting queue
+    waiting = %{}
+    # the fetching queue, prevent from repeat fetch request
+    fetching = []
+
+    {:ok, %{cache: cache, checker: checker, waiting: waiting, fetching: fetching}}
+  end
+
+  #================
+  # Callbacks
+  #================
+
+  def handle_call({:get, token_key}, from, state) do
+    %{waiting: waiting, fetching: fetching} = state
+
+    token_value = get_cache &(Map.get(&1, token_key))
+    is_fetching = token_key in fetching
+    is_waiting = from in Map.get(waiting, token_key, [])
+
+    cond do
+      token_value ->
+        {:reply, token_value |> elem(0), state}
+      !token_value && is_fetching && is_waiting ->
+        {:noreply, state, :infinity}
+      !token_value && is_fetching && !is_waiting ->
+        waiting  = put_in_waiting(waiting, token_key, from)
+        {:noreply, %{state | waiting: waiting}, :infinity}
+      !token_value && !is_fetching ->
+        waiting  = put_in_waiting(waiting, token_key, from)
+        fetching = [token_key | fetching]
+        GenServer.cast(__MODULE__, {:fetch, token_key})
+        {:noreply, %{state | waiting: waiting, fetching: fetching}, :infinity}
+      true ->
+        waiting = [from]
+        fetching = []
+        GenServer.cast(__MODULE__, {:fetch, token_key})
+        {:noreply, %{state | waiting: waiting, fetching: fetching}}
+    end
+  end
+
+  def handle_call({:refresh, token_key}, from, state) do
+    %{waiting: waiting, fetching: fetching} = state
+
+    waiting  = put_in_waiting(waiting, token_key, from)
+    fetching = [token_key | fetching]
+
+    # delete the token from cache
+    update_cache &(Map.delete(&1, token_key))
+
+    # fetch the token from server
+    GenServer.cast(__MODULE__, {:fetch, token_key})
+    {:noreply, %{state | fetching: fetching}}
+  end
+
+  def handle_cast({:fetch, token_key}, state) do
+    %{waiting: waiting, fetching: fetching} = state
+
+    # get module and token_type
+    {module, token_type} = token_key
+
+    # call the module method to get the token
+    method = "get_#{token_type}" |> String.to_atom
+    token_response = apply(module, method, [])
+    token_string = parse_token_string(token_response, token_type)
+
+    # send token to the pid in waiting queue
+    Enum.map(Map.get(waiting, token_key, []), fn(pid) ->
+      GenServer.reply(pid, token_string)
+    end)
+
+    # update the cache
+    update_cache &(Map.put(&1, token_key, {token_string, current_timestamp()}))
+
+    # change the state
+    {:noreply, %{state | waiting: Map.delete(waiting, token_key),
+                         fetching: List.delete(fetching, token_key)}}
+  end
+
+  #================
+  # Clients
+  #================
 
   @doc """
   Get the access token from wechat server.
   """
   def _access_token(module) do
-    _token(module, :access_token)
+    GenServer.call(__MODULE__, {:get, {module, :access_token}})
   end
 
   @doc """
   Get the jsapi ticket from wechat server.
   """
   def _jsapi_ticket(module) do
-    _token(module, :jsapi_ticket)
+    GenServer.call(__MODULE__, {:get, {module, :jsapi_ticket}})
   end
 
   @doc """
   Get the wxcard ticket from wechat server.
   """
   def _wxcard_ticket(module) do
-    _token(module, :wxcard_ticket)
+    GenServer.call(__MODULE__, {:get, {module, :wxcard_ticket}})
   end
 
-  @doc """
-    Force to get the new token
-  """
-  def _force_get_token(module, token_kind) do
-    fetch_token_and_write_cache(module, token_kind)
+  #================
+  # Server Private
+  #================
+
+  # check with token, and remove the token that over 7190 seconds
+  @spec token_checker(cache :: pid) :: any
+  defp token_checker(cache) do
+    # sleep for 1 second
+    Process.sleep(1000)
+    # get all the cache value from ExWechat.Token.Cache
+    tokens = get_cache(&(&1))
+    check_with_time(tokens)
+    token_checker(cache)
   end
 
-  defp _token(module, token_kind) do
-    token = ConCache.get(:ex_wechat_token, token_key(module, token_kind))
-    case token do
-      nil -> fetch_token_and_write_cache(module, token_kind)
-      _   -> token
+  # check with the token's timestamp
+  @spec check_with_time(tokens :: map) :: :ok
+  defp check_with_time(tokens) do
+    Enum.map(tokens, &check_token(&1))
+    :ok
+  end
+
+  @spec check_token(token :: token) :: :ok
+  defp check_token(token) do
+    {token_key, token_value} = token
+    {_, timestamp} = token_value
+    if current_timestamp() - timestamp >= 7190 do
+      update_cache fn(cache) ->
+        # send the message to refresh the token
+        Map.delete(cache, token_key)
+      end
+    end
+    :ok
+  end
+
+  @spec get_cache(fun :: function) :: any
+  defp get_cache(fun) do
+    Agent.get(@cache, fun)
+  end
+
+  @spec update_cache(fun :: function) :: :ok
+  defp update_cache(fun) do
+    Agent.update(@cache, fun)
+  end
+
+  @spec parse_token_string(token_response :: map, token_type :: token_type) :: binary | nil
+  defp parse_token_string(token_response, token_type) do
+    case token_type do
+      :access_token -> token_response[token_type]
+      _             -> token_response[:ticket]
     end
   end
 
-  defp fetch_token_and_write_cache(module, token_kind) do
-    method = "get_#{token_kind}" |> String.to_atom
-    response = apply(module, method, [])
-
-    token = case token_kind do
-      :access_token -> response[token_kind]
-      _             -> response[:ticket]
-    end
-
-    ConCache.put(:ex_wechat_token, token_key(module, token_kind), token)
-    token
+  @spec current_timestamp() :: non_neg_integer
+  defp current_timestamp() do
+    System.os_time(:seconds)
   end
 
-  defp token_key(module, token_kind) do
-    "#{Macro.to_string(module)}.#{token_kind}"
-    |> String.to_atom
+  @spec put_in_waiting(waiting :: map, token_key :: token_key, from :: pid) :: map
+  defp put_in_waiting(waiting, token_key, from) do
+    waiting
+    |> Map.get_and_update(token_key, &{&1, [from | List.wrap(&1)]})
+    |> elem(1)
   end
 end

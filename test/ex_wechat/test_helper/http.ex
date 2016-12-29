@@ -9,22 +9,23 @@ defmodule ExWechat.TestHelper.Http do
     quote do
       import :meck
 
-      def expect_response(url, params, body \\ "", result)
-      def expect_response(url, params, "", result) do
-        expect(:hackney,
-               :request,
-               [{ [:get, "#{url}?#{params_url(params)}", [], "",
-                  [pool: :wechat_pool]],
-                  {:ok, 200, "headers", :client} }])
-        expect(:hackney, :body, 1, {:ok, encode(result)})
+      def expect_response(:get, result) do
+        expect(ExWechat.Http, :get, 2, result)
+        # expect(:hackney,
+        #        :request,
+        #        [{ [:get, "#{url}?#{params_url(params)}", [], "",
+        #           [pool: :wechat_pool]],
+        #           {:ok, 200, "headers", :client} }])
+        # expect(:hackney, :body, 1, {:ok, encode(result)})
       end
-      def expect_response(url, params, body, result) do
-        expect(:hackney,
-               :request,
-               [{ [:post, "#{url}?#{params_url(params)}", [], encode(body),
-                  [pool: :wechat_pool]],
-                  {:ok, 200, "headers", :client} }])
-        expect(:hackney, :body, 1, {:ok, encode(result)})
+      def expect_response(:post, result) do
+        expect(ExWechat.Http, :get, 2, result)
+        # expect(:hackney,
+        #        :request,
+        #        [{ [:post, "#{url}?#{params_url(params)}", [], encode(body),
+        #           [pool: :wechat_pool]],
+        #           {:ok, 200, "headers", :client} }])
+        # expect(:hackney, :body, 1, {:ok, encode(result)})
       end
 
       defp params_url(params) do

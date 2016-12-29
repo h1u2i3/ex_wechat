@@ -16,7 +16,7 @@ defmodule ExWechat.Message do
       %{ text: %{content: "content"} }
       %{ image: %{media_id: "id"} }
   """
-  @spec send_custom(Module.t, String.t, Map.t) :: Map.t | Tuple.t
+  @spec send_custom(module, binary, map) :: map | term 
   def send_custom(module \\ ExWechat, openid,  message_params) do
     message_params
     |> JsonMessage.build_custom(openid)

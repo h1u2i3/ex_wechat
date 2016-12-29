@@ -32,8 +32,8 @@ defmodule ExWechat.Api do
 
       unquote(base_method_ast)
 
-      unquote(params_method)
-      unquote(all_token_methods)
+      unquote(params_method())
+      unquote(all_token_methods())
     end
   end
 
@@ -60,14 +60,18 @@ defmodule ExWechat.Api do
         Get the #{unquote(token_type)}
         """
         def unquote(token_type)() do
-          apply(Token, :"_#{unquote(token_type)}", [__MODULE__])
+          GenServer.call(ExWechat.Token,
+                         {:get, {__MODULE__, unquote(token_type)}})
+          # apply(Token, :"_#{unquote(token_type)}", [__MODULE__])
         end
 
         @doc """
         Renew the #{unquote(token_type)}
         """
         def unquote(:"renew_#{token_type}")() do
-          apply(Token, :"_force_get_token", [__MODULE__, unquote(token_type)])
+          GenServer.call(ExWechat.Token,
+                         {:refresh, {__MODULE__, unquote(token_type)}})
+          # apply(Token, :"_force_get_token", [__MODULE__, unquote(token_type)])
         end
       end
     end
