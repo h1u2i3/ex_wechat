@@ -24,7 +24,7 @@ defmodule ExWechat.Plugs.WechatSignatureResponderTest do
   @opts MyRouter.init([])
 
   test "should get forbidden when visit with no params" do
-    conn = bad_verify_request
+    conn = bad_verify_request()
 
     conn = MyRouter.call(conn, @opts)
 
@@ -44,7 +44,7 @@ defmodule ExWechat.Plugs.WechatSignatureResponderTest do
   end
 
   test "should get the params noncestr with right params" do
-    conn = right_verify_request
+    conn = right_verify_request()
 
     conn = MyRouter.call(conn, @opts)
 
@@ -54,7 +54,7 @@ defmodule ExWechat.Plugs.WechatSignatureResponderTest do
   end
 
   test "should not generate the message assgins" do
-    conn = right_verify_request
+    conn = right_verify_request()
 
     conn = MyRouter.call(conn, @opts)
 

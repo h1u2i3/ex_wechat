@@ -2,8 +2,6 @@ defmodule ExWechat.Helpers.MethodGenerator do
   @moduledoc """
     Generate AST method data base on api definition data.
   """
-  alias HTTPoison.Response
-  alias HTTPoison.Error
 
   @doc """
     Generate methods base on the api defintion data.
@@ -22,7 +20,7 @@ defmodule ExWechat.Helpers.MethodGenerator do
       end
 
     helper_methods =
-      define_helper_method
+      define_helper_method()
 
     quote do
       unquote(helper_methods)
@@ -50,14 +48,44 @@ defmodule ExWechat.Helpers.MethodGenerator do
 
     quote do
       @doc unquote(doc)
-      def unquote(name)(extra \\ []) do
+      def unquote(name)() do
+        unquote(name)(fn _ -> nil end, [])
+      end
+      def unquote(name)(callback) when is_function(callback) do
+        unquote(name)(callback, [])
+      end
+      def unquote(name)(extra) when is_list(extra) do
+        unquote(name)(fn _ -> nil end, extra)
+      end
+      def unquote(name)(callback, extra)
+            when is_function(callback) and is_list(extra) do
         name  = unquote(name)
         verb  = unquote(verb)
         url   = unquote(url)
-        params   = union_params(unquote(opts[:params]), extra)
-        callback = &ExWechat.Http.parse_response(&1, __MODULE__, name, nil, params)
+        params   = union_params(unquote(params), extra)
 
-        apply(ExWechat.Http, verb, [[url: url, params: params], callback])
+        wechat_case_fun =
+          Application.get_env(:ex_wechat, :wechat_case)
+        http_case_fun =
+          Application.get_env(:ex_wechat, :http_case)
+        default_callback =
+          &ExWechat.Http.parse_response(&1, __MODULE__, name, nil, params)
+
+        cond do
+          is_function(wechat_case_fun) ->
+            wechat_case_fun.()
+          true ->
+            callback =
+              cond do
+                is_function(http_case_fun) -> http_case_fun
+                callback.(true) == nil -> default_callback
+                true -> callback
+              end
+            opts = [url: url, params: params]
+            apply(ExWechat.Http, verb, [opts, callback])
+        end
+      after
+        delete_case_env()
       end
     end
   end
@@ -67,14 +95,43 @@ defmodule ExWechat.Helpers.MethodGenerator do
 
     quote do
       @doc unquote(doc)
-      def unquote(name)(body, extra \\ []) do
+      def unquote(name)(body) do
+        unquote(name)(body, fn _ -> nil end, [])
+      end
+      def unquote(name)(body, callback) when is_function(callback) do
+        unquote(name)(body, callback, [])
+      end
+      def unquote(name)(body, extra) when is_list(extra) do
+        unquote(name)(body, fn _ -> nil end, extra)
+      end
+      def unquote(name)(body, extra, callback) when is_function(callback) and is_list(extra) do
         name  = unquote(name)
         verb  = unquote(verb)
         url   = unquote(url)
         params   = union_params(unquote(params), extra)
-        callback = &ExWechat.Http.parse_response(&1, __MODULE__, name, body, params)
 
-        apply(ExWechat.Http, verb, [[url: url, body: body, params: params], callback])
+        wechat_case_fun =
+          Application.get_env(:ex_wechat, :wechat_case)
+        http_case_fun =
+          Application.get_env(:ex_wechat, :http_case)
+        default_callback =
+          &ExWechat.Http.parse_response(&1, __MODULE__, name, body, params)
+
+        cond do
+          is_function(wechat_case_fun) ->
+            wechat_case_fun.()
+          true ->
+            callback =
+              cond do
+                is_function(http_case_fun) -> http_case_fun
+                callback.(true) == nil -> default_callback
+                true -> callback
+              end
+            opts = [url: url, body: body, params: params]
+            apply(ExWechat.Http, verb, [opts, callback])
+        end
+      after
+        delete_case_env()
       end
     end
   end
@@ -87,6 +144,11 @@ defmodule ExWechat.Helpers.MethodGenerator do
       defp union_params(params, nil), do: params
       defp union_params(params, added_params) do
         params |> parse_params(__MODULE__) |> Keyword.merge(added_params)
+      end
+
+      defp delete_case_env do
+        Application.delete_env(:ex_wechat, :wechat_case)
+        Application.delete_env(:ex_wechat, :wechat_case)
       end
     end
   end

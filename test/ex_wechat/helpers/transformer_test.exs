@@ -56,8 +56,8 @@ defmodule ExWechat.Helpers.TransformerTest do
   end
 
   test "should transform from keyword to map" do
-    result = keyword_to_map(keyword_example)
+    result = keyword_to_map(keyword_example())
 
-    assert result == map_result
+    assert result == map_result()
   end
 end

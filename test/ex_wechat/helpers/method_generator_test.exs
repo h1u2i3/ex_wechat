@@ -1,15 +1,14 @@
 defmodule ExWechat.Helpers.MethodGeneratorTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   use ExWechat.Base
 
-  import ExWechat.TestHelper.Http
+  alias ExWechat.Tools.HttpCase
 
   defmodule ApiDemo do
     use ExWechat.Api
     @api [:access_token]
   end
 
-  @endpoint "https://api.weixin.qq.com/cgi-bin"
   @data "get real data"
 
   test "shoud generate the right methods" do
@@ -19,9 +18,7 @@ defmodule ExWechat.Helpers.MethodGeneratorTest do
   end
 
   test "shoud add method that actually work" do
-    expect_response("#{@endpoint}/token",
-      [grant_type: "client_credential", appid: appid, secret: secret], @data)
-
+    HttpCase.fake(@data)
     result = ApiDemo.get_access_token
 
     assert result == @data

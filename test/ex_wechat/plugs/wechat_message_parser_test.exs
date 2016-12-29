@@ -34,7 +34,7 @@ defmodule ExWechat.Plugs.WechatMessageParserTest do
   end
 
   test "should return forbidden when post with wrong verify params" do
-    conn = bad_verify_request
+    conn = bad_verify_request()
 
     conn = MyRouter.call(conn, @opts)
 
@@ -44,7 +44,7 @@ defmodule ExWechat.Plugs.WechatMessageParserTest do
   end
 
   test "should return success when post with right verify params" do
-    conn = right_verify_request
+    conn = right_verify_request()
 
     conn = MyRouter.call(conn, @opts)
 
@@ -54,7 +54,7 @@ defmodule ExWechat.Plugs.WechatMessageParserTest do
   end
 
   test "should get right message when post with right verify params" do
-    conn = right_verify_request
+    conn = right_verify_request()
 
     conn = MyRouter.call(conn, @opts)
 

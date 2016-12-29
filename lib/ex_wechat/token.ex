@@ -47,8 +47,6 @@ defmodule ExWechat.Token do
   """
   @spec init(:ok) :: on_start
   def init(:ok) do
-    # add ets table for http case use
-    :ets.new(:ex_wechat_http_case, [:set, :public, :named_table])
     # initialize the cache
     {:ok, cache} = Agent.start_link(&Map.new/0, name: @cache)
     # the loop checker, aim to abandon the token live long then 7190 seconds.

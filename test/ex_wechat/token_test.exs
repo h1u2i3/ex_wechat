@@ -1,8 +1,7 @@
 defmodule ExWechat.TokenTest do
-  use ExUnit.Case
-  use ExWechat.Base
+  use ExUnit.Case, async: true
 
-  import ExWechat.TestHelper.Http
+  alias ExWechat.Tools.HttpCase
 
   defmodule Demo do
     use ExWechat.Api
@@ -10,23 +9,19 @@ defmodule ExWechat.TokenTest do
 
   @cache ExWechat.Token.Cache
   @module ExWechat.TokenTest.Demo
-  @endpoint "https://api.weixin.qq.com/cgi-bin"
+
   @data %{access_token: "token", expire_in: "7200"}
 
 
   test "expect get the data from server" do
-    clean_test_case()
-    expect_response("#{@endpoint}/token",
-      [grant_type: "client_credential", appid: appid(), secret: secret()], @data)
-
+    HttpCase.fake @data
     assert @data == Demo.get_access_token
   end
 
   test "get access_token should write to cache" do
-    del_access_token_cache
-    expect_response("#{@endpoint}/token",
-      [grant_type: "client_credential", appid: appid(), secret: secret()], @data)
+    del_access_token_cache()
 
+    HttpCase.fake(@data)
     access_token = Demo.access_token
     cache =
       @cache
@@ -38,10 +33,8 @@ defmodule ExWechat.TokenTest do
 
   test "when cache exists should read from cache" do
     prepare_for_access_token_cache("token")
-    expect_response("#{@endpoint}/token",
-      [grant_type: "client_credential", appid: appid(), secret: secret()],
-      %{access_token: "bad_token", expire_in: "7200"})
 
+    HttpCase.fake(@data)
     access_token = Demo.access_token
 
     refute access_token == "bad_token"
@@ -50,10 +43,8 @@ defmodule ExWechat.TokenTest do
 
   test "force get access_token will get the new access_token" do
     prepare_for_access_token_cache("token")
-    expect_response("#{@endpoint}/token",
-      [grant_type: "client_credential", appid: appid(), secret: secret()],
-      %{access_token: "new_token", expire_in: "7200"})
 
+    HttpCase.fake %{access_token: "new_token", expire_in: "7200"}
     access_token = Demo.renew_access_token
 
     assert access_token == "new_token"
@@ -64,7 +55,7 @@ defmodule ExWechat.TokenTest do
   end
 
   defp prepare_for_access_token_cache(data) do
-    del_access_token_cache
+    del_access_token_cache()
     Agent.update @cache, fn _ ->
       %{{@module, :access_token} => {data, System.os_time(:seconds)}}
     end

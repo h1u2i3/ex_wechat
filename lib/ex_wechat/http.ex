@@ -2,7 +2,7 @@ defmodule ExWechat.Http do
   @moduledoc """
   Http request module
 
-  Tery to make test easy.
+  Try to make test easy.
   """
 
   @doc """
@@ -13,16 +13,9 @@ defmodule ExWechat.Http do
   def get(options, callback \\ &(&1)) do
     [url: url, params: params] = options
 
-    # use test default value to make test easy, only modify by the HttpTestCase
-    default = get_test_default_value(url, params)
-
-    if default do
-      default
-    else
-      :get
-      |> httpoison([url, [], gen_opts(params)])
-      |> callback.()
-    end
+    :get
+    |> httpoison([url, [], gen_opts(params)])
+    |> callback.()
   end
 
   @doc """
@@ -31,16 +24,9 @@ defmodule ExWechat.Http do
   def post(options, callback \\ &(&1)) do
     [url: url, body: body, params: params] = options
 
-    # use test default value to make test easy, only modify by the HttpTestCase
-    default = get_test_default_value(url, params)
-
-    if default do
-      default
-    else
-      :post
-      |> httpoison([url, encode_post_body(body), [], gen_opts(params)])
-      |> callback.()
-    end
+    :post
+    |> httpoison([url, encode_post_body(body), [], gen_opts(params)])
+    |> callback.()
   end
 
   @doc """
@@ -67,13 +53,4 @@ defmodule ExWechat.Http do
   defp encode_post_body(nil), do: nil
   defp encode_post_body(body) when is_binary(body), do: body
   defp encode_post_body(body) when is_map(body), do: Poison.encode!(body)
-
-  # get test default value
-  def get_test_default_value(url, params) do
-    if Mix.env == :test do
-      ExWechat.Tools.HttpCase.get(url, params)
-    else
-      []
-    end
-  end
 end
