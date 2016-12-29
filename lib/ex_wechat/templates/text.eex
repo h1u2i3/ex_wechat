@@ -1,7 +1,7 @@
 <xml>
 <ToUserName><![CDATA[<%= @tousername %>]]></ToUserName>
 <FromUserName><![CDATA[<%= @fromusername %>]]></FromUserName>
-<CreateTime><%= ExWechat.Helpers.TimeHelper.current_unix_time %></CreateTime>
+<CreateTime><%= @createtime %></CreateTime>
 <MsgType><![CDATA[<%= @msgtype %>]]></MsgType>
 <Content><![CDATA[<%= @content %>]]></Content>
 </xml>

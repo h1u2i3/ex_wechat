@@ -1,7 +1,8 @@
 defmodule ExWechat.TokenTest do
   use ExUnit.Case
   use ExWechat.Base
-  use ExWechat.TestHelper.Http
+
+  import ExWechat.TestHelper.Http
 
   defmodule Demo do
     use ExWechat.Api
@@ -12,51 +13,46 @@ defmodule ExWechat.TokenTest do
   @endpoint "https://api.weixin.qq.com/cgi-bin"
   @data %{access_token: "token", expire_in: "7200"}
 
-  setup do
-    new ExWechat.Http
-    on_exit fn -> unload() end
-    :ok
+
+  test "expect get the data from server" do
+    clean_test_case()
+    expect_response("#{@endpoint}/token",
+      [grant_type: "client_credential", appid: appid(), secret: secret()], @data)
+
+    assert @data == Demo.get_access_token
   end
 
-  # test "expect get the data from server" do
-  #   expect_response("#{@endpoint}/token",
-  #     [grant_type: "client_credential", appid: appid, secret: secret], @data)
-  #
-  #   assert @data == Demo.get_access_token
-  # end
-  #
-  # test "get access_token should write to cache" do
-  #   del_access_token_cache
-  #   expect_response("#{@endpoint}/token",
-  #     [grant_type: "client_credential", appid: appid, secret: secret], @data)
-  #
-  #   access_token = Demo.access_token
-  #   cache =
-  #     @cache
-  #     |> Agent.get(&(Map.get(&1, {@module, :access_token})))
-  #     |> elem(0)
-  #
-  #   assert access_token == cache
-  # end
-  #
-  # test "when cache exists should read from cache" do
-  #   prepare_for_access_token_cache("token")
-  #   expect_response("#{@endpoint}/token",
-  #     [grant_type: "client_credential", appid: appid, secret: secret],
-  #     %{access_token: "bad_token", expire_in: "7200"})
-  #
-  #   access_token = Demo.access_token
-  #
-  #   refute access_token == "bad_token"
-  #   assert access_token == "token"
-  # end
+  test "get access_token should write to cache" do
+    del_access_token_cache
+    expect_response("#{@endpoint}/token",
+      [grant_type: "client_credential", appid: appid(), secret: secret()], @data)
+
+    access_token = Demo.access_token
+    cache =
+      @cache
+      |> Agent.get(&(Map.get(&1, {@module, :access_token})))
+      |> elem(0)
+
+    assert access_token == cache
+  end
+
+  test "when cache exists should read from cache" do
+    prepare_for_access_token_cache("token")
+    expect_response("#{@endpoint}/token",
+      [grant_type: "client_credential", appid: appid(), secret: secret()],
+      %{access_token: "bad_token", expire_in: "7200"})
+
+    access_token = Demo.access_token
+
+    refute access_token == "bad_token"
+    assert access_token == "token"
+  end
 
   test "force get access_token will get the new access_token" do
     prepare_for_access_token_cache("token")
-    # expect_response("#{@endpoint}/token",
-    #   [grant_type: "client_credential", appid: appid, secret: secret],
-    #   %{access_token: "new_token", expire_in: "7200"})
-    expect_response :get, %{access_token: "new_token", expire_in: "7200"}
+    expect_response("#{@endpoint}/token",
+      [grant_type: "client_credential", appid: appid(), secret: secret()],
+      %{access_token: "new_token", expire_in: "7200"})
 
     access_token = Demo.renew_access_token
 

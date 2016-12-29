@@ -5,8 +5,8 @@ defmodule ExWechat.Message.XmlMessage do
 
   import ExWechat.Helpers.XmlParser
   import ExWechat.Helpers.XmlRender
-  import ExWechat.Helpers.TimeHelper
 
+  alias ExWechat.Helpers.TimeHelper
   alias ExWechat.Message.XmlMessage.Text
   alias ExWechat.Message.XmlMessage.Image
   alias ExWechat.Message.XmlMessage.Voice
@@ -33,10 +33,13 @@ defmodule ExWechat.Message.XmlMessage do
     This method will automaticlly check the `msgtype`,
     and choose the right template to render message.
   """
-  def build(message) do
+  def build(message, time \\ &TimeHelper.current_unix_time/0) do
     msgtype = message[:msgtype] || "text"
     module = Module.concat [ExWechat, Message, XmlMessage,
                             msgtype |> Macro.camelize]
+
+    message = Enum.into(message, %{})
+              |> Map.put(:createtime, time.())
 
     module
     |> struct(message)
@@ -63,7 +66,6 @@ defmodule ExWechat.Message.XmlMessage do
     def to_map(struct) do
       struct
       |> Map.delete(:__struct__)
-      |> Map.put(:createtime, current_unix_time())
     end
   end
 
@@ -75,8 +77,7 @@ defmodule ExWechat.Message.XmlMessage do
     def to_map(struct) do
       struct
       |> Map.delete(:__struct__)
-      |> Map.take([:tousername, :fromusername, :msgtype])
-      |> Map.put(:createtime, current_unix_time())
+      |> Map.take([:tousername, :fromusername, :msgtype, :createtime])
       |> Map.put(:image, Map.take(struct, [:mediaid]))
     end
   end
@@ -90,8 +91,7 @@ defmodule ExWechat.Message.XmlMessage do
     def to_map(struct) do
       struct
       |> Map.delete(:__struct__)
-      |> Map.take([:tousername, :fromusername, :msgtype])
-      |> Map.put(:createtime, current_unix_time())
+      |> Map.take([:tousername, :fromusername, :msgtype, :createtime])
       |> Map.put(:video, Map.take(struct, ~w/title mediaid description/a))
     end
   end
@@ -105,8 +105,7 @@ defmodule ExWechat.Message.XmlMessage do
     def to_map(struct) do
       struct
       |> Map.delete(:__struct__)
-      |> Map.take([:tousername, :fromusername, :msgtype])
-      |> Map.put(:createtime, current_unix_time())
+      |> Map.take([:tousername, :fromusername, :msgtype, :createtime])
       |> Map.put(:voice, Map.take(struct, ~w/title mediaid description/a))
     end
   end
@@ -120,8 +119,7 @@ defmodule ExWechat.Message.XmlMessage do
     def to_map(struct) do
       struct
       |> Map.delete(:__struct__)
-      |> Map.take([:tousername, :fromusername, :msgtype])
-      |> Map.put(:createtime, current_unix_time())
+      |> Map.take([:tousername, :fromusername, :msgtype, :createtime])
       |> Map.put(:music, Map.take(struct,
                 ~w/title description musicurl hqmusicurl thumbmediaid/a))
     end
@@ -138,8 +136,7 @@ defmodule ExWechat.Message.XmlMessage do
     def to_map(struct) do
       struct
       |> Map.delete(:__struct__)
-      |> Map.take([:tousername, :fromusername, :msgtype])
-      |> Map.put(:createtime, current_unix_time())
+      |> Map.take([:tousername, :fromusername, :msgtype, :createtime])
       |> Map.put(:articlecount, length(struct.articles))
       |> Map.put(:articles, struct.articles |> Enum.map(&New.to_map/1))
     end

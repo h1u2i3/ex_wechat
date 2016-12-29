@@ -47,10 +47,12 @@ defmodule ExWechat.Token do
   """
   @spec init(:ok) :: on_start
   def init(:ok) do
+    # add ets table for http case use
+    :ets.new(:ex_wechat_http_case, [:set, :public, :named_table])
     # initialize the cache
-    cache = Agent.start_link(&Map.new/0, name: @cache)
+    {:ok, cache} = Agent.start_link(&Map.new/0, name: @cache)
     # the loop checker, aim to abandon the token live long then 7190 seconds.
-    checker = Task.start_link(fn -> token_checker(cache) end)
+    {:ok, checker} = Task.start_link(fn -> token_checker(cache) end)
     # the waiting queue
     waiting = %{}
     # the fetching queue, prevent from repeat fetch request
@@ -102,7 +104,7 @@ defmodule ExWechat.Token do
 
     # fetch the token from server
     GenServer.cast(__MODULE__, {:fetch, token_key})
-    {:noreply, %{state | fetching: fetching}}
+    {:noreply, %{state | waiting: waiting, fetching: fetching}}
   end
 
   def handle_cast({:fetch, token_key}, state) do

@@ -13,8 +13,8 @@ defmodule ExWechat.Http do
   def get(options, callback \\ &(&1)) do
     [url: url, params: params] = options
 
-    # use test default value to make test easy, only modify by the HttpTestCase  
-    default = ExWechat.HttpTestCase.get({url: url, params: params})
+    # use test default value to make test easy, only modify by the HttpTestCase
+    default = get_test_default_value(url, params)
 
     if default do
       default
@@ -32,7 +32,7 @@ defmodule ExWechat.Http do
     [url: url, body: body, params: params] = options
 
     # use test default value to make test easy, only modify by the HttpTestCase
-    default = ExWechat.HttpTestCase.get({url: url, params: params})
+    default = get_test_default_value(url, params)
 
     if default do
       default
@@ -67,4 +67,13 @@ defmodule ExWechat.Http do
   defp encode_post_body(nil), do: nil
   defp encode_post_body(body) when is_binary(body), do: body
   defp encode_post_body(body) when is_map(body), do: Poison.encode!(body)
+
+  # get test default value
+  def get_test_default_value(url, params) do
+    if Mix.env == :test do
+      ExWechat.Tools.HttpCase.get(url, params)
+    else
+      []
+    end
+  end
 end

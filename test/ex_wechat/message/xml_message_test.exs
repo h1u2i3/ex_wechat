@@ -2,14 +2,7 @@ defmodule ExWechat.XmlMessageTest do
   use ExUnit.Case, async: true
 
   alias ExWechat.Message.XmlMessage
-  import :meck
   import ExWechat.TestHelper.AssertHelper
-
-  setup do
-    new ExWechat.Helpers.TimeHelper
-    on_exit fn -> unload() end
-    :ok
-  end
 
   def text do
     %{
@@ -270,10 +263,9 @@ defmodule ExWechat.XmlMessageTest do
 
   for message_kind <- [:text, :voice, :video, :image, :news, :music] do
     test "should get the right #{message_kind} xml message" do
-      expect(ExWechat.Helpers.TimeHelper, :current_unix_time, 0, 1478942475)
       xml_msg = __MODULE__
                 |> apply(unquote(String.to_atom("#{message_kind}_params")), [])
-                |> XmlMessage.build
+                |> XmlMessage.build(fn -> 1478942475 end)
 
       assert_equal_string xml_msg,
         apply(__MODULE__, unquote("#{message_kind}_xml" |> String.to_atom), [])
