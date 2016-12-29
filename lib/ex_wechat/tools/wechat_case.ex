@@ -7,4 +7,14 @@ defmodule ExWechat.Tools.WechatCase do
     Application.put_env :ex_wechat, :wechat_case,
     fn -> response end
   end
+
+  def http_fake(response) do
+    Application.put_env :ex_wechat, :http_case,
+    fn _ -> response end
+  end
+
+  def wechat_site_fake(response) do
+    Application.put_env :ex_wechat, :wechat_site_case,
+    fn _ -> response end
+  end
 end

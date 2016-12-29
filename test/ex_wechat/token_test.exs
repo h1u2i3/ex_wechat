@@ -2,7 +2,6 @@ defmodule ExWechat.TokenTest do
   use ExUnit.Case, async: true
 
   alias ExWechat.Tools.WechatCase
-  alias ExWechat.Tools.HttpCase
 
   defmodule Demo do
     use ExWechat.Api
@@ -15,13 +14,11 @@ defmodule ExWechat.TokenTest do
 
 
   test "expect get the data from server" do
-    HttpCase.fake @data
+    WechatCase.http_fake @data
     assert @data == Demo.get_access_token
   end
 
   test "get access_token should write to cache" do
-    del_access_token_cache()
-
     WechatCase.fake(@data)
     access_token = Demo.access_token
     cache =

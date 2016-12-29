@@ -4,6 +4,8 @@ defmodule ExWechat.Plugs.WechatWebsite do
   """
   import Plug.Conn
 
+  alias ExWechat.Http
+
   @open_endpoint "https://open.weixin.qq.com"
   @open_path "/connect/oauth2/authorize"
 
@@ -27,50 +29,48 @@ defmodule ExWechat.Plugs.WechatWebsite do
     end
   end
 
-  def state(request_id) do
-    request_id
+  def state do
+    "ex_wechat_state"
   end
 
   defp get_wechat_info(conn, code, options) do
-    case HTTPoison.get(request_auth_url(code, options),
-          hackney: [pool: :wechat_pool]) do
-      {:ok, response} ->
-        result = Poison.decode!(response.body, keys: :atoms)
-        conn
-        |> assign(:wechat_result, result)
-        |> put_session(:openid, result.openid)
+    wechat_site_case = Application.get_env(:ex_wechat, :wechat_site_case)
+    callback = &Http.parse_wechat_site/1
+    callback =
+      if is_function(wechat_site_case) do
+        wechat_site_case
+      else
+        callback
+      end
 
-      {:error, _error} ->
-        conn |> halt
-    end
+    result = Http.get(request_auth_opts(code, options), callback)
+
+    conn
+    |> assign(:wechat_result, result)
+    |> put_session(:openid, result.openid)
+  after
+    Application.delete_env(:ex_wechat, :wechat_site_case)
   end
 
-  defp request_auth_url(code, options) do
+  defp request_auth_opts(code, options) do
     api = options[:api] || ExWechat.Api
     appid = apply(api, :appid, [])
     secret = apply(api, :secret, [])
 
-    "#{api_url}?appid=#{appid}&secret=#{secret}" <>
-    "&code=#{code}&grant_type=authorization_code"
+    [url: api_url(), params: [appid: appid, secret: secret,
+      code: code, grant_type: "authorization_code"]]
   end
 
-  defp request_code_url(conn, scope, options) do
+  defp request_code_url(_conn, scope, options) do
     api = options[:api] || ExWechat.Api
     module = options[:state] || __MODULE__
     url = options[:url] || raise "You didn't set the redirect uri"
 
     appid = apply(api, :appid, [])
-    state = apply(module, :state, [request_id(conn)])
+    state = apply(module, :state, [])
 
-    "#{open_url}?appid=#{appid}&redirect_uri=#{redirect_uri(url)}" <>
+    "#{open_url()}?appid=#{appid}&redirect_uri=#{redirect_uri(url)}" <>
     "&response_type=code&scope=#{scope}&state=#{state}#wechat_redirect"
-  end
-
-  defp request_id(conn) do
-    conn.resp_headers
-    |> List.to_tuple
-    |> elem(1)
-    |> elem(1)
   end
 
   defp redirect_uri(url) do

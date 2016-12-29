@@ -2,7 +2,7 @@ defmodule ExWechat.Helpers.MethodGeneratorTest do
   use ExUnit.Case, async: true
   use ExWechat.Base
 
-  alias ExWechat.Tools.HttpCase
+  alias ExWechat.Tools.WechatCase
 
   defmodule ApiDemo do
     use ExWechat.Api
@@ -18,7 +18,7 @@ defmodule ExWechat.Helpers.MethodGeneratorTest do
   end
 
   test "shoud add method that actually work" do
-    HttpCase.fake(@data)
+    WechatCase.http_fake(@data)
     result = ApiDemo.get_access_token
 
     assert result == @data

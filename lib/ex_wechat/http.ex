@@ -32,9 +32,14 @@ defmodule ExWechat.Http do
   @doc """
   Parse responde body, define for api, able to re-run the api functions.
   """
-  def parse_response(response, module, name, body \\ nil, params)
   def parse_response({:error, error}, _, _, _, _), do: %{error: error.reason}
   def parse_response({:ok, response}, _, _, _, _), do: response.body |> process_body
+
+  @doc """
+  Parse body for wechat site plug
+  """
+  def parse_wechat_site({:error, error}), do: %{error: error.reason}
+  def parse_wechat_site({:ok, response}), do: response.body |> process_body
 
   defp httpoison(verb, opts) do
     apply(HTTPoison, verb, opts)
