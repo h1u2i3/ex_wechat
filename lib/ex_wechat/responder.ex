@@ -46,14 +46,14 @@ defmodule ExWechat.Responder do
 
     There are several methods you can override:
 
-        defp on_text_responder(conn),         do: conn
-        defp on_image_responder(conn),        do: conn
-        defp on_voice_responder(conn),        do: conn
-        defp on_video_responder(conn),        do: conn
-        defp on_shortvideo_responder(conn),   do: conn
-        defp on_location_responder(conn),     do: conn
-        defp on_link_responder(conn),         do: conn
-        defp on_event_responder(conn),        do: conn
+        def on_text_responder(conn),         do: conn
+        def on_image_responder(conn),        do: conn
+        def on_voice_responder(conn),        do: conn
+        def on_video_responder(conn),        do: conn
+        def on_shortvideo_responder(conn),   do: conn
+        def on_location_responder(conn),     do: conn
+        def on_link_responder(conn),         do: conn
+        def on_event_responder(conn),        do: conn
 
     these methods must return a `Plug.Conn`,
     just choose what you need.

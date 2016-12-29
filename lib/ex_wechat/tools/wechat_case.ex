@@ -5,6 +5,6 @@ defmodule ExWechat.Tools.WechatCase do
 
   def fake(response) do
     Application.put_env :ex_wechat, :wechat_case,
-    fn _ -> response end
+    fn -> response end
   end
 end

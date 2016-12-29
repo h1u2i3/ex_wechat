@@ -17,6 +17,8 @@ defmodule ExWechat.Token do
   @type token_string :: binary
   @type timestamp :: non_neg_integer
 
+  @type state :: map
+
   @type on_start :: {:ok, pid} | {:error, {:already_started, pid} | term}
   @type options :: [option]
   @type option :: {:debug, debug} |
@@ -45,7 +47,7 @@ defmodule ExWechat.Token do
   @doc """
   Initialize the cache and the checker
   """
-  @spec init(:ok) :: on_start
+  @spec init(:ok) :: {:ok, state}
   def init(:ok) do
     # initialize the cache
     {:ok, cache} = Agent.start_link(&Map.new/0, name: @cache)
@@ -132,26 +134,13 @@ defmodule ExWechat.Token do
   #================
   # Clients
   #================
-
-  @doc """
-  Get the access token from wechat server.
-  """
-  def _access_token(module) do
-    GenServer.call(__MODULE__, {:get, {module, :access_token}})
-  end
-
-  @doc """
-  Get the jsapi ticket from wechat server.
-  """
-  def _jsapi_ticket(module) do
-    GenServer.call(__MODULE__, {:get, {module, :jsapi_ticket}})
-  end
-
-  @doc """
-  Get the wxcard ticket from wechat server.
-  """
-  def _wxcard_ticket(module) do
-    GenServer.call(__MODULE__, {:get, {module, :wxcard_ticket}})
+  for token_type <- [:access_token, :jsapi_ticket, :wxcard_ticket] do
+    @doc """
+    Get the #{token_type} from wechat server
+    """
+    def unquote(:"_#{token_type}")(module) do
+      GenServer.call(__MODULE__, {:get, {module, unquote(token_type)}})
+    end
   end
 
   #================

@@ -104,7 +104,8 @@ defmodule ExWechat.Helpers.MethodGenerator do
       def unquote(name)(body, extra) when is_list(extra) do
         unquote(name)(body, fn _ -> nil end, extra)
       end
-      def unquote(name)(body, extra, callback) when is_function(callback) and is_list(extra) do
+      def unquote(name)(body, callback, extra)
+            when is_function(callback) and is_list(extra) do
         name  = unquote(name)
         verb  = unquote(verb)
         url   = unquote(url)
@@ -138,10 +139,6 @@ defmodule ExWechat.Helpers.MethodGenerator do
 
   defp define_helper_method do
     quote do
-      defp union_params(params, added_params)
-      defp union_params(nil, nil), do: []
-      defp union_params(nil, added_params), do: added_params
-      defp union_params(params, nil), do: params
       defp union_params(params, added_params) do
         params |> parse_params(__MODULE__) |> Keyword.merge(added_params)
       end

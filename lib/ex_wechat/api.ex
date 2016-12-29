@@ -62,7 +62,6 @@ defmodule ExWechat.Api do
         def unquote(token_type)() do
           GenServer.call(ExWechat.Token,
                          {:get, {__MODULE__, unquote(token_type)}})
-          # apply(Token, :"_#{unquote(token_type)}", [__MODULE__])
         end
 
         @doc """
@@ -71,7 +70,6 @@ defmodule ExWechat.Api do
         def unquote(:"renew_#{token_type}")() do
           GenServer.call(ExWechat.Token,
                          {:refresh, {__MODULE__, unquote(token_type)}})
-          # apply(Token, :"_force_get_token", [__MODULE__, unquote(token_type)])
         end
       end
     end

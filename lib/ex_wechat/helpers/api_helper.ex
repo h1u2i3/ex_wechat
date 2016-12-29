@@ -11,11 +11,10 @@ defmodule ExWechat.Helpers.ApiHelper do
   @doc """
     Process for needed api definition data.
   """
-  def process_api_definition_data(needed)
   def process_api_definition_data(nil), do: process_api_definition_data(:all)
-  def process_api_definition_data(:all), do: all_api_definition_data
+  def process_api_definition_data(:all), do: all_api_definition_data()
   def process_api_definition_data(needed) do
-    all_api_definition_data |> Keyword.take(needed ++ [:access_token])
+    all_api_definition_data() |> Keyword.take([:access_token | needed])
   end
 
   # Get all the data of all the api definition file

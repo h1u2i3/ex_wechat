@@ -16,10 +16,13 @@ defmodule ExWechat.Helpers.ParamsParser do
   end
 
   defp generate_params({key, value}, module) do
-    if value do
-      {key, value}
-    else
-      {key, get_param(key, module)}
+    cond do
+      key && value ->
+        {key, value}
+      key ->
+        {key, get_param(key, module)}
+      true ->
+        []
     end
   end
 
