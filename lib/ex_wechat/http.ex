@@ -5,28 +5,35 @@ defmodule ExWechat.Http do
   Try to make test easy.
   """
 
-  @doc """
-  Do http get request with HTTPoison.
+  for verb <- [:get, :post] do
+    @doc """
+    Do http #{verb} request with HTTPoison.
+    Use a callback method to parse the reponse, and controll the error handling
+    """
+    def unquote(verb)(options, callback \\ &(&1)) do
+      url    = options[:url]
+      body   = options[:body]
+      params = options[:params]
 
-  Use a callback method to parse the reponse, and controll the error handling
-  """
-  def get(options, callback \\ &(&1)) do
-    [url: url, params: params] = options
+      http_case_fun =
+        Application.get_env(:ex_wechat, :http_case)
+      do_http_case =
+        cond do
+          is_function(http_case_fun) -> http_case_fun
+          true -> &(&1)
+        end
 
-    :get
-    |> httpoison([url, [], gen_opts(params)])
-    |> callback.()
-  end
-
-  @doc """
-  Do http post request with HTTPoison.
-  """
-  def post(options, callback \\ &(&1)) do
-    [url: url, body: body, params: params] = options
-
-    :post
-    |> httpoison([url, encode_post_body(body), [], gen_opts(params)])
-    |> callback.()
+      case unquote(verb) do
+        :get ->
+          HTTPoison.get(url, [], gen_opts(params))
+        :post ->
+          HTTPoison.post(url, encode_post_body(body), [], gen_opts(params))
+      end
+      |> do_http_case.()
+      |> callback.()
+    after
+      Application.delete_env(:ex_wechat, :http_case)
+    end
   end
 
   @doc """
@@ -41,20 +48,14 @@ defmodule ExWechat.Http do
   def parse_wechat_site({:error, error}), do: %{error: error.reason}
   def parse_wechat_site({:ok, response}), do: response.body |> process_body
 
-  defp httpoison(verb, opts) do
-    apply(HTTPoison, verb, opts)
-  end
-
   defp gen_opts(params) do
     [params: params, hackney: [pool: :wechat_pool]]
   end
 
-  defp process_body(body)
   defp process_body("{" <> _ = body), do: Poison.decode!(body, keys: :atoms)
   defp process_body(body), do: body
 
   # encode post request body
-  defp encode_post_body(body)
   defp encode_post_body(nil), do: nil
   defp encode_post_body(body) when is_binary(body), do: body
   defp encode_post_body(body) when is_map(body), do: Poison.encode!(body)

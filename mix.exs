@@ -63,8 +63,8 @@ defmodule ExWechat.Mixfile do
       {:mix_test_watch, "~> 0.2", only: :dev},
       {:dogma, "~> 0.1", only: :dev},
 
-      {:excoveralls, "~> 0.5", only: :test},
-      {:phoenix, "~> 1.2.1", only: :test},
+      {:excoveralls, "~> 0.5.7", only: :test},
+      {:phoenix, "~> 1.2.1", only: :test}
     ]
   end
 

@@ -113,8 +113,6 @@ defmodule ExWechat.Helpers.MethodGenerator do
 
         wechat_case_fun =
           Application.get_env(:ex_wechat, :wechat_case)
-        http_case_fun =
-          Application.get_env(:ex_wechat, :http_case)
         default_callback =
           &ExWechat.Http.parse_response(&1, __MODULE__, name, body, params)
 
@@ -124,7 +122,6 @@ defmodule ExWechat.Helpers.MethodGenerator do
           true ->
             callback =
               cond do
-                is_function(http_case_fun) -> http_case_fun
                 callback.(true) == nil -> default_callback
                 true -> callback
               end
@@ -144,7 +141,6 @@ defmodule ExWechat.Helpers.MethodGenerator do
       end
 
       defp delete_case_env do
-        Application.delete_env(:ex_wechat, :wechat_case)
         Application.delete_env(:ex_wechat, :wechat_case)
       end
     end
