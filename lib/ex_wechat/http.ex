@@ -15,24 +15,11 @@ defmodule ExWechat.Http do
       body   = options[:body]
       params = options[:params]
 
-      http_case_fun =
-        Application.get_env(:ex_wechat, :http_case)
-      do_http_case =
-        cond do
-          is_function(http_case_fun) -> http_case_fun
-          true -> &(&1)
-        end
+      opts = [url: url, body: body, params: params]
 
-      case unquote(verb) do
-        :get ->
-          HTTPoison.get(url, [], gen_opts(params))
-        :post ->
-          HTTPoison.post(url, encode_post_body(body), [], gen_opts(params))
-      end
-      |> do_http_case.()
+      unquote(verb)
+      |> do_http_request(opts)
       |> callback.()
-    after
-      Application.delete_env(:ex_wechat, :http_case)
     end
   end
 
@@ -59,4 +46,21 @@ defmodule ExWechat.Http do
   defp encode_post_body(nil), do: nil
   defp encode_post_body(body) when is_binary(body), do: body
   defp encode_post_body(body) when is_map(body), do: Poison.encode!(body)
+
+  # do http request and http case for test easy
+  defp do_http_request(verb, opts) do
+    [url: url, body: body, params: params] = opts
+    http_case_fun = Application.get_env(:ex_wechat, :http_case)
+
+    cond do
+      is_function(http_case_fun) -> http_case_fun.()
+      true ->
+        case verb do
+          :get  -> HTTPoison.get(url, [], gen_opts(params))
+          :post -> HTTPoison.post(url, encode_post_body(body), [], gen_opts(params))
+        end
+    end
+  after
+    Application.delete_env(:ex_wechat, :http_case)
+  end
 end

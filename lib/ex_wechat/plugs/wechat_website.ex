@@ -36,14 +36,14 @@ defmodule ExWechat.Plugs.WechatWebsite do
   defp get_wechat_info(conn, code, options) do
     wechat_site_case = Application.get_env(:ex_wechat, :wechat_site_case)
     callback = &Http.parse_wechat_site/1
-    callback =
-      if is_function(wechat_site_case) do
-        wechat_site_case
-      else
-        callback
-      end
 
-    result = Http.get(request_auth_opts(code, options), callback)
+    result =
+      cond do
+        is_function(wechat_site_case) ->
+          wechat_site_case.()
+        true ->
+          Http.get(request_auth_opts(code, options), callback)
+      end
 
     conn
     |> assign(:wechat_result, result)

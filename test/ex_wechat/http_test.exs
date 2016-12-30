@@ -37,7 +37,7 @@ defmodule ExWechat.HttpTest do
   end
 
   describe "Callbacks" do
-    test "parse response should do the right when get right response" do
+    test "parse response get should do the right when get right response" do
       options = [url: "#{@url}/get", params: [foo: "bar"]]
       callback = &Http.parse_response(&1, :one, :two, :three, :four)
       response = Http.get(options, callback)
@@ -45,14 +45,13 @@ defmodule ExWechat.HttpTest do
       assert response.args == %{foo: "bar"}
     end
 
-    test "parse response should do the right when get wrong response" do
+    test "parse response get should do the right when get wrong response" do
       WechatCase.http_fake({:error, %{reason: "test"}})
       options = [url: @url, body: "body", params: []]
       callback = &Http.parse_response(&1, :one, :two, :three, :four)
 
       assert Http.get(options, callback) == %{error: "test"}
     end
-
   end
 
   defp parse_http_test_result(result) do

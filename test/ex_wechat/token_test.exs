@@ -14,7 +14,7 @@ defmodule ExWechat.TokenTest do
 
 
   test "expect get the data from server" do
-    WechatCase.http_fake @data
+    WechatCase.fake @data
     assert @data == Demo.get_access_token
   end
 
@@ -44,7 +44,6 @@ defmodule ExWechat.TokenTest do
 
     WechatCase.fake %{access_token: "new_token", expire_in: "7200"}
     access_token = Demo.renew_access_token
-
     assert access_token == "new_token"
   end
 
