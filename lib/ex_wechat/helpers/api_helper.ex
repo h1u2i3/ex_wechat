@@ -2,9 +2,9 @@ defmodule ExWechat.Helpers.ApiHelper do
   @moduledoc """
     praser data from api description file.
   """
-  @api_path Path.join(__DIR__, "../apis")
+  @api_path Path.join(__DIR__, "../core/apis")
 
-  for file <- Path.wildcard("../apis/*") do
+  for file <- Path.wildcard("../core/apis/*") do
     @external_resource file
   end
 

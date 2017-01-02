@@ -1,4 +1,4 @@
-defmodule ExWechat.Tools.WechatCase do
+defmodule ExWechat.TestCase do
   @moduledoc """
   A module to make test with ExWechat.Http easy
   """

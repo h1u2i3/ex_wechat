@@ -2,7 +2,7 @@ defmodule ExWechat.Plugs.WechatSiteTest do
   use ExUnit.Case
   use Plug.Test
 
-  alias ExWechat.Tools.WechatCase
+  alias ExWechat.TestCase
 
   defmodule MyRouter do
     use Plug.Router
@@ -79,7 +79,7 @@ defmodule ExWechat.Plugs.WechatSiteTest do
   end
 
   test "visit with code and state should get the info of user" do
-    WechatCase.wechat_site_fake(%{openid: "openid"})
+    TestCase.wechat_site_fake(%{openid: "openid"})
     conn =
       :get
       |> conn("/wechat", [code: "code", state: "other"])

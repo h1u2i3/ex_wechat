@@ -1,7 +1,7 @@
 defmodule ExWechat.TokenTest do
   use ExUnit.Case, async: true
 
-  alias ExWechat.Tools.WechatCase
+  alias ExWechat.TestCase
 
   defmodule Demo do
     use ExWechat.Api
@@ -14,12 +14,12 @@ defmodule ExWechat.TokenTest do
 
 
   test "expect get the data from server" do
-    WechatCase.fake @data
+    TestCase.fake @data
     assert @data == Demo.get_access_token
   end
 
   test "get access_token should write to cache" do
-    WechatCase.fake(@data)
+    TestCase.fake(@data)
     access_token = Demo.access_token
     cache =
       @cache
@@ -32,7 +32,7 @@ defmodule ExWechat.TokenTest do
   test "when cache exists should read from cache" do
     prepare_for_access_token_cache("token")
 
-    WechatCase.fake(@data)
+    TestCase.fake(@data)
     access_token = Demo.access_token
 
     refute access_token == "bad_token"
@@ -42,7 +42,7 @@ defmodule ExWechat.TokenTest do
   test "force get access_token will get the new access_token" do
     prepare_for_access_token_cache("token")
 
-    WechatCase.fake %{access_token: "new_token", expire_in: "7200"}
+    TestCase.fake %{access_token: "new_token", expire_in: "7200"}
     access_token = Demo.renew_access_token
     assert access_token == "new_token"
   end

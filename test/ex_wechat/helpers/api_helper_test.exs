@@ -5,7 +5,7 @@ defmodule ExWechat.Helpers.ApiHelperTest do
 
   test "should get all the api data from the api definition file" do
     all_data = process_api_definition_data(:all)
-    path = Path.join(__DIR__, "../../../lib/ex_wechat/apis")
+    path = Path.join(__DIR__, "../../../lib/ex_wechat/core/apis")
 
     all_file_keys = get_file_keys(path)
 

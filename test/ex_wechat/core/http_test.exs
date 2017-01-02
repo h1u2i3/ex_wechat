@@ -2,7 +2,7 @@ defmodule ExWechat.HttpTest do
   use ExUnit.Case, async: true
 
   alias ExWechat.Http
-  alias ExWechat.Tools.WechatCase
+  alias ExWechat.TestCase
 
   # use httparrot to check with http request
   @url "http://httpbin.org"
@@ -46,7 +46,7 @@ defmodule ExWechat.HttpTest do
     end
 
     test "parse response get should do the right when get wrong response" do
-      WechatCase.http_fake({:error, %{reason: "test"}})
+      TestCase.http_fake({:error, %{reason: "test"}})
       options = [url: @url, body: "body", params: []]
       callback = &Http.parse_response(&1, :one, :two, :three, :four)
 
@@ -64,7 +64,7 @@ defmodule ExWechat.HttpTest do
   end
 
   defp do_error_request(verb) do
-    WechatCase.http_fake({:error, %{reason: "test"}})
+    TestCase.http_fake({:error, %{reason: "test"}})
     options = [url: @url, body: "body", params: []]
     apply(Http, verb, [options, &parse_http_test_result/1])
   end
