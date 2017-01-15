@@ -29,7 +29,7 @@ use Mix.Config
 #
 #     import_config "#{Mix.env}.exs"
 
-config :ex_wechat, ExWechat,
+config :ex_wechat, Wechat,
   appid: System.get_env("WECHAT_APPID") || "your appid",
   secret: System.get_env("WECHAT_APPSECRET") || "your app secret",
   token: System.get_env("WECHAT_TOKEN") || "yout token"

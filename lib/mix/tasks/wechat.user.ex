@@ -12,9 +12,9 @@ defmodule Mix.Tasks.Wechat.User do
 
     mix wechat.user           Help message
     mix wechat.user.list      Get user list
-      --api ExWechat            use --api to use the specific Api (muti account), default is ExWechat
+      --api Wechat            use --api to use the specific Api (muti account), default is Wechat
     mix wechat.user.info      Get the infomation about user
-      --api ExWechat            use --api to use the specific Api (muti account), default is ExWechat
+      --api Wechat            use --api to use the specific Api (muti account), default is Wechat
     """
   end
 
@@ -24,7 +24,7 @@ defmodule Mix.Tasks.Wechat.User do
 
     def run_http(args) do
       options = parse_args(args)
-      api = options[:api] || "ExWechat"
+      api = options[:api] || "Wechat"
       module = api |> module_get
       options = Keyword.delete(options, :api)
 
@@ -48,7 +48,7 @@ defmodule Mix.Tasks.Wechat.User do
 
     def run_http(args) do
       options = parse_args(args)
-      api = options[:api] || "ExWechat"
+      api = options[:api] || "Wechat"
       module = api |> module_get
 
       pp apply(module, :get_user_list, [])

@@ -1,4 +1,4 @@
-defmodule ExWechat.Mixfile do
+defmodule Wechat.Mixfile do
   use Mix.Project
 
   @version "0.1.6"
@@ -31,7 +31,7 @@ defmodule ExWechat.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      mod: {ExWechat, []},
+      mod: {Wechat, []},
       applications: [:logger, :httpoison, :floki]
     ]
   end

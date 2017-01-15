@@ -26,20 +26,20 @@ Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)
 1. Add config data(you can use [`direnv`](https://github.com/direnv/direnv) to set your `ENV`):
 
     ```elixir
-    config :ex_wechat, ExWechat,
+    config :ex_wechat, Wechat,
       appid: System.get_env("WECHAT_APPID") || "your appid",
       secret: System.get_env("WECHAT_APPSECRET") || "your app secret",
       token: System.get_env("WECHAT_TOKEN") || "your token",
     ```
 
-2. Use the methods in `ExWechat` module, you can get all the method name
+2. Use the methods in `Wechat` module, you can get all the method name
    from doc or from the definition files in `lib/apis`.
 
     ```elixir
-    ExWechat.get_user_list
-    ExWechat.get_menu
+    Wechat.get_user_list
+    Wechat.get_menu
 
-    ExWechat.Message.send_custom(openid, msgtype: "text", content: "Hello!")
+    Wechat.Message.send_custom(openid, msgtype: "text", content: "Hello!")
     ```
 
 ### Multi-account apis usage
@@ -47,22 +47,22 @@ Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)
 
     ```elixir
     defmodule Wechat.User do
-      use ExWechat.Api, appid: "", secret: "", token: ""
+      use Wechat.Api, appid: "", secret: "", token: ""
     end
 
     defmodule Wechat.Doctor do
-      use ExWechat.Api, appid: "", secret: "", token: ""
+      use Wechat.Api, appid: "", secret: "", token: ""
     end
     ```
 
-2. Use the methods in `ExWechat` with the module you define:
+2. Use the methods in `Wechat` with the module you define:
 
     ```elixir
     Wechat.User.get_user_list
     Wechat.Doctor.get_user_list
 
-    ExWechat.Message.send_custom(Wechat.User, openid, msgtype: "text", content: "Hello!")
-    ExWechat.Message.send_custom(Wechat.Doctor, openid, msgtype: "text", content: "Hello!")
+    Wechat.Message.send_custom(Wechat.User, openid, msgtype: "text", content: "Hello!")
+    Wechat.Message.send_custom(Wechat.Doctor, openid, msgtype: "text", content: "Hello!")
     ```
 
 ## Phoenix Plugs
@@ -78,12 +78,12 @@ Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)
 
       pipeline :customer do
         # single wechat app don't need to add api
-        plug ExWechat.Plugs.WechatSignatureResponder
+        plug Wechat.Plugs.WechatSignatureResponder
 
         # you can add your own api module(for multi-accounts support)
-        plug ExWechat.Plugs.WechatSignatureResponder, api: Wechat.Customer
+        plug Wechat.Plugs.WechatSignatureResponder, api: Wechat.Customer
 
-        plug ExWechat.Plugs.WechatMessageParser
+        plug Wechat.Plugs.WechatMessageParser
       end
 
       scope "/customer_wechat", Wechat do
@@ -95,10 +95,10 @@ Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)
 
     defmodule Wechat.CustomerWechatController do
       use Wechat.Web, :controller
-      use ExWechat.Responde
+      use Wechat.Responde
     end
     ```
-in your controller you can use the helper methods in `ExWechat.Responder`
+in your controller you can use the helper methods in `Wechat.Responder`
 to respond with user:
 
     ```elixir
@@ -116,9 +116,9 @@ example controller use with `on_text_responder`:
     ```elixir
     defmodule Wechat.CustomerWechatController do
       use Wechat.Web, :controller
-      use ExWechat.Responder
+      use Wechat.Responder
 
-      import ExWechat.Message
+      import Wechat.Message
 
       defp on_text_responder(conn) do
         message = conn.assigns[:message]
@@ -158,14 +158,14 @@ example controller use with `on_text_responder`:
       pipeline :wechat_website do
         # use the api you define, set the scope, the state module
         # and set the redirect url you want to.
-        plug ExWechat.Plugs.WechatWebsite, api: Wechat.Customer,
+        plug Wechat.Plugs.WechatWebsite, api: Wechat.Customer,
           url: "http://wechat.one-picture.com", scope: "snsapi_userinfo",
           state: Wechat.PageController
 
-        # use the ExWechat(default), scope is snsapi_base(default)
+        # use the Wechat(default), scope is snsapi_base(default)
         # use the request_id as state(default)
         # and set the redirect url you want to.
-        plug ExWechat.Plugs.WechatWebsite,
+        plug Wechat.Plugs.WechatWebsite,
           url: "http://wechat.one-picture.com"
       end
 
