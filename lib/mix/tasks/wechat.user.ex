@@ -3,7 +3,7 @@ defmodule Mix.Tasks.Wechat.User do
   use Mix.Tasks.Wechat, :base
 
   def run(_) do
-    print_help_message
+    print_help_message()
   end
 
   defp print_help_message do
