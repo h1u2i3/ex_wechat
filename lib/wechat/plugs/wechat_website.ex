@@ -16,10 +16,11 @@ defmodule Wechat.Plugs.WechatWebsite do
 
   def init(options) do
     options
+    |> Keyword.put_new(:scope, "snsapi_base")
   end
 
   def call(conn, options) do
-    if get_session(conn, :openid) do
+    if conn |> fetch_session |> get_session(:openid) do
       conn
     else
       case conn do
@@ -52,7 +53,9 @@ defmodule Wechat.Plugs.WechatWebsite do
       end
 
     if options[:scope] == "snsapi_base" do
-      conn |> put_session(:openid, result.openid)
+      conn
+      |> assign(:wechat_result, result)
+      |> put_session(:openid, result.openid)
     else
       options = [url: userinfo_url(), params: [access_token: result.access_token,
         openid: result.openid, lang: "zh_CN"]]
@@ -74,7 +77,7 @@ defmodule Wechat.Plugs.WechatWebsite do
   end
 
   defp request_code_url(conn, scope, options) do
-    current_path = Phoenix.Controller.current_path(conn)
+    current_path = current_path(conn)
     host = options[:host] || raise "You did not set the host."
 
     api = options[:api] || Wechat.Api
@@ -86,6 +89,18 @@ defmodule Wechat.Plugs.WechatWebsite do
 
     "#{open_url()}?appid=#{appid}&redirect_uri=#{redirect_uri(url)}" <>
     "&response_type=code&scope=#{scope}&state=#{state}#wechat_redirect"
+  end
+
+  # Phoenix 1.3
+  # we should use Phoenix.Controller.current_path
+  defp current_path(%Plug.Conn{query_params: params} = conn) do
+    current_path(conn, params)
+  end
+  defp current_path(%Plug.Conn{} = conn, params) when params == %{} do
+    conn.request_path
+  end
+  defp current_path(%Plug.Conn{} = conn, params) do
+    conn.request_path <> "?" <> URI.encode_query(params)
   end
 
   defp redirect_uri(url) do

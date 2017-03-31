@@ -7,7 +7,7 @@ defmodule Wechat.Mixfile do
     [
       app: :ex_wechat,
       version: @version,
-      elixir: "~> 1.3",
+      elixir: "~> 1.4",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       description: description(),
@@ -26,13 +26,10 @@ defmodule Wechat.Mixfile do
      ]
   end
 
-  # Configuration for the OTP application
-  #
-  # Type "mix help compile.app" for more information
   def application do
     [
       mod: {Wechat, []},
-      applications: [:logger, :httpoison, :floki]
+      extra_applications: [:logger, :httpoison, :floki]
     ]
   end
 
@@ -42,26 +39,17 @@ defmodule Wechat.Mixfile do
     """
   end
 
-  # Dependencies can be Hex packages:
-  #
-  #   {:mydep, "~> 0.3.0"}
-  #
-  # Or git/path repositories:
-  #
-  #   {:mydep, git: "https://github.com/elixir-lang/mydep.git", tag: "0.1.0"}
-  #
-  # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:httpoison, "~> 0.9.0"},
+      {:httpoison, "~> 0.11.1"},
       {:poison, "~> 2.0"},
       {:plug, "~> 1.3"},
-      {:floki, "~> 0.11.0"},
+      {:floki, "~> 0.15.0"},
 
       {:dialyxir, "~> 0.4", only: [:dev], runtime: false},
       {:ex_doc, github: "elixir-lang/ex_doc", only: :dev},
       {:mix_test_watch, "~> 0.2", only: :dev},
-      {:dogma, "~> 0.1", only: :dev},
+      {:dogma, "~> 0.1.14", only: :dev},
 
       {:excoveralls, "~> 0.5.7", only: :test},
       {:phoenix, "~> 1.2.1", only: :test}
