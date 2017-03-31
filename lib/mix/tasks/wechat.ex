@@ -3,7 +3,7 @@ defmodule Mix.Tasks.Wechat do
   use Mix.Task
 
   def run(_args) do
-    print_help_message
+    print_help_message()
   end
 
   defp print_help_message do
@@ -31,7 +31,7 @@ defmodule Mix.Tasks.Wechat do
         run_http(args)
       end
 
-      unquote(methods)
+      unquote(methods())
     end
   end
 
@@ -40,7 +40,7 @@ defmodule Mix.Tasks.Wechat do
       use Mix.Task
       import Mix.Generator
 
-      unquote(methods)
+      unquote(methods())
     end
   end
 
