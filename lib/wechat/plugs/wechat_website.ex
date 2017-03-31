@@ -12,20 +12,26 @@ defmodule Wechat.Plugs.WechatWebsite do
   @api_endpoint "https://api.weixin.qq.com"
   @api_path "/sns/oauth2/access_token"
 
+  @userinfo_path "/sns/userinfo"
+
   def init(options) do
     options
   end
 
   def call(conn, options) do
-    case conn do
-      %Plug.Conn{params: %{"code" => code}}  ->
-        get_wechat_info(conn, code, options)
-      _   ->
-        scope = options[:scope] || "snsapi_base"
-        conn
-        |> put_resp_header("location", request_code_url(conn, scope, options))
-        |> send_resp(302, "redirect")
-        |> halt
+    if get_session(conn, :openid) do
+      conn
+    else
+      case conn do
+        %Plug.Conn{params: %{"code" => code}}  ->
+          get_wechat_info(conn, code, options)
+        _   ->
+          scope = options[:scope] || "snsapi_base"
+          conn
+          |> put_resp_header("location", request_code_url(conn, scope, options))
+          |> send_resp(302, "redirect")
+          |> halt
+      end
     end
   end
 
@@ -45,9 +51,15 @@ defmodule Wechat.Plugs.WechatWebsite do
           Http.get(request_auth_opts(code, options), callback)
       end
 
-    conn
-    |> assign(:wechat_result, result)
-    |> put_session(:openid, result.openid)
+    if options[:scope] == "snsapi_base" do
+      conn |> put_session(:openid, result.openid)
+    else
+      options = [url: userinfo_url(), params: [access_token: result.access_token,
+        openid: result.openid, lang: "zh_CN"]]
+      conn
+      |> assign(:wechat_result, Http.get(options, callback))
+      |> put_session(:openid, result.openid)
+    end
   after
     Application.delete_env(:ex_wechat, :wechat_site_case)
   end
@@ -61,10 +73,13 @@ defmodule Wechat.Plugs.WechatWebsite do
       code: code, grant_type: "authorization_code"]]
   end
 
-  defp request_code_url(_conn, scope, options) do
+  defp request_code_url(conn, scope, options) do
+    current_path = Phoenix.Controller.current_path(conn)
+    host = options[:host] || raise "You did not set the host."
+
     api = options[:api] || Wechat.Api
     module = options[:state] || __MODULE__
-    url = options[:url] || raise "You didn't set the redirect uri"
+    url = host <> current_path
 
     appid = apply(api, :appid, [])
     state = apply(module, :state, [])
@@ -83,5 +98,9 @@ defmodule Wechat.Plugs.WechatWebsite do
 
   defp open_url do
     @open_endpoint <> @open_path
+  end
+
+  defp userinfo_url do
+    @api_endpoint <> @userinfo_path
   end
 end
