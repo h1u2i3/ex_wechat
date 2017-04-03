@@ -12,7 +12,7 @@ defmodule Wechat.Plugs.WechatSignatureResponder do
     options
   end
 
-  def call(conn = %Plug.Conn{params: params}, options) do
+  def call(%Plug.Conn{params: params} = conn, options) do
     api = options[:api] || Wechat
     case params do
       %{"signature" => _, "timestamp" => _, "nonce" => _} ->

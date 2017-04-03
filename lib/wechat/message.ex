@@ -5,6 +5,8 @@ defmodule Wechat.Message do
 
   alias Wechat.Message.XmlMessage
   alias Wechat.Message.JsonMessage
+  
+  import Wechat.AesHelper
 
   @doc """
   Send custom message to a special openid.
@@ -38,6 +40,22 @@ defmodule Wechat.Message do
     |> Keyword.put(:tousername, origin_message.fromusername)
     |> Keyword.put(:fromusername, origin_message.tousername)
     |> XmlMessage.build
+  end
+
+  @doc """
+  Generate passive aes crypto message to user
+  """
+  def generate_encrypt_passive(api \\ Wechat.Api, origin_message, message_params) do
+    no_encrypt_message = generate_passive(origin_message, message_params)
+    encrypt_message = encrypt(api, no_encrypt_message)
+    tousername = origin_message[:fromusername] || message_params[:fromusername]
+
+    """
+    <xml>
+      <ToUserName><![CDATA[#{tousername}]]</ToUserName>
+      <Encrypt><![CDATA[#{encrypt_message}]]</Encrypt>
+    </xml>
+    """
   end
 
   @doc """

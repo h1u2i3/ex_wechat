@@ -26,7 +26,7 @@ defmodule Wechat.Base do
 
   defmacro __using__(opts) do
     config_methods =
-      for key <- [:appid, :secret, :token] do
+      for key <- [:appid, :secret, :token, :aes] do
         configs =
           case opts do
             []  -> Application.get_env(:ex_wechat, Wechat) || []
@@ -55,12 +55,14 @@ defmodule Wechat.Base do
         defdelegate appid(), to: Wechat.Api
         defdelegate secret(), to: Wechat.Api
         defdelegate token(), to: Wechat.Api
+        defdelegate aes(), to: Wechat.Api
       end
     else
       quote do
         def appid, do: unquote(config)[:appid]
         def secret, do: unquote(config)[:secret]
         def token, do: unquote(config)[:token]
+        def aes, do: unquote(config)[:aes]
       end
     end
   end

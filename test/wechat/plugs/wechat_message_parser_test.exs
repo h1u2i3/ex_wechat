@@ -10,6 +10,7 @@ defmodule Wechat.Plugs.WechatMessageParserTest do
     plug Wechat.Plugs.WechatMessageParser
     plug :match
     plug :dispatch
+    plug :fetch_query_params
 
     post "/wechat" do
       WechatController.create(conn, conn.params)

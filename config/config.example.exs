@@ -32,7 +32,8 @@ use Mix.Config
 config :ex_wechat, Wechat,
   appid: System.get_env("WECHAT_APPID") || "your appid",
   secret: System.get_env("WECHAT_APPSECRET") || "your app secret",
-  token: System.get_env("WECHAT_TOKEN") || "yout token"
+  token: System.get_env("WECHAT_TOKEN") || "your token",
+  aes: Sestem.get_env("WECHAT_AES") || "your aes_key"
 
 
 # add this config to prevent the accidental error when make a request.
