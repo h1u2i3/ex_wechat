@@ -64,7 +64,6 @@ defmodule Wechat.Token do
   #================
   # Callbacks
   #================
-
   def handle_call({:get, token_key}, from, state) do
     %{waiting: waiting, fetching: fetching} = state
 
@@ -134,12 +133,28 @@ defmodule Wechat.Token do
   #================
   # Clients
   #================
-  for token_type <- [:access_token, :jsapi_ticket, :wxcard_ticket] do
+  for token_type <- [:jsapi_ticket, :wxcard_ticket] do
     @doc """
     Get the #{token_type} from wechat server
     """
     def unquote(:"_#{token_type}")(module) do
       GenServer.call(__MODULE__, {:get, {module, unquote(token_type)}})
+    end
+  end
+
+  @doc """
+  Get the access_token from wechat server
+  """
+  def _access_token(module) do
+    token_value = get_cache &(Map.get(&1, {module, :access_token}))
+    cond do
+      token_value ->
+        elem(token_value, 0)
+      true ->
+        token_response = apply(module, :get_access_token, [])
+        token_string = parse_token_string(token_response, :access_token)
+        update_cache &(Map.put(&1, {module, :access_token}, {token_string, current_timestamp()}))
+        token_string
     end
   end
 
