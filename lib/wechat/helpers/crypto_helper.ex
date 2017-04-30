@@ -1,7 +1,6 @@
 defmodule Wechat.Helpers.CryptoHelper do
   @moduledoc """
   Generate sha1 hash and verify sha1 with given string.
-  Add aes encrypt message verify.
   """
 
   @doc """
@@ -27,6 +26,14 @@ defmodule Wechat.Helpers.CryptoHelper do
     |> Enum.sort
     |> Enum.join
     |> sha1_hash
+  end
+
+  def generate_nonce_str do
+    23
+    |> :crypto.strong_rand_bytes
+    |> Base.encode64
+    |> binary_part(0, 32)
+    |> String.replace(~r/[=\/]/, "")
   end
 
   defp sha1_hash(string) do
