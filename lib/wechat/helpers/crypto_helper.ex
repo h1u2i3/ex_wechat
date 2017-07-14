@@ -28,6 +28,14 @@ defmodule Wechat.Helpers.CryptoHelper do
     |> sha1_hash
   end
 
+  def generate_nonce_str do
+    23
+    |> :crypto.strong_rand_bytes
+    |> Base.encode64
+    |> binary_part(0, 32)
+    |> String.replace(~r/[=\/]/, "")
+  end
+
   defp sha1_hash(string) do
     :sha
     |> :crypto.hash(string)

@@ -60,7 +60,7 @@ defmodule Wechat.Api do
         Get the #{unquote(token_type)}
         """
         def unquote(token_type)() do
-          GenServer.call(Wechat.Token, {:get, {__MODULE__, unquote(token_type)}})
+          apply(Wechat.Token, :"_#{unquote(token_type)}", [__MODULE__])
         end
 
         @doc """

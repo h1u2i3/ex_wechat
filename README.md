@@ -2,13 +2,15 @@
 
 Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)).
 
+## From `v0.1.7`, we have change the main module from `ExWechat` to `Wechat`.
+
 ## Installation
 
 1. Add `ex_wechat` to your list of dependencies in `mix.exs`:
 
     ```elixir
     def deps do
-      [{:ex_wechat, "~> 0.1.7"}]
+      [{:ex_wechat, "~> 0.1.8"}]
     end
     ```
 
@@ -21,9 +23,6 @@ Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)
   ```
 
 ## Usage
-
-## From `v0.1.7`, we have change the main module from ExWechat to Wechat.
-
 ### Single Wechat api usage
 1. Add config data(you can use [`direnv`](https://github.com/direnv/direnv) to set your `ENV`):
 
@@ -32,6 +31,7 @@ Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)
       appid: System.get_env("WECHAT_APPID") || "your appid",
       secret: System.get_env("WECHAT_APPSECRET") || "your app secret",
       token: System.get_env("WECHAT_TOKEN") || "your token",
+      aes: Sestem.get_env("WECHAT_AES") || "your aes_key"
     ```
 
 2. Use the methods in `Wechat` module, you can get all the method name
@@ -49,11 +49,11 @@ Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)
 
     ```elixir
     defmodule Wechat.User do
-      use Wechat.Api, appid: "", secret: "", token: ""
+      use Wechat.Api, appid: "", secret: "", token: "", aes: ""
     end
 
     defmodule Wechat.Doctor do
-      use Wechat.Api, appid: "", secret: "", token: ""
+      use Wechat.Api, appid: "", secret: "", token: "", aes: ""
     end
     ```
 
@@ -81,9 +81,11 @@ Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)
       pipeline :customer do
         # single wechat app don't need to add api
         plug Wechat.Plugs.WechatSignatureResponder
+        plug Wechat.Plugs.WechatMessageParser
+
         # you can add your own api module(for multi-accounts support)
         plug Wechat.Plugs.WechatSignatureResponder, api: Wechat.Customer
-        plug Wechat.Plugs.WechatMessageParser
+        plug Wechat.Plugs.WechatMessageParser, api: Wechat.Customer
       end
 
       scope "/customer_wechat", Wechat do
