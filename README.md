@@ -10,7 +10,7 @@ Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)
 
     ```elixir
     def deps do
-      [{:ex_wechat, "~> 0.1.7"}]
+      [{:ex_wechat, "~> 0.1.8"}]
     end
     ```
 
