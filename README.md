@@ -14,7 +14,7 @@ Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)
     # endpoint 服务器路径
     # path 请求的路径
     # http 请求方法 get/post
-    # params 必备参数
+    # params 必备参数, 对于必备的 access_token/wxcard_token/jsapi_token 直接设置为 nil
     doc: """
     Create user group
     """,
@@ -27,6 +27,8 @@ Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)
 3. 定义的方法可以在定义文件中查看，也可以在文档中查看，方法的使用方式如下:
 
     ```elixir
+    # 如果不需要额外的参数, 直接调用即可
+    Wechat.get_user_list
     # 如果是 post 请求, 额外参数必须为 Map
     Wechat.create_ticket(%{expire_seconds: 3600, action_name: "QR_SCENE"})
     # 如果是 get 请求，额外参数为 Keyword
@@ -281,7 +283,33 @@ Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)
     ```
 
 ## 4. Other Tools
+### 4.1 JSApi config params
+
+    ```elixir
+    # single account
+    Wechat.Jsapi.config_params(Wechat, [url: url])
+    # multi-accounts
+    Wechat.Jsapi.config_params(Wechat.User, [url: url])
+    ```
+
+## 5. Test Guide
+
+    ```elixir
+    # 所有微信访问方法返回内容设定
+    # 具体使用方法见 test/core/token_test.exs
+    Wechat.TestCase.fake(%{access_token: "token", expire_in: "7200"})
+
+    # 制定 http request 的返回内容
+    # 具体使用方法见 test/core/http_test.exs
+    Wechat.TestCase.http_fake({:error, %{reason: "test"}})
+
+    # 微信网页授权
+    # 具体使用方法见 test/wechat/plugs/wechat_site_test.exs
+    Wechat.TestCase.wechat_site_fake(%{openid: "openid"})
+    ```
+
+## 6. Add Custom Function
 
 
-## 6. License
+## 7. License
 MIT license
