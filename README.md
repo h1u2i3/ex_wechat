@@ -3,6 +3,23 @@
 
 Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)).
 
+<!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+
+- [ExWechat](#exwechat)
+	- [1. 设计原则和目标](#1-设计原则和目标)
+	- [2. The Installation](#2-the-installation)
+	- [3. Basic Usage](#3-basic-usage)
+		- [Single Account](#single-account)
+		- [Multi-account](#multi-account)
+	- [4. Phoenix Plugs](#4-phoenix-plugs)
+	- [5. Other Tools](#5-other-tools)
+		- [JSSdk config params](#jssdk-config-params)
+	- [6. Test Guide](#6-test-guide)
+	- [7. Add Custom Function](#7-add-custom-function)
+	- [8. License](#8-license)
+
+<!-- /TOC -->
+
 ## 1. 设计原则和目标
 
 1. 实现微信的所有方法。[`微信文档`](https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1445241432).
@@ -282,34 +299,34 @@ Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)
     end
     ```
 
-## 4. Other Tools
-### 4.1 JSApi config params
+## 5. Other Tools
 
-    ```elixir
-    # single account
-    Wechat.Jsapi.config_params(Wechat, [url: url])
-    # multi-accounts
-    Wechat.Jsapi.config_params(Wechat.User, [url: url])
-    ```
+### JSSdk config params
 
-## 5. Test Guide
+  ```elixir
+  # single account
+  Wechat.Jsapi.config_params(Wechat, [url: url])
+  # multi-accounts
+  Wechat.Jsapi.config_params(Wechat.User, [url: url])
+  ```
 
-    ```elixir
-    # 所有微信访问方法返回内容设定
-    # 具体使用方法见 test/core/token_test.exs
-    Wechat.TestCase.fake(%{access_token: "token", expire_in: "7200"})
+## 6. Test Guide
 
-    # 制定 http request 的返回内容
-    # 具体使用方法见 test/core/http_test.exs
-    Wechat.TestCase.http_fake({:error, %{reason: "test"}})
+  ```elixir
+  # 所有微信访问方法返回内容设定
+  # 具体使用方法见 test/core/token_test.exs
+  Wechat.TestCase.fake(%{access_token: "token", expire_in: "7200"})
 
-    # 微信网页授权
-    # 具体使用方法见 test/wechat/plugs/wechat_site_test.exs
-    Wechat.TestCase.wechat_site_fake(%{openid: "openid"})
-    ```
+  # 制定 http request 的返回内容
+  # 具体使用方法见 test/core/http_test.exs
+  Wechat.TestCase.http_fake({:error, %{reason: "test"}})
 
-## 6. Add Custom Function
+  # 微信网页授权
+  # 具体使用方法见 test/wechat/plugs/wechat_site_test.exs
+  Wechat.TestCase.wechat_site_fake(%{openid: "openid"})
+  ```
 
+## 7. Add Custom Function
 
-## 7. License
+## 8. License
 MIT license
