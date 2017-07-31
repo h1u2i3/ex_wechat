@@ -46,6 +46,7 @@ defmodule Wechat.Http do
   defp encode_post_body(nil), do: nil
   defp encode_post_body(body) when is_binary(body), do: body
   defp encode_post_body(body) when is_map(body), do: Poison.encode!(body)
+  defp encode_post_body(body) when is_list(body), do: raise("With post http request, you should provide post body with map, not keyword list!")
 
   # do http request and http case for test easy
   defp do_http_request(verb, opts) do

@@ -1,10 +1,80 @@
-# ExWechat [![Build Status](https://travis-ci.org/h1u2i3/ex_wechat.svg?branch=master)](https://travis-ci.org/h1u2i3/ex_wechat.svg?branch=master) [![Coverage Status](https://coveralls.io/repos/github/h1u2i3/ex_wechat/badge.svg?branch=develop)](https://coveralls.io/github/h1u2i3/ex_wechat?branch=develop) [![Hex version](https://img.shields.io/hexpm/v/ex_wechat.svg "Hex version")](https://hex.pm/packages/ex_wechat)
+# ExWechat
+[![Build Status](https://travis-ci.org/h1u2i3/ex_wechat.svg?branch=master)](https://travis-ci.org/h1u2i3/ex_wechat.svg?branch=master) [![Coverage Status](https://coveralls.io/repos/github/h1u2i3/ex_wechat/badge.svg?branch=develop)](https://coveralls.io/github/h1u2i3/ex_wechat?branch=develop) [![Hex version](https://img.shields.io/hexpm/v/ex_wechat.svg "Hex version")](https://hex.pm/packages/ex_wechat)
 
 Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)).
 
-## From `v0.1.7`, we have change the main module from `ExWechat` to `Wechat`.
+## 1. 设计原则和目标
 
-## Installation
+1. 实现微信的所有方法。[`微信文档`](https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1445241432).
+
+2. 所有的方法定义均在`/lib/wechat/core/apis/`文件夹中, 所有定义的方法会在编译时被添加到 `Wechat` 模块或者你自己定义的模块中，方法定义如下:
+
+    ```elixir
+    # doc 文档
+    # endpoint 服务器路径
+    # path 请求的路径
+    # http 请求方法 get/post
+    # params 必备参数
+    doc: """
+    Create user group
+    """,
+    endpoint: "https://api.weixin.qq.com/cgi-bin",
+    path: "/groups/create",
+    http: :post,
+    params: [access_token: nil]
+    ```
+
+3. 定义的方法可以在定义文件中查看，也可以在文档中查看，方法的使用方式如下:
+
+    ```elixir
+    # 如果是 post 请求, 额外参数必须为 Map
+    Wechat.create_ticket(%{expire_seconds: 3600, action_name: "QR_SCENE"})
+    # 如果是 get 请求，额外参数为 Keyword
+    Wechat.get_qrcode(ticket: ticket)
+    ```
+
+4. 为了尽量保证稳定性和可靠性，本项目只实现了常用的 `Wechat.Message` 和 `Wechat.User`, 当然你可以按照你自己的需求来定义, 例如你可以实现二维码的 Module (`Wechat.Qrcode`), 你可以通过 Import 导入你需要的方法，或者按照例子所示直接引入 Api 定义文件中的方法:
+
+    ```elixir
+    defmodule Wechat.Qrcode do
+      use Wechat.Api
+      # use @api to only import the methods defined in qrcode.exs
+      # it contains the methods:
+      # create_qrcode_ticket, get_qrcode
+      @api [:qrcode]
+
+      def create_ticket(scene, expire) when is_integer(scene) do
+        create_qrcode_ticket(%{
+          expire_seconds: expire,
+          action_name: "QR_SCENE",
+          action_info: %{scene: %{scene_id: scene}}
+        })
+      end
+
+      def create_ticket(scene, expire) when is_binary(scene) do
+        create_qrcode_ticket(%{
+          expire_seconds: expire,
+          action_name: "QR_STR_SCENE",
+          action_info: %{scene: %{scene_str: scene}}
+        })
+      end
+
+      #...
+
+      def download(ticket, path) do
+        # first urlencode
+        encode_ticket = URI.encode_www_form(ticket)
+        qrcode_data = get_qrcode(ticket: encode_ticket)
+        File.write!(path, qrcode_data)
+      end
+    end
+    ```
+
+5. 提供可靠的测试方法，如何使用请查看底部关于测试的描述。
+
+6. 对于本项目没有实现的方法，你可以按照 Api 定义文件的格式自行定义，再在项目中使用。
+
+## 2. The Installation
 
 1. Add `ex_wechat` to your list of dependencies in `mix.exs`:
 
@@ -16,15 +86,15 @@ Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)
 
 2. Ensure `ex_wechat` is started before your application:
 
-  ```elixir
-  def application do
-    [extra_applications: [:ex_wechat]]
-  end
-  ```
+    ```elixir
+    def application do
+      [extra_applications: [:ex_wechat]]
+    end
+    ```
 
-## Usage
-### Single Wechat api usage
-1. Add config data(you can use [`direnv`](https://github.com/direnv/direnv) to set your `ENV`):
+## 3. Basic Usage
+### Single Account
+1. Add config (you can use [`direnv`](https://github.com/direnv/direnv) to set your `ENV`):
 
     ```elixir
     config :ex_wechat, Wechat,
@@ -34,8 +104,7 @@ Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)
       aes: Sestem.get_env("WECHAT_AES") || "your aes_key"
     ```
 
-2. Use the methods in `Wechat` module, you can get all the method name
-   from doc or from the definition files in `lib/apis`.
+2. Use the methods in `Wechat` module, you can get all the method name from doc or from the definition files in `lib/apis`.
 
     ```elixir
     Wechat.get_user_list
@@ -44,7 +113,7 @@ Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)
     Wechat.Message.send_custom(openid, msgtype: "text", content: "Hello!")
     ```
 
-### Multi-account apis usage
+### Multi-account
 1. Add your own module:
 
     ```elixir
@@ -57,7 +126,7 @@ Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)
     end
     ```
 
-2. Use the methods in `Wechat` with the module you define:
+2. Use the methods in `Wechat` or the module you define:
 
     ```elixir
     Wechat.User.get_user_list
@@ -67,7 +136,7 @@ Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)
     Wechat.Message.send_custom(Wechat.Doctor, openid, msgtype: "text", content: "Hello!")
     ```
 
-## Phoenix Plugs
+## 4. Phoenix Plugs
 1. Example usage with server verify and message responder:
 
     ```elixir
@@ -100,8 +169,8 @@ Elixir/Phoenix wechat api wraper, ([documentation](http://hexdocs.pm/ex_wechat/)
       use Wechat.Responder
     end
     ```
-2. In your controller you can use the helper methods in `Wechat.Responder`
-to respond with user:
+
+2. In your controller you can use the helper methods in `Wechat.Responder` to respond with user:
 
     ```elixir
     def on_text_responder(conn),         do: conn
@@ -112,9 +181,10 @@ to respond with user:
     def on_location_responder(conn),     do: conn
     def on_link_responder(conn),         do: conn
     def on_event_responder(conn),        do: conn
-    ```
+    def transfer_customer_service(conn), do: conn
 
-    ```elixir
+    # example 1:
+    # use text responder
     defmodule Wechat.CustomerWechatController do
       use Wechat.Web, :controller
       use Wechat.Responder
@@ -124,17 +194,27 @@ to respond with user:
       defp on_text_responder(conn) do
         message = conn.assigns[:message]
         case message do
-          %{content: "我要图"} ->
-            reply_with(conn, generate_passive(message, msgtype: "news",
-              articles: [
-                %{ title: "sjsjssjsj", description: "xxxxlaldsaldskl",
-                   picurl: "picurl", url: "http://baidu.com" },
-                %{ title: "sjsjssjsj", description: "xxxxlaldsaldskl",
-                   picurl: "picurl", url: "http://baidu.com" }
-                ]))
           %{content: content} ->
-            reply_with(conn, generate_passive(message, msgtype: "text",
-               content: String.reverse(content)))
+            reply_with(conn, generate_passive(message, msgtype: "text", content: String.reverse(content)))
+          _ ->
+            conn
+        end
+      end
+    end
+
+    # example 2:
+    # you can transfer the message to custom service
+    defmodule Wechat.CustomerWechatController do
+      use Wechat.Web, :controller
+      use Wechat.Responder
+
+      import Wechat.Message
+
+      defp transfer_customer_service(conn) do
+        message = conn.assigns[:message]
+        case message do
+          %{content: "我要服务"} ->
+            reply_with(conn, transfer_customer_service_msg(conn))
           _ ->
             conn
         end
@@ -142,7 +222,7 @@ to respond with user:
     end
     ```
 
-3. Example usage with wechat site plug (get wechat user info):
+3. Example usage with wechat site plug (get wechat user info), ([`微信网页授权`](https://mp.weixin.qq.com/wiki?t=resource/res_main&id=mp1421140842)):
 
     ```elixir
     defmodule Wechat.Router do
@@ -175,9 +255,7 @@ to respond with user:
         get "/about", PageController, :about
       end
     end
-    ```
 
-    ```elixir
     defmodule Wechat.PageController do
       use Wechat.Web, :controller
 
@@ -202,5 +280,8 @@ to respond with user:
     end
     ```
 
-## License
+## 4. Other Tools
+
+
+## 6. License
 MIT license

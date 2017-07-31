@@ -27,14 +27,6 @@ defmodule Wechat.Responder do
           defp on_text_responder(conn) do
             message = conn.assigns[:message]
             case message do
-              %{content: "我要图"} ->
-                reply_with(conn, generate_passive(message, msgtype: "news",
-                  articles: [
-                    %{ title: "sjsjssjsj", description: "xxxxlaldsaldskl",
-                       picurl: "picurl", url: "http://baidu.com" },
-                    %{ title: "sjsjssjsj", description: "xxxxlaldsaldskl",
-                       picurl: "picurl", url: "http://baidu.com" }
-                    ]))
               %{content: content} ->
                 reply_with(conn, generate_passive(message, msgtype: "text",
                    content: String.reverse(content)))
@@ -54,6 +46,7 @@ defmodule Wechat.Responder do
         def on_location_responder(conn),     do: conn
         def on_link_responder(conn),         do: conn
         def on_event_responder(conn),        do: conn
+        def transfer_customer_service(conn), do: conn
 
     these methods must return a `Plug.Conn`,
     just choose what you need.
@@ -77,6 +70,19 @@ defmodule Wechat.Responder do
       def on_location_responder(conn),     do: conn
       def on_link_responder(conn),         do: conn
       def on_event_responder(conn),        do: conn
+      def transfer_customer_service(conn), do: conn
+
+      def transfer_customer_service_msg(conn) do
+        message = conn.assigns[:message]
+        """
+        <xml>
+        <ToUserName><![CDATA[#{Map.get(message, :fromusername)}]]></ToUserName>
+        <FromUserName><![CDATA[#{Map.get(message, :tousername)}]]></FromUserName>
+        <CreateTime>#{:os.system_time(:second)}</CreateTime>
+        <MsgType><![CDATA[transfer_customer_service]]></MsgType>
+        </xml>
+        """
+      end
 
       def message_responder(conn) do
         message = conn.assigns[:message]
@@ -105,9 +111,14 @@ defmodule Wechat.Responder do
             case reply_conn.assigns[:signature] do
               true ->
                 if reply_conn.assigns[:reply] do
-                  text reply_conn, conn.assigns[:reply]
+                  text reply_conn, reply_conn.assigns[:reply]
                 else
-                  text reply_conn, "success"
+                  reply_conn = reply_conn |> transfer_customer_service
+                  if reply_conn.assigns[:reply] do
+                    text reply_conn, reply_conn.assigns[:reply]
+                  else
+                    text conn, "success"
+                  end
                 end
 
               false ->

@@ -13,7 +13,7 @@ config :get_qrcode,
   doc: """
     Get qrcode with ticket.
   """,
-  endpoint: "https://api.weixin.qq.com/cgi-bin",
+  endpoint: "https://mp.weixin.qq.com/cgi-bin",
   path: "/showqrcode",
   http: :get,
   params: []
