@@ -32,7 +32,7 @@ defmodule Wechat.TokenTest do
   test "when cache exists should read from cache" do
     prepare_for_access_token_cache("token")
 
-    TestCase.fake(@data)
+    TestCase.fake(%{})
     access_token = Demo.access_token
 
     refute access_token == "bad_token"
