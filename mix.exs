@@ -1,13 +1,13 @@
 defmodule Wechat.Mixfile do
   use Mix.Project
 
-  @version "0.1.8"
+  @version "0.2.0"
 
   def project do
     [
       app: :ex_wechat,
       version: @version,
-      elixir: "~> 1.4",
+      elixir: "~> 1.6",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       description: description(),
@@ -41,18 +41,18 @@ defmodule Wechat.Mixfile do
 
   defp deps do
     [
-      {:httpoison, "~> 0.11.1"},
-      {:poison, "~> 2.0"},
-      {:plug, "~> 1.3"},
-      {:floki, "~> 0.15.0"},
+      {:httpoison, "~> 1.1"},
+      {:poison, "~> 3.1"},
+      {:plug, "~> 1.5"},
+      {:floki, "~> 0.20.2"},
 
-      {:dialyxir, "~> 0.4", only: [:dev], runtime: false},
+      {:dialyxir, "~> 0.5.1", only: [:dev], runtime: false},
       {:ex_doc, github: "elixir-lang/ex_doc", only: :dev},
-      {:mix_test_watch, "~> 0.2", only: :dev},
-      {:dogma, "~> 0.1.14", only: :dev},
+      {:mix_test_watch, "~> 0.6", only: :dev},
+      {:dogma, "~> 0.1.16", only: :dev},
 
-      {:excoveralls, "~> 0.5.7", only: :test},
-      {:phoenix, "~> 1.2.1", only: :test}
+      {:excoveralls, "~> 0.8.2", only: :test},
+      {:phoenix, "~> 1.3.2", only: :test}
     ]
   end
 
