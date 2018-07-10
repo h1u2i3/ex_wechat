@@ -70,10 +70,10 @@ defmodule Wechat.Responder do
       def on_location_responder(conn),     do: conn
       def on_link_responder(conn),         do: conn
       def on_event_responder(conn),        do: conn
-      def transfer_customer_service(conn), do: conn
 
-      def transfer_customer_service_msg(conn) do
+      def transfer_customer_service(conn) do
         message = conn.assigns[:message]
+        text conn,
         """
         <xml>
         <ToUserName><![CDATA[#{Map.get(message, :fromusername)}]]></ToUserName>
@@ -113,12 +113,7 @@ defmodule Wechat.Responder do
                 if reply_conn.assigns[:reply] do
                   text reply_conn, reply_conn.assigns[:reply]
                 else
-                  reply_conn = reply_conn |> transfer_customer_service
-                  if reply_conn.assigns[:reply] do
-                    text reply_conn, reply_conn.assigns[:reply]
-                  else
-                    text conn, "success"
-                  end
+                  text conn, "success"
                 end
 
               false ->
