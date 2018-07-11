@@ -73,8 +73,7 @@ defmodule Wechat.Responder do
 
       def transfer_customer_service(conn) do
         message = conn.assigns[:message]
-        text conn,
-        """
+        content = """
         <xml>
         <ToUserName><![CDATA[#{Map.get(message, :fromusername)}]]></ToUserName>
         <FromUserName><![CDATA[#{Map.get(message, :tousername)}]]></FromUserName>
@@ -82,6 +81,7 @@ defmodule Wechat.Responder do
         <MsgType><![CDATA[transfer_customer_service]]></MsgType>
         </xml>
         """
+        send_xml conn, content
       end
 
       def message_responder(conn) do
@@ -111,7 +111,7 @@ defmodule Wechat.Responder do
             case reply_conn.assigns[:signature] do
               true ->
                 if reply_conn.assigns[:reply] do
-                  text reply_conn, reply_conn.assigns[:reply]
+                  send_xml reply_conn, reply_conn.assigns[:reply]
                 else
                   text conn, "success"
                 end
@@ -139,6 +139,12 @@ defmodule Wechat.Responder do
       def index(conn, _),  do: signature_responder(conn)
       def show(conn, _),   do: signature_responder(conn)
       def create(conn, _), do: message_responder(conn)
+
+      defp send_xml(conn, content) do
+        conn
+        |> put_resp_header("content-type", "application/xml; encoding=utf-8")
+        |> send_resp(200, content)
+      end
 
       defoverridable Module.definitions_in(__MODULE__)
     end
