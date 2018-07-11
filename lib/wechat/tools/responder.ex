@@ -144,6 +144,7 @@ defmodule Wechat.Responder do
         conn
         |> put_resp_header("content-type", "application/xml; encoding=utf-8")
         |> send_resp(200, content)
+        |> halt
       end
 
       defoverridable Module.definitions_in(__MODULE__)
