@@ -35,7 +35,6 @@ config :ex_wechat, Wechat,
   token: System.get_env("WECHAT_TOKEN") || "your token",
   aes: Sestem.get_env("WECHAT_AES") || "your aes_key"
 
-
 # add this config to prevent the accidental error when make a request.
 # https://github.com/edgurgel/httpoison/issues/130
 config :ssl, protocol_version: :"tlsv1.2"

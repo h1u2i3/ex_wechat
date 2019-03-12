@@ -62,17 +62,18 @@ defmodule Wechat.Responder do
         import Phoenix.Controller
       end
 
-      def on_text_responder(conn),         do: conn
-      def on_image_responder(conn),        do: conn
-      def on_voice_responder(conn),        do: conn
-      def on_video_responder(conn),        do: conn
-      def on_shortvideo_responder(conn),   do: conn
-      def on_location_responder(conn),     do: conn
-      def on_link_responder(conn),         do: conn
-      def on_event_responder(conn),        do: conn
+      def on_text_responder(conn), do: conn
+      def on_image_responder(conn), do: conn
+      def on_voice_responder(conn), do: conn
+      def on_video_responder(conn), do: conn
+      def on_shortvideo_responder(conn), do: conn
+      def on_location_responder(conn), do: conn
+      def on_link_responder(conn), do: conn
+      def on_event_responder(conn), do: conn
 
       def transfer_customer_service(conn) do
         message = conn.assigns[:message]
+
         content = """
         <xml>
         <ToUserName><![CDATA[#{Map.get(message, :fromusername)}]]></ToUserName>
@@ -81,63 +82,75 @@ defmodule Wechat.Responder do
         <MsgType><![CDATA[transfer_customer_service]]></MsgType>
         </xml>
         """
-        send_xml conn, content
+
+        send_xml(conn, content)
       end
 
       def message_responder(conn) do
         message = conn.assigns[:message]
-        reply_conn = case message do
-          %{msgtype: "text"} ->
-            on_text_responder(conn)
-          %{msgtype: "voice"} ->
-            on_voice_responder(conn)
-          %{msgtype: "video"} ->
-            on_video_responder(conn)
-          %{msgtype: "image"} ->
-            on_image_responder(conn)
-          %{msgtype: "location"} ->
-            on_location_responder(conn)
-          %{msgtype: "shortvideo"} ->
-            on_shortvideo_responder(conn)
-          %{msgtype: "link"} ->
-            on_link_responder(conn)
-          %{msgtype: "event"} ->
-            on_event_responder(conn)
-          _ ->
-            conn
-        end
+
+        reply_conn =
+          case message do
+            %{msgtype: "text"} ->
+              on_text_responder(conn)
+
+            %{msgtype: "voice"} ->
+              on_voice_responder(conn)
+
+            %{msgtype: "video"} ->
+              on_video_responder(conn)
+
+            %{msgtype: "image"} ->
+              on_image_responder(conn)
+
+            %{msgtype: "location"} ->
+              on_location_responder(conn)
+
+            %{msgtype: "shortvideo"} ->
+              on_shortvideo_responder(conn)
+
+            %{msgtype: "link"} ->
+              on_link_responder(conn)
+
+            %{msgtype: "event"} ->
+              on_event_responder(conn)
+
+            _ ->
+              conn
+          end
+
         case reply_conn do
-          %Plug.Conn{}  ->
+          %Plug.Conn{} ->
             case reply_conn.assigns[:signature] do
               true ->
                 if reply_conn.assigns[:reply] do
-                  send_xml reply_conn, reply_conn.assigns[:reply]
+                  send_xml(reply_conn, reply_conn.assigns[:reply])
                 else
-                  text conn, "success"
+                  text(conn, "success")
                 end
 
               false ->
-                text reply_conn, "forbidden"
+                text(reply_conn, "forbidden")
             end
 
-          _             ->
-            text conn, "success"
+          _ ->
+            text(conn, "success")
         end
       end
 
       def reply_with(conn, message) do
-        assign conn, :reply, message
+        assign(conn, :reply, message)
       end
 
       def signature_responder(conn) do
         case conn.assigns[:signature] do
-          true  -> text(conn, conn.params["echostr"] )
+          true -> text(conn, conn.params["echostr"])
           false -> text(conn, "forbidden")
         end
       end
 
-      def index(conn, _),  do: signature_responder(conn)
-      def show(conn, _),   do: signature_responder(conn)
+      def index(conn, _), do: signature_responder(conn)
+      def show(conn, _), do: signature_responder(conn)
       def create(conn, _), do: message_responder(conn)
 
       defp send_xml(conn, content) do

@@ -21,8 +21,7 @@ defmodule Wechat.Api do
 
   @doc false
   defmacro __using__(config) do
-    base_method_ast =
-      quoted_base_method(config)
+    base_method_ast = quoted_base_method(config)
 
     quote do
       alias Wechat.Token
@@ -82,7 +81,8 @@ defmodule Wechat.Api do
       def get_params(param) do
         :not_set
       end
-      defoverridable [get_params: 1]
+
+      defoverridable get_params: 1
     end
   end
 end

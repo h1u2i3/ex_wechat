@@ -39,7 +39,9 @@ defmodule Wechat.Helpers.XmlRenderTest do
   end
 
   test "should render right xml data" do
-    assert_equal_string @value,
+    assert_equal_string(
+      @value,
       Wechat.Helpers.XmlRender.render_xml("/tmp/xml_render_test", @map)
+    )
   end
 end

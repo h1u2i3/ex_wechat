@@ -6,6 +6,6 @@ defmodule Wechat.TestHelper.AssertHelper do
 
   def assert_equal_string(first, second) do
     assert String.replace(first, ~r/\s|\n/, "") ==
-      String.replace(second, ~r/\s|\n/, "")
+             String.replace(second, ~r/\s|\n/, "")
   end
 end

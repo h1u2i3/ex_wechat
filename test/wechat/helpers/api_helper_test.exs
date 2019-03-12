@@ -9,7 +9,7 @@ defmodule Wechat.Helpers.ApiHelperTest do
 
     all_file_keys = get_file_keys(path)
 
-    assert all_file_keys == Keyword.keys(all_data) |> Enum.sort
+    assert all_file_keys == Keyword.keys(all_data) |> Enum.sort()
   end
 
   test "should get all the api data when use nil" do
@@ -25,12 +25,13 @@ defmodule Wechat.Helpers.ApiHelperTest do
 
   defp get_file_keys(path) do
     grab_string = path <> "/*"
+
     grab_string
-    |> Path.wildcard
-    |> Enum.map(fn(path) ->
-         path
-         |> Path.basename(".exs")
-         |> String.to_atom
-       end)
+    |> Path.wildcard()
+    |> Enum.map(fn path ->
+      path
+      |> Path.basename(".exs")
+      |> String.to_atom()
+    end)
   end
 end

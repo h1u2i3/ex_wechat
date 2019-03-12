@@ -19,7 +19,7 @@ defmodule Wechat.Helpers.MethodGeneratorTest do
 
   test "shoud add method that actually work" do
     TestCase.http_fake(@data)
-    result = ApiDemo.get_access_token(&(&1))
+    result = ApiDemo.get_access_token(& &1)
 
     assert result == @data
   end

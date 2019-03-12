@@ -35,11 +35,11 @@ defmodule Wechat.Message.XmlMessage do
   """
   def build(message, time \\ &TimeHelper.current_unix_time/0) do
     msgtype = message[:msgtype] || "text"
-    module = Module.concat [Wechat, Message, XmlMessage,
-                            msgtype |> Macro.camelize]
+    module = Module.concat([Wechat, Message, XmlMessage, msgtype |> Macro.camelize()])
 
-    message = Enum.into(message, %{})
-              |> Map.put(:createtime, time.())
+    message =
+      Enum.into(message, %{})
+      |> Map.put(:createtime, time.())
 
     module
     |> struct(message)
@@ -57,11 +57,9 @@ defmodule Wechat.Message.XmlMessage do
     parse_xml(xml_msg)
   end
 
-
   defmodule Text do
     @moduledoc false
-    defstruct tousername: nil, fromusername: nil,
-      createtime: nil, msgtype: "text", content: nil
+    defstruct tousername: nil, fromusername: nil, createtime: nil, msgtype: "text", content: nil
 
     def to_map(struct) do
       struct
@@ -71,8 +69,7 @@ defmodule Wechat.Message.XmlMessage do
 
   defmodule Image do
     @moduledoc false
-    defstruct tousername: nil, fromusername: nil,
-      createtime: nil, msgtype: "image", mediaid: nil
+    defstruct tousername: nil, fromusername: nil, createtime: nil, msgtype: "image", mediaid: nil
 
     def to_map(struct) do
       struct
@@ -84,9 +81,13 @@ defmodule Wechat.Message.XmlMessage do
 
   defmodule Video do
     @moduledoc false
-    defstruct tousername: nil, fromusername: nil,
-      createtime: nil, msgtype: "video", title: nil, mediaid: nil,
-      description: nil
+    defstruct tousername: nil,
+              fromusername: nil,
+              createtime: nil,
+              msgtype: "video",
+              title: nil,
+              mediaid: nil,
+              description: nil
 
     def to_map(struct) do
       struct
@@ -98,9 +99,13 @@ defmodule Wechat.Message.XmlMessage do
 
   defmodule Voice do
     @moduledoc false
-    defstruct tousername: nil, fromusername: nil,
-      createtime: nil, msgtype: "voice", title: nil, mediaid: nil,
-      description: nil
+    defstruct tousername: nil,
+              fromusername: nil,
+              createtime: nil,
+              msgtype: "voice",
+              title: nil,
+              mediaid: nil,
+              description: nil
 
     def to_map(struct) do
       struct
@@ -112,16 +117,27 @@ defmodule Wechat.Message.XmlMessage do
 
   defmodule Music do
     @moduledoc false
-    defstruct tousername: nil, fromusername: nil,
-      createtime: nil, msgtype: "music", title: nil, description: nil,
-      musicurl: nil, hqmusicurl: nil, thumbmediaid: nil
+    defstruct tousername: nil,
+              fromusername: nil,
+              createtime: nil,
+              msgtype: "music",
+              title: nil,
+              description: nil,
+              musicurl: nil,
+              hqmusicurl: nil,
+              thumbmediaid: nil
 
     def to_map(struct) do
       struct
       |> Map.delete(:__struct__)
       |> Map.take([:tousername, :fromusername, :msgtype, :createtime])
-      |> Map.put(:music, Map.take(struct,
-                ~w/title description musicurl hqmusicurl thumbmediaid/a))
+      |> Map.put(
+        :music,
+        Map.take(
+          struct,
+          ~w/title description musicurl hqmusicurl thumbmediaid/a
+        )
+      )
     end
   end
 
@@ -129,9 +145,12 @@ defmodule Wechat.Message.XmlMessage do
     @moduledoc false
     alias Wechat.Message.XmlMessage.New
 
-    defstruct tousername: nil, fromusername: nil,
-      createtime: nil, msgtype: "news", articlecount: nil,
-      articles: []
+    defstruct tousername: nil,
+              fromusername: nil,
+              createtime: nil,
+              msgtype: "news",
+              articlecount: nil,
+              articles: []
 
     def to_map(struct) do
       struct

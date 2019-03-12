@@ -38,15 +38,15 @@ defmodule Wechat.Helpers.TransformerTest do
           students: 89
         },
         articles: [
-         %{
+          %{
             book: "first",
             year: "2009"
           },
-         %{
+          %{
             book: "second",
             year: "2009"
           },
-         %{
+          %{
             book: "thread",
             year: "2009"
           }

@@ -7,7 +7,7 @@ defmodule Mix.Tasks.Wechat.User do
   end
 
   defp print_help_message do
-    Mix.shell.info """
+    Mix.shell().info("""
     # Wechat User functions:
 
     mix wechat.user           Help message
@@ -15,7 +15,7 @@ defmodule Mix.Tasks.Wechat.User do
       --api Wechat            use --api to use the specific Api (muti account), default is Wechat
     mix wechat.user.info      Get the infomation about user
       --api Wechat            use --api to use the specific Api (muti account), default is Wechat
-    """
+    """)
   end
 
   defmodule Info do
@@ -29,15 +29,21 @@ defmodule Mix.Tasks.Wechat.User do
       options = Keyword.delete(options, :api)
 
       case options do
-        []  ->
-          Mix.shell.error "Please call with an openid. " <>
-            "eg: mix wechat.user.info --api Manager oN6zawh-nQLvAbeN11KkKCZZVbKM"
+        [] ->
+          Mix.shell().error(
+            "Please call with an openid. " <>
+              "eg: mix wechat.user.info --api Manager oN6zawh-nQLvAbeN11KkKCZZVbKM"
+          )
+
         [id | []] ->
-          pp apply(module, :get_user_info, [openid: id])
-        _   ->
-          pp Enum.map(args, fn(id)->
-               apply(module, :get_user_info, [openid: id])
-             end)
+          pp(apply(module, :get_user_info, openid: id))
+
+        _ ->
+          pp(
+            Enum.map(args, fn id ->
+              apply(module, :get_user_info, openid: id)
+            end)
+          )
       end
     end
   end
@@ -51,7 +57,7 @@ defmodule Mix.Tasks.Wechat.User do
       api = options[:api] || "Wechat"
       module = api |> module_get
 
-      pp apply(module, :get_user_list, [])
+      pp(apply(module, :get_user_list, []))
     end
   end
 end

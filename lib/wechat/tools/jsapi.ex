@@ -4,9 +4,9 @@ defmodule Wechat.Jsapi do
   """
   import Wechat.Helpers.CryptoHelper
 
-  def config_params(module, [url: url]) do
+  def config_params(module, url: url) do
     jsapi_ticket = apply(module, :jsapi_ticket, [])
-    IO.inspect jsapi_ticket
+    IO.inspect(jsapi_ticket)
     noncestr = generate_nonce_str()
 
     params = %{

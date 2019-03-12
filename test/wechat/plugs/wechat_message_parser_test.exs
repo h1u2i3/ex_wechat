@@ -6,11 +6,11 @@ defmodule Wechat.Plugs.WechatMessageParserTest do
     use Plug.Router
     alias Wechat.Plugs.WechatMessageParserTest.WechatController
 
-    plug Wechat.Plugs.WechatSignatureResponder
-    plug Wechat.Plugs.WechatMessageParser
-    plug :match
-    plug :dispatch
-    plug :fetch_query_params
+    plug(Wechat.Plugs.WechatSignatureResponder)
+    plug(Wechat.Plugs.WechatMessageParser)
+    plug(:match)
+    plug(:dispatch)
+    plug(:fetch_query_params)
 
     post "/wechat" do
       WechatController.create(conn, conn.params)
@@ -67,15 +67,23 @@ defmodule Wechat.Plugs.WechatMessageParserTest do
   end
 
   defp right_verify_request do
-    %{conn(:post, "/wechat", "<xml><name>Gan</name></xml>") | params:
-      %{"nonce" => "12345678", "timestamp" => "14273828218",
-        "echostr" => "abcefghijkl",
-        "signature" => "53ae624c4650281c69bf4055926c5ea9621ef1b2"}}
+    %{
+      conn(:post, "/wechat", "<xml><name>Gan</name></xml>")
+      | params: %{
+          "nonce" => "12345678",
+          "timestamp" => "14273828218",
+          "echostr" => "abcefghijkl",
+          "signature" => "53ae624c4650281c69bf4055926c5ea9621ef1b2"
+        }
+    }
   end
 
   defp bad_verify_request do
     conn(:post, "/wechat",
-      nonce: "12345678", timestamp: "14273828218", echostr: "abcefghijkl",
-      signature: "wrongsingature")
+      nonce: "12345678",
+      timestamp: "14273828218",
+      echostr: "abcefghijkl",
+      signature: "wrongsingature"
+    )
   end
 end

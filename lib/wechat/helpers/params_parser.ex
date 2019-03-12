@@ -9,9 +9,10 @@ defmodule Wechat.Helpers.ParamsParser do
   """
   def parse_params(params, module \\ Api)
   def parse_params([], _module), do: []
+
   def parse_params(params, module) do
     params
-    |> Enum.sort
+    |> Enum.sort()
     |> Enum.map(&generate_params(&1, module))
   end
 
@@ -19,8 +20,10 @@ defmodule Wechat.Helpers.ParamsParser do
     cond do
       key && value ->
         {key, value}
+
       key ->
         {key, get_param(key, module)}
+
       true ->
         []
     end
@@ -28,8 +31,8 @@ defmodule Wechat.Helpers.ParamsParser do
 
   defp get_param(key, module) do
     case Keyword.has_key?(module.__info__(:functions), key) do
-      true   -> apply(module, key, [])
-      false  -> apply(module, :get_params, [key])
+      true -> apply(module, key, [])
+      false -> apply(module, :get_params, [key])
     end
   end
 end

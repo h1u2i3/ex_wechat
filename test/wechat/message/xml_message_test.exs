@@ -148,22 +148,22 @@ defmodule Wechat.XmlMessageTest do
       tousername: "to",
       msgtype: "news",
       articlecount: "2",
-      articles:
-        %{
-          item: [
-            %{
-                title: "title",
-                description: "description",
-                picurl: "picurl",
-                url: "url"
-              },
-             %{
-                title: "title",
-                description: "description",
-                picurl: "picurl",
-                url: "url"
-             }]
-         }
+      articles: %{
+        item: [
+          %{
+            title: "title",
+            description: "description",
+            picurl: "picurl",
+            url: "url"
+          },
+          %{
+            title: "title",
+            description: "description",
+            picurl: "picurl",
+            url: "url"
+          }
+        ]
+      }
     }
   end
 
@@ -173,19 +173,20 @@ defmodule Wechat.XmlMessageTest do
       tousername: "to",
       msgtype: "news",
       articlecount: "2",
-      articles:
-           [%{
-                title: "title",
-                description: "description",
-                picurl: "picurl",
-                url: "url"
-              },
-             %{
-                title: "title",
-                description: "description",
-                picurl: "picurl",
-                url: "url"
-             }]
+      articles: [
+        %{
+          title: "title",
+          description: "description",
+          picurl: "picurl",
+          url: "url"
+        },
+        %{
+          title: "title",
+          description: "description",
+          picurl: "picurl",
+          url: "url"
+        }
+      ]
     }
   end
 
@@ -263,21 +264,26 @@ defmodule Wechat.XmlMessageTest do
 
   for message_kind <- [:text, :voice, :video, :image, :news, :music] do
     test "should get the right #{message_kind} xml message" do
-      xml_msg = __MODULE__
-                |> apply(unquote(String.to_atom("#{message_kind}_params")), [])
-                |> XmlMessage.build(fn -> 1478942475 end)
+      xml_msg =
+        __MODULE__
+        |> apply(unquote(String.to_atom("#{message_kind}_params")), [])
+        |> XmlMessage.build(fn -> 1_478_942_475 end)
 
-      assert_equal_string xml_msg,
-        apply(__MODULE__, unquote("#{message_kind}_xml" |> String.to_atom), [])
+      assert_equal_string(
+        xml_msg,
+        apply(__MODULE__, unquote("#{message_kind}_xml" |> String.to_atom()), [])
+      )
     end
 
     test "should get the right #{message_kind} map value" do
-      msg_map = __MODULE__
-                |> apply(unquote(String.to_atom("#{message_kind}_xml")), [])
-                |> XmlMessage.parse
-                |> Map.delete(:createtime)
+      msg_map =
+        __MODULE__
+        |> apply(unquote(String.to_atom("#{message_kind}_xml")), [])
+        |> XmlMessage.parse()
+        |> Map.delete(:createtime)
+
       assert msg_map ==
-        apply(__MODULE__, unquote(message_kind), [])
+               apply(__MODULE__, unquote(message_kind), [])
     end
   end
 end

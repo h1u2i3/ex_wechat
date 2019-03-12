@@ -6,10 +6,10 @@ defmodule Wechat.Plugs.WechatSignatureResponderTest do
     use Plug.Router
     alias Wechat.Plugs.WechatSignatureResponderTest.WechatController
 
-    plug Wechat.Plugs.WechatSignatureResponder
-    plug Wechat.Plugs.WechatMessageParser
-    plug :match
-    plug :dispatch
+    plug(Wechat.Plugs.WechatSignatureResponder)
+    plug(Wechat.Plugs.WechatMessageParser)
+    plug(:match)
+    plug(:dispatch)
 
     get "/wechat" do
       WechatController.index(conn, fetch_query_params(conn))
@@ -62,16 +62,20 @@ defmodule Wechat.Plugs.WechatSignatureResponderTest do
   end
 
   defp right_verify_request do
-    conn(:get, "/wechat",
-      %{"nonce" => "12345678", "timestamp" => "14273828218",
-        "echostr" => "abcefghijkl",
-        "signature" => "53ae624c4650281c69bf4055926c5ea9621ef1b2"})
+    conn(:get, "/wechat", %{
+      "nonce" => "12345678",
+      "timestamp" => "14273828218",
+      "echostr" => "abcefghijkl",
+      "signature" => "53ae624c4650281c69bf4055926c5ea9621ef1b2"
+    })
   end
 
   defp bad_verify_request do
-    conn(:get, "/wechat",
-      %{"nonce" => "12345678", "timestamp" => "14273828218",
-        "echostr" => "abcefghijkl",
-        "signature" => "wrongsingature"})
+    conn(:get, "/wechat", %{
+      "nonce" => "12345678",
+      "timestamp" => "14273828218",
+      "echostr" => "abcefghijkl",
+      "signature" => "wrongsingature"
+    })
   end
 end

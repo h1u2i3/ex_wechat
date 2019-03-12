@@ -12,12 +12,12 @@ defmodule Wechat.Helpers.ParamsParserTest do
   end
 
   test "should get right params when has value" do
-    assert [some: "value"] == parse_params([some: "value"])
+    assert [some: "value"] == parse_params(some: "value")
   end
 
   test "should get right value in Wechat.Base" do
     assert [appid: "yourappid", secret: "yourappsecret", token: "yourtoken"] ==
-      parse_params([appid: nil, secret: nil, token: nil])
+             parse_params(appid: nil, secret: nil, token: nil)
   end
 
   test "should get :no_set when there is no method in api" do

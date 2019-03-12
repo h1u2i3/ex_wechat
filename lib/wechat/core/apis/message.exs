@@ -9,7 +9,6 @@ config :send_custom_message,
   http: :post,
   params: [access_token: nil]
 
-
 config :send_template_message,
   doc: """
   Send Template message to user.

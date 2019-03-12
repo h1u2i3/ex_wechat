@@ -12,10 +12,7 @@ defmodule Wechat.AesHelper do
     len = String.length(paded_string)
 
     encode_string =
-      <<ivec :: binary-size(16),
-        len :: integer-size(32),
-        string :: binary-size(len),
-        appid :: binary>>
+      <<ivec::binary-size(16), len::integer-size(32), string::binary-size(len), appid::binary>>
 
     {:ok, :crypto.block_encrypt(:aes_cbc128, key, ivec, encode_string)}
   end
@@ -33,10 +30,8 @@ defmodule Wechat.AesHelper do
   end
 
   defp pattern_match_for_message(string, appid) do
-    <<_ :: binary-size(16),
-      len :: integer-size(32),
-      message :: binary-size(len),
-      appid_decode :: binary>> = string
+    <<_::binary-size(16), len::integer-size(32), message::binary-size(len), appid_decode::binary>> =
+      string
 
     if appid == appid_decode do
       {:ok, %{appid: appid, message: message}}
@@ -62,7 +57,7 @@ defmodule Wechat.AesHelper do
 
   defp remove_padding(paded_string) do
     size = byte_size(paded_string)
-    <<last :: utf8>> = binary_part(paded_string, size, -1)
+    <<last::utf8>> = binary_part(paded_string, size, -1)
 
     if last >= 1 and last <= 32 do
       {:ok, binary_part(paded_string, 0, size - last)}
@@ -78,6 +73,6 @@ defmodule Wechat.AesHelper do
     add_length = if size_rem_32 == 0, do: 32, else: 32 - size_rem_32
     add_content = if size_rem_32 == 0, do: <<32>>, else: <<size_rem_32>>
 
-    <<string :: utf8>> <> String.duplicate(add_content, add_length)
+    <<string::utf8>> <> String.duplicate(add_content, add_length)
   end
 end

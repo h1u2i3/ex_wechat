@@ -12,18 +12,18 @@ defmodule Wechat.TokenTest do
 
   @data %{access_token: "token", expire_in: "7200"}
 
-
   test "expect get the data from server" do
-    TestCase.fake @data
-    assert @data == Demo.get_access_token
+    TestCase.fake(@data)
+    assert @data == Demo.get_access_token()
   end
 
   test "get access_token should write to cache" do
     TestCase.fake(@data)
-    access_token = Demo.access_token
+    access_token = Demo.access_token()
+
     cache =
       @cache
-      |> Agent.get(&(Map.get(&1, {@module, :access_token})))
+      |> Agent.get(&Map.get(&1, {@module, :access_token}))
       |> elem(0)
 
     assert access_token == cache
@@ -33,7 +33,7 @@ defmodule Wechat.TokenTest do
     prepare_for_access_token_cache("token")
 
     TestCase.fake(%{})
-    access_token = Demo.access_token
+    access_token = Demo.access_token()
 
     refute access_token == "bad_token"
     assert access_token == "token"
@@ -42,19 +42,20 @@ defmodule Wechat.TokenTest do
   test "force get access_token will get the new access_token" do
     prepare_for_access_token_cache("token")
 
-    TestCase.fake %{access_token: "new_token", expire_in: "7200"}
-    access_token = Demo.renew_access_token
+    TestCase.fake(%{access_token: "new_token", expire_in: "7200"})
+    access_token = Demo.renew_access_token()
     assert access_token == "new_token"
   end
 
   defp del_access_token_cache do
-    Agent.update @cache, fn _ -> %{} end
+    Agent.update(@cache, fn _ -> %{} end)
   end
 
   defp prepare_for_access_token_cache(data) do
     del_access_token_cache()
-    Agent.update @cache, fn _ ->
-      %{{@module, :access_token} => {data, System.os_time(:seconds)}}
-    end
+
+    Agent.update(@cache, fn _ ->
+      %{{@module, :access_token} => {data, System.os_time(:second)}}
+    end)
   end
 end

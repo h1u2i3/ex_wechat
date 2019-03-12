@@ -7,14 +7,14 @@ defmodule Mix.Tasks.Wechat do
   end
 
   defp print_help_message do
-    Mix.shell.info """
+    Mix.shell().info("""
     Wechat Quick Command:
 
     mix wechat            # Print help messasge
     mix wechat.user       # Get user info or list
     mix wechat.gen        # Generate the template file of news or menu
     mix wechat.menu       # Oprater with the wechat menu
-    """
+    """)
   end
 
   defmacro __using__(which) when is_atom(which) do
@@ -50,13 +50,13 @@ defmodule Mix.Tasks.Wechat do
         string
         |> String.split(".")
         |> Enum.map(&String.to_atom/1)
-        |> Module.concat
+        |> Module.concat()
       end
 
       def pp(result) do
-        opts = struct(Inspect.Opts, [pretty: true])
+        opts = struct(Inspect.Opts, pretty: true)
         iodata = Inspect.Algebra.format(Inspect.Algebra.to_doc(result, opts), 100)
-        IO.puts :stdio, IEx.color(:eval_result, iodata)
+        IO.puts(:stdio, IEx.color(:eval_result, iodata))
       end
 
       def parse_args(args) do

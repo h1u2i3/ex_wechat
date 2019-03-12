@@ -15,23 +15,23 @@ defmodule Wechat.Helpers.CryptoHelper do
   """
   def wechat_sha(params) when is_map(params) do
     params
-    |> Enum.sort
-    |> Enum.map(fn({key, value}) -> "#{key}=#{value}" end)
+    |> Enum.sort()
+    |> Enum.map(fn {key, value} -> "#{key}=#{value}" end)
     |> Enum.join("&")
     |> sha1_hash
   end
 
   def wechat_sha(params) when is_list(params) do
     params
-    |> Enum.sort
-    |> Enum.join
+    |> Enum.sort()
+    |> Enum.join()
     |> sha1_hash
   end
 
   def generate_nonce_str do
     23
-    |> :crypto.strong_rand_bytes
-    |> Base.encode64
+    |> :crypto.strong_rand_bytes()
+    |> Base.encode64()
     |> binary_part(0, 32)
     |> String.replace(~r/[=\/]/, "")
   end
@@ -39,7 +39,7 @@ defmodule Wechat.Helpers.CryptoHelper do
   defp sha1_hash(string) do
     :sha
     |> :crypto.hash(string)
-    |> Base.encode16
-    |> String.downcase
+    |> Base.encode16()
+    |> String.downcase()
   end
 end

@@ -5,7 +5,7 @@ defmodule Wechat.Message do
 
   alias Wechat.Message.XmlMessage
   alias Wechat.Message.JsonMessage
-  
+
   import Wechat.AesHelper
 
   @doc """
@@ -19,7 +19,7 @@ defmodule Wechat.Message do
       %{ image: %{media_id: "id"} }
   """
   @spec send_custom(module, binary, map) :: map | term
-  def send_custom(module \\ Wechat, openid,  message_params) do
+  def send_custom(module \\ Wechat, openid, message_params) do
     message_params
     |> JsonMessage.build_custom(openid)
     |> module.send_custom_message
@@ -30,16 +30,18 @@ defmodule Wechat.Message do
   Just need to generate the xml message, don't need to send to wechat server.
   """
   def generate_passive(origin_message \\ nil, message_params)
+
   def generate_passive(nil, message_params) do
     message_params
-    |> XmlMessage.build
+    |> XmlMessage.build()
   end
+
   def generate_passive(origin_message, message_params) do
     message_params
-    |> Enum.to_list
+    |> Enum.to_list()
     |> Keyword.put(:tousername, origin_message.fromusername)
     |> Keyword.put(:fromusername, origin_message.tousername)
-    |> XmlMessage.build
+    |> XmlMessage.build()
   end
 
   @doc """

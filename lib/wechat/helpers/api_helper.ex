@@ -13,6 +13,7 @@ defmodule Wechat.Helpers.ApiHelper do
   """
   def api_data(nil), do: api_data(:all)
   def api_data(:all), do: all_api_data()
+
   def api_data(needed) when is_list(needed) do
     all_api_data() |> Keyword.take([:access_token | needed])
   end
@@ -32,20 +33,22 @@ defmodule Wechat.Helpers.ApiHelper do
   # Read the data from every file.
   defp get_all_definition_data(files, result \\ [])
   defp get_all_definition_data([], result), do: result
+
   defp get_all_definition_data([file | tail], result) do
     key = get_key_from_path(file)
-    data = Keyword.put(result, key,
-              Keyword.get(result, key, []) ++ (file |> api_definition_data))
+    data = Keyword.put(result, key, Keyword.get(result, key, []) ++ (file |> api_definition_data))
     get_all_definition_data(tail, data)
   end
 
   defp get_key_from_path(path) do
     path
     |> Path.basename(".exs")
-    |> String.to_atom
+    |> String.to_atom()
   end
 
   defp api_definition_data(path) do
-    path |> Mix.Config.read!
+    path
+    |> Mix.Config.eval!()
+    |> elem(0)
   end
 end

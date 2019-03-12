@@ -22,6 +22,6 @@ defmodule Wechat.Helpers.XmlParserTest do
   """
 
   test "should get the right data in elixir map" do
-    assert @map == Wechat.Helpers.XmlParser.parse_xml @value
+    assert @map == Wechat.Helpers.XmlParser.parse_xml(@value)
   end
 end

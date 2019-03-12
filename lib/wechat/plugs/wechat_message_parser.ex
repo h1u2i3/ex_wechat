@@ -27,12 +27,14 @@ defmodule Wechat.Plugs.WechatMessageParser do
           case decrypt(api, message.encrypt) do
             {:ok, result} ->
               assign(conn, :message, parse(result.message))
+
             {:error, _reason} ->
               assign(conn, :message, message)
           end
         else
           assign(conn, :message, message)
         end
+
       _ ->
         conn
     end

@@ -58,9 +58,12 @@ defmodule Wechat.User do
   end
 
   defp gen_info_openids_list(openids) do
-    %{user_list: Enum.map(openids, fn(openid) ->
-       %{openid: openid, lang: "zh-CN"}
-     end)}
+    %{
+      user_list:
+        Enum.map(openids, fn openid ->
+          %{openid: openid, lang: "zh-CN"}
+        end)
+    }
   end
 
   defp gen_group_openids_list(openids) do
@@ -77,10 +80,19 @@ defmodule Wechat.User do
 
   defmodule Info do
     @moduledoc false
-    defstruct city: nil, country: nil, groupid: nil,
-      headimgurl: nil, language: nil, nickname: nil, openid: nil,
-      province: nil, remark: nil, sex: nil, subscribe: nil,
-      subscribe_time: nil, tagid_list: nil
+    defstruct city: nil,
+              country: nil,
+              groupid: nil,
+              headimgurl: nil,
+              language: nil,
+              nickname: nil,
+              openid: nil,
+              province: nil,
+              remark: nil,
+              sex: nil,
+              subscribe: nil,
+              subscribe_time: nil,
+              tagid_list: nil
   end
 
   defmodule Group do

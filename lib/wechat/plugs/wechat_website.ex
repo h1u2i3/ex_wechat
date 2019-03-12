@@ -24,10 +24,12 @@ defmodule Wechat.Plugs.WechatWebsite do
       conn
     else
       case conn do
-        %Plug.Conn{params: %{"code" => code}}  ->
+        %Plug.Conn{params: %{"code" => code}} ->
           get_wechat_info(conn, code, options)
-        _   ->
+
+        _ ->
           scope = options[:scope] || "snsapi_base"
+
           conn
           |> put_resp_header("location", request_code_url(conn, scope, options))
           |> send_resp(302, "redirect")
@@ -48,6 +50,7 @@ defmodule Wechat.Plugs.WechatWebsite do
       cond do
         is_function(wechat_site_case) ->
           wechat_site_case.()
+
         true ->
           Http.get(request_auth_opts(code, options), callback)
       end
@@ -57,8 +60,11 @@ defmodule Wechat.Plugs.WechatWebsite do
       |> assign(:wechat_result, result)
       |> put_session(:openid, result.openid)
     else
-      options = [url: userinfo_url(), params: [access_token: result.access_token,
-        openid: result.openid, lang: "zh_CN"]]
+      options = [
+        url: userinfo_url(),
+        params: [access_token: result.access_token, openid: result.openid, lang: "zh_CN"]
+      ]
+
       conn
       |> assign(:wechat_result, Http.get(options, callback))
       |> put_session(:openid, result.openid)
@@ -72,8 +78,10 @@ defmodule Wechat.Plugs.WechatWebsite do
     appid = apply(api, :appid, [])
     secret = apply(api, :secret, [])
 
-    [url: api_url(), params: [appid: appid, secret: secret,
-      code: code, grant_type: "authorization_code"]]
+    [
+      url: api_url(),
+      params: [appid: appid, secret: secret, code: code, grant_type: "authorization_code"]
+    ]
   end
 
   defp request_code_url(conn, scope, options) do
@@ -88,7 +96,7 @@ defmodule Wechat.Plugs.WechatWebsite do
     state = apply(module, :state, [])
 
     "#{open_url()}?appid=#{appid}&redirect_uri=#{redirect_uri(url)}" <>
-    "&response_type=code&scope=#{scope}&state=#{state}#wechat_redirect"
+      "&response_type=code&scope=#{scope}&state=#{state}#wechat_redirect"
   end
 
   # Phoenix 1.3
@@ -96,15 +104,17 @@ defmodule Wechat.Plugs.WechatWebsite do
   defp current_path(%Plug.Conn{query_params: params} = conn) do
     current_path(conn, params)
   end
+
   defp current_path(%Plug.Conn{} = conn, params) when params == %{} do
     conn.request_path
   end
+
   defp current_path(%Plug.Conn{} = conn, params) do
     conn.request_path <> "?" <> URI.encode_query(params)
   end
 
   defp redirect_uri(url) do
-    URI.encode_www_form url
+    URI.encode_www_form(url)
   end
 
   defp api_url do

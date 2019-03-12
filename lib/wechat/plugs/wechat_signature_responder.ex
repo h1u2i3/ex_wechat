@@ -14,16 +14,17 @@ defmodule Wechat.Plugs.WechatSignatureResponder do
 
   def call(%Plug.Conn{params: params} = conn, options) do
     api = options[:api] || Wechat
+
     case params do
       %{"signature" => _, "timestamp" => _, "nonce" => _} ->
         assign(conn, :signature, verify(api, params))
+
       _ ->
         assign(conn, :signature, false)
     end
   end
 
-  defp verify(api, %{"signature" => signature,
-        "timestamp" => timestamp, "nonce" => nonce}) do
+  defp verify(api, %{"signature" => signature, "timestamp" => timestamp, "nonce" => nonce}) do
     wechat_hash_equal?([token(api), timestamp, nonce], signature)
   end
 

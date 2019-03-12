@@ -21,20 +21,20 @@ defmodule Wechat.Token do
 
   @type on_start :: {:ok, pid} | {:error, {:already_started, pid} | term}
   @type options :: [option]
-  @type option :: {:debug, debug} |
-                  {:name, name} |
-                  {:timeout, timeout} |
-                  {:spawn_opt, Process.spawn_opt}
+  @type option ::
+          {:debug, debug}
+          | {:name, name}
+          | {:timeout, timeout}
+          | {:spawn_opt, Process.spawn_opt()}
 
-  @type debug :: [:trace | :log | :statistics | {:log_to_file, Path.t}]
+  @type debug :: [:trace | :log | :statistics | {:log_to_file, Path.t()}]
   @type name :: atom | {:global, term} | {:via, module, term}
-
 
   @cache Wechat.Token.Cache
 
-  #================
+  # ================
   # Server
-  #================
+  # ================
 
   @doc """
   Start the Wechat.Token
@@ -61,29 +61,33 @@ defmodule Wechat.Token do
     {:ok, %{cache: cache, checker: checker, waiting: waiting, fetching: fetching}}
   end
 
-  #================
+  # ================
   # Callbacks
-  #================
+  # ================
   def handle_call({:get, token_key}, from, state) do
     %{waiting: waiting, fetching: fetching} = state
 
-    token_value = get_cache &(Map.get(&1, token_key))
+    token_value = get_cache(&Map.get(&1, token_key))
     is_fetching = token_key in fetching
     is_waiting = from in Map.get(waiting, token_key, [])
 
     cond do
       token_value ->
         {:reply, token_value |> elem(0), state}
+
       !token_value && is_fetching && is_waiting ->
         {:noreply, state, :infinity}
+
       !token_value && is_fetching && !is_waiting ->
-        waiting  = put_in_waiting(waiting, token_key, from)
+        waiting = put_in_waiting(waiting, token_key, from)
         {:noreply, %{state | waiting: waiting}, :infinity}
+
       !token_value && !is_fetching ->
-        waiting  = put_in_waiting(waiting, token_key, from)
+        waiting = put_in_waiting(waiting, token_key, from)
         fetching = [token_key | fetching]
         GenServer.cast(__MODULE__, {:fetch, token_key})
         {:noreply, %{state | waiting: waiting, fetching: fetching}, :infinity}
+
       true ->
         waiting = [from]
         fetching = []
@@ -95,11 +99,11 @@ defmodule Wechat.Token do
   def handle_call({:refresh, token_key}, from, state) do
     %{waiting: waiting, fetching: fetching} = state
 
-    waiting  = put_in_waiting(waiting, token_key, from)
+    waiting = put_in_waiting(waiting, token_key, from)
     fetching = [token_key | fetching]
 
     # delete the token from cache
-    update_cache &(Map.delete(&1, token_key))
+    update_cache(&Map.delete(&1, token_key))
 
     # fetch the token from server
     GenServer.cast(__MODULE__, {:fetch, token_key})
@@ -113,26 +117,30 @@ defmodule Wechat.Token do
     {module, token_type} = token_key
 
     # call the module method to get the token
-    method = "get_#{token_type}" |> String.to_atom
+    method = "get_#{token_type}" |> String.to_atom()
     token_response = apply(module, method, [])
     token_string = parse_token_string(token_response, token_type)
 
     # send token to the pid in waiting queue
-    Enum.map(Map.get(waiting, token_key, []), fn(pid) ->
+    Enum.map(Map.get(waiting, token_key, []), fn pid ->
       GenServer.reply(pid, token_string)
     end)
 
     # update the cache
-    update_cache &(Map.put(&1, token_key, {token_string, current_timestamp()}))
+    update_cache(&Map.put(&1, token_key, {token_string, current_timestamp()}))
 
     # change the state
-    {:noreply, %{state | waiting: Map.delete(waiting, token_key),
-                         fetching: List.delete(fetching, token_key)}}
+    {:noreply,
+     %{
+       state
+       | waiting: Map.delete(waiting, token_key),
+         fetching: List.delete(fetching, token_key)
+     }}
   end
 
-  #================
+  # ================
   # Clients
-  #================
+  # ================
   for token_type <- [:jsapi_ticket, :wxcard_ticket] do
     @doc """
     Get the #{token_type} from wechat server
@@ -146,21 +154,23 @@ defmodule Wechat.Token do
   Get the access_token from wechat server
   """
   def _access_token(module) do
-    token_value = get_cache &(Map.get(&1, {module, :access_token}))
+    token_value = get_cache(&Map.get(&1, {module, :access_token}))
+
     cond do
       token_value ->
         elem(token_value, 0)
+
       true ->
         token_response = apply(module, :get_access_token, [])
         token_string = parse_token_string(token_response, :access_token)
-        update_cache &(Map.put(&1, {module, :access_token}, {token_string, current_timestamp()}))
+        update_cache(&Map.put(&1, {module, :access_token}, {token_string, current_timestamp()}))
         token_string
     end
   end
 
-  #================
+  # ================
   # Server Private
-  #================
+  # ================
 
   # check with token, and remove the token that over 7190 seconds
   @spec token_checker(cache :: pid) :: any
@@ -168,7 +178,7 @@ defmodule Wechat.Token do
     # sleep for 1 second
     Process.sleep(1000)
     # get all the cache value from Wechat.Token.Cache
-    tokens = get_cache(&(&1))
+    tokens = get_cache(& &1)
     check_with_time(tokens)
     token_checker(cache)
   end
@@ -184,12 +194,14 @@ defmodule Wechat.Token do
   defp check_token(token) do
     {token_key, token_value} = token
     {_, timestamp} = token_value
+
     if current_timestamp() - timestamp >= 7190 do
-      update_cache fn(cache) ->
+      update_cache(fn cache ->
         # send the message to refresh the token
         Map.delete(cache, token_key)
-      end
+      end)
     end
+
     :ok
   end
 
@@ -207,13 +219,13 @@ defmodule Wechat.Token do
   defp parse_token_string(token_response, token_type) do
     case token_type do
       :access_token -> token_response[token_type]
-      _             -> token_response[:ticket]
+      _ -> token_response[:ticket]
     end
   end
 
   @spec current_timestamp() :: non_neg_integer
   defp current_timestamp() do
-    System.os_time(:seconds)
+    System.os_time(:second)
   end
 
   @spec put_in_waiting(waiting :: map, token_key :: token_key, from :: pid) :: map

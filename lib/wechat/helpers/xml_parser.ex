@@ -14,8 +14,10 @@ defmodule Wechat.Helpers.XmlParser do
     case xml do
       "<xml>" <> _ ->
         xml |> Floki.find("xml") |> parse_xml(result)
+
       "{" <> _ ->
         Poison.decode!(xml, keys: :atoms)
+
       _ ->
         xml
     end
@@ -38,7 +40,7 @@ defmodule Wechat.Helpers.XmlParser do
 
   def parse_xml([{node, [], _attrs} | _tail] = attrs, result) do
     key = String.to_atom(node)
-    value = Enum.map(attrs, &(parse_xml(&1, %{})))
+    value = Enum.map(attrs, &parse_xml(&1, %{}))
     Map.put(result, key, value)
   end
 

@@ -29,8 +29,8 @@ defmodule Wechat.Base do
       for key <- [:appid, :secret, :token, :aes] do
         configs =
           case opts do
-            []  -> Application.get_env(:ex_wechat, Wechat) || []
-            _   -> opts
+            [] -> Application.get_env(:ex_wechat, Wechat) || []
+            _ -> opts
           end
 
         quote do
