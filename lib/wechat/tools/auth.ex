@@ -4,6 +4,7 @@ defmodule Wechat.Auth do
   @api_endpoint "https://api.weixin.qq.com"
 
   @api_path "/sns/oauth2/access_token"
+  @miniapp_path "/sns/jscode2session"
   @userinfo_path "/sns/userinfo"
 
   def info(code, options) do
@@ -23,6 +24,32 @@ defmodule Wechat.Auth do
           {:ok, Http.get(request_info_opts(result), callback)}
         end
     end
+  end
+
+  def miniapp_info(code, options) do
+    callback = &Http.parse_wechat_site/1
+
+    # fetch for openid
+    result = Http.get(request_miniapp_opts(code, options), callback)
+
+    case result do
+      %{errcode: _code} ->
+        {:error, "bad code or code has been used"}
+
+      _ ->
+        {:ok, result}
+    end
+  end
+
+  defp request_miniapp_opts(code, options) do
+    api = options[:api] || Wechat.Api
+    appid = apply(api, :appid, [])
+    secret = apply(api, :secret, [])
+
+    [
+      url: miniapp_url(),
+      params: [appid: appid, secret: secret, js_code: code, grant_type: "authorization_code"]
+    ]
   end
 
   defp request_auth_opts(code, options) do
@@ -47,7 +74,11 @@ defmodule Wechat.Auth do
     @api_endpoint <> @api_path
   end
 
-  defp userinfo_url() do
+  defp userinfo_url do
     @api_endpoint <> @userinfo_path
+  end
+
+  defp miniapp_url do
+    @api_endpoint <> @miniapp_path
   end
 end
