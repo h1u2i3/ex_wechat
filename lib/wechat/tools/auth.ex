@@ -31,13 +31,12 @@ defmodule Wechat.Auth do
 
     # fetch for openid
     result = Http.get(request_miniapp_opts(code, options), callback)
+    %{errcode: errcode} = result
 
-    case result do
-      %{errcode: _code} ->
-        {:error, "bad code or code has been used"}
-
-      _ ->
-        {:ok, result}
+    if errcode == 0 do
+      {:ok, result}
+    else
+      {:error, "bad code or code has been used"}
     end
   end
 
