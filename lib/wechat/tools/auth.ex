@@ -31,12 +31,39 @@ defmodule Wechat.Auth do
 
     # fetch for openid
     result = Http.get(request_miniapp_opts(code, options), callback)
-    %{errcode: errcode} = result
 
-    if errcode == 0 do
-      {:ok, result}
-    else
-      {:error, "bad code or code has been used"}
+    case result do
+      %{errcode: _code} ->
+        {:error, "bad code or code has been used"}
+
+      _ ->
+        {:ok, result}
+    end
+  end
+
+  def miniapp_cellphone(code, options) do
+    callback = &Http.parse_wechat_site/1
+
+    # fetch for openid
+    result = Http.get(request_miniapp_opts(code, options), callback)
+
+    case result do
+      %{errcode: _code} ->
+        {:error, "bad code or code has been used"}
+
+      _ ->
+        %{openid: openid, session_key: session_key} = result
+        %{encrypted_data: encrypted_data, iv: iv} = options
+        api = options[:api] || Wechat.Api
+        appid = apply(api, :appid, [])
+
+        case get_encrypted_info(appid, encrypted_data, iv, session_key) do
+          {:ok, %{purePhoneNumber: cellphone}} ->
+            {:ok, %{openid: openid, cellphone: cellphone}}
+
+          {:error, _} ->
+            {:error, "bad code or code has been used"}
+        end
     end
   end
 
@@ -79,5 +106,40 @@ defmodule Wechat.Auth do
 
   defp miniapp_url do
     @api_endpoint <> @miniapp_path
+  end
+
+  defp get_encrypted_info(appid, encrypted_data, iv, session_key) do
+    encode_buffer = Base.decode64!(encrypted_data)
+    encode_key = Base.decode64!(session_key)
+    encode_iv = Base.decode64!(iv)
+
+    result =
+      try do
+        :aes_128_cbc
+        |> :crypto.block_decrypt(encode_key, encode_iv, encode_buffer)
+        |> unpad_pkcs7
+        |> Poison.decode!(keys: :atoms)
+      catch
+        _ ->
+          nil
+      end
+
+    case result do
+      %{watermark: %{appid: ^appid}} ->
+        {:ok, result}
+
+      _ ->
+        {:error, "decrypt error happend"}
+    end
+  end
+
+  # defp pad_pkcs7(message) do
+  #   pad = 16 - rem(byte_size(message), 16)
+  #   message <> to_string(List.duplicate(pad, pad))
+  # end
+
+  defp unpad_pkcs7(data) do
+    <<pad>> = binary_part(data, byte_size(data), -1)
+    binary_part(data, 0, byte_size(data) - pad)
   end
 end
