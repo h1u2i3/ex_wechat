@@ -46,14 +46,14 @@ defmodule Wechat.Mixfile do
   defp deps do
     [
       {:httpoison, "~> 1.5"},
-      {:poison, "~> 4.0"},
+      {:jason, "~> 1.2"},
       {:plug, "~> 1.7"},
       {:floki, "~> 0.20.4"},
       {:dialyxir, "~> 0.5.1", only: [:dev], runtime: false},
       {:ex_doc, github: "elixir-lang/ex_doc", only: :dev},
       {:mix_test_watch, "~> 0.9.0", only: :dev},
       {:excoveralls, "~> 0.10.6", only: :test},
-      {:phoenix, "~> 1.4", only: :test}
+      {:phoenix, "~> 1.5", only: :test}
     ]
   end
 

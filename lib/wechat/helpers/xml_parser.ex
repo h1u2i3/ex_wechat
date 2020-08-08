@@ -16,7 +16,7 @@ defmodule Wechat.Helpers.XmlParser do
         xml |> Floki.find("xml") |> parse_xml(result)
 
       "{" <> _ ->
-        Poison.decode!(xml, keys: :atoms)
+        Jason.decode!(xml, keys: :atoms)
 
       _ ->
         xml

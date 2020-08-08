@@ -118,7 +118,7 @@ defmodule Wechat.Auth do
         :aes_128_cbc
         |> :crypto.block_decrypt(encode_key, encode_iv, encode_buffer)
         |> unpad_pkcs7
-        |> Poison.decode!(keys: :atoms)
+        |> Jason.decode!(keys: :atoms)
       catch
         _ ->
           nil

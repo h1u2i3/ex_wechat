@@ -57,7 +57,7 @@ defmodule Wechat.HttpTest do
   defp parse_http_test_result(result) do
     case result do
       {:ok, response} ->
-        Poison.decode!(response.body, keys: :atoms)
+        Jason.decode!(response.body, keys: :atoms)
 
       {:error, error} ->
         %{error: error.reason}
