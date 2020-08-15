@@ -161,11 +161,19 @@ defmodule Wechat.Token do
         elem(token_value, 0)
 
       true ->
-        token_module = Application.get_env(:ex_wechat, :token_module, module)
-        token_response = apply(token_module, :get_access_token, [])
-        token_string = parse_token_string(token_response, :access_token)
-        update_cache(&Map.put(&1, {module, :access_token}, {token_string, current_timestamp()}))
-        token_string
+        # can get token from other server
+        token_module = Application.get_env(:ex_wechat, :token_module)
+        token_response = apply(token_module || module, :get_access_token, [])
+
+        if token_module do
+          %{access_token: access_token, timestamp: timestamp} = token_response
+          update_cache(&Map.put(&1, {module, :access_token}, {access_token, timestamp - 10}))
+          access_token
+        else
+          token_string = parse_token_string(token_response, :access_token)
+          update_cache(&Map.put(&1, {module, :access_token}, {token_string, current_timestamp()}))
+          token_string
+        end
     end
   end
 
