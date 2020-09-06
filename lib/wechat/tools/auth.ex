@@ -48,8 +48,8 @@ defmodule Wechat.Auth do
     result = Http.get(request_miniapp_opts(code, options), callback)
 
     case result do
-      %{errcode: _code} ->
-        {:error, "bad code or code has been used"}
+      %{errcode: _code} = error ->
+        {:error, "error: #{inspect(error)}"}
 
       _ ->
         %{openid: openid, session_key: session_key} = result
