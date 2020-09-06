@@ -162,7 +162,11 @@ defmodule Wechat.Token do
 
       true ->
         # can get token from other server
-        token_module = Application.get_env(:ex_wechat, :token_module)
+        token_module =
+          :ex_wechat
+          |> Application.get_env(:token_module, %{})
+          |> Map.get(module)
+
         token_response = apply(token_module || module, :get_access_token, [])
 
         if token_module do
