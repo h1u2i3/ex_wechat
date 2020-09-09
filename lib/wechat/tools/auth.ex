@@ -1,6 +1,8 @@
 defmodule Wechat.Auth do
   alias Wechat.Http
 
+  require Logger
+
   @api_endpoint "https://api.weixin.qq.com"
 
   @api_path "/sns/oauth2/access_token"
@@ -115,10 +117,14 @@ defmodule Wechat.Auth do
 
     result =
       try do
-        :aes_128_cbc
-        |> :crypto.block_decrypt(encode_key, encode_iv, encode_buffer)
-        |> unpad_pkcs7
-        |> Jason.decode!(keys: :atoms)
+        string =
+          :aes_128_cbc
+          |> :crypto.block_decrypt(encode_key, encode_iv, encode_buffer)
+          |> unpad_pkcs7
+
+        Logger.info("cellphone decode string is #{inspect(string)}")
+
+        Jason.decode!(string, keys: :atoms)
       catch
         _ ->
           nil
