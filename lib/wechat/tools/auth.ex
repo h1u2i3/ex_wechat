@@ -133,19 +133,30 @@ defmodule Wechat.Auth do
     end
   end
 
-  defp unpad_pkcs7(string) do
-    string
-    |> String.reverse()
-    |> do_unpad()
-    |> String.reverse()
-  end
+  defp unpad_pkcs7(""), do: ""
 
-  defp do_unpad(<<1>> <> result), do: result
-  defp do_unpad(<<2, 2>> <> result), do: result
-  defp do_unpad(<<3, 3, 3>> <> result), do: result
-  defp do_unpad(<<4, 4, 4, 4>> <> result), do: result
-  defp do_unpad(<<5, 5, 5, 5, 5>> <> result), do: result
-  defp do_unpad(<<6, 6, 6, 6, 6, 6>> <> result), do: result
-  defp do_unpad(<<7, 7, 7, 7, 7, 7, 7>> <> result), do: result
-  defp do_unpad(<<8, 8, 8, 8, 8, 8, 8, 8>> <> result), do: result
+  defp unpad_pkcs7(string) do
+    last = :binary.last(string)
+    size = byte_size(string) - last
+    rem_size = rem(size, 16)
+
+    case string do
+      <<data::binary-size(size),1>> when rem_size == 15 -> data
+      <<data::binary-size(size),2,2>> when rem_size == 14 -> data
+      <<data::binary-size(size),3,3,3>> when rem_size == 13 -> data
+      <<data::binary-size(size),4,4,4,4>> when rem_size == 12 -> data
+      <<data::binary-size(size),5,5,5,5,5>> when rem_size == 11 -> data
+      <<data::binary-size(size),6,6,6,6,6,6>> when rem_size == 10 -> data
+      <<data::binary-size(size),7,7,7,7,7,7,7>> when rem_size == 9 -> data
+      <<data::binary-size(size),8,8,8,8,8,8,8,8>> when rem_size == 8 -> data
+      <<data::binary-size(size),9,9,9,9,9,9,9,9,9>> when rem_size == 7 -> data
+      <<data::binary-size(size),10,10,10,10,10,10,10,10,10,10>> when rem_size == 6 -> data
+      <<data::binary-size(size),11,11,11,11,11,11,11,11,11,11,11>> when rem_size == 5 -> data
+      <<data::binary-size(size),12,12,12,12,12,12,12,12,12,12,12,12>> when rem_size == 4 -> data
+      <<data::binary-size(size),13,13,13,13,13,13,13,13,13,13,13,13,13>> when rem_size == 3 -> data
+      <<data::binary-size(size),14,14,14,14,14,14,14,14,14,14,14,14,14,14>> when rem_size == 2 -> data
+      <<data::binary-size(size),15,15,15,15,15,15,15,15,15,15,15,15,15,15,15>> when rem_size == 1 -> data
+      <<data::binary-size(size),16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16>> when rem_size == 0 -> data
+      _ -> ""
+    end
 end
