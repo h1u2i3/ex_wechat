@@ -133,13 +133,19 @@ defmodule Wechat.Auth do
     end
   end
 
-  # defp pad_pkcs7(message) do
-  #   pad = 16 - rem(byte_size(message), 16)
-  #   message <> to_string(List.duplicate(pad, pad))
-  # end
-
-  defp unpad_pkcs7(data) do
-    <<pad>> = binary_part(data, byte_size(data), -1)
-    binary_part(data, 0, byte_size(data) - pad)
+  defp unpad_pkcs7(string) do
+    string
+    |> String.reverse()
+    |> do_unpad()
+    |> String.reverse()
   end
+
+  defp do_unpad(<<1>> <> result), do: result
+  defp do_unpad(<<2, 2>> <> result), do: result
+  defp do_unpad(<<3, 3, 3>> <> result), do: result
+  defp do_unpad(<<4, 4, 4, 4>> <> result), do: result
+  defp do_unpad(<<5, 5, 5, 5, 5>> <> result), do: result
+  defp do_unpad(<<6, 6, 6, 6, 6, 6>> <> result), do: result
+  defp do_unpad(<<7, 7, 7, 7, 7, 7, 7>> <> result), do: result
+  defp do_unpad(<<8, 8, 8, 8, 8, 8, 8, 8>> <> result), do: result
 end
