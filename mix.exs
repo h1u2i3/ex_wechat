@@ -45,7 +45,7 @@ defmodule Wechat.Mixfile do
 
   defp deps do
     [
-      {:httpoison, "~> 1.5"},
+      {:httpoison, "~> 1.7"},
       {:jason, "~> 1.2"},
       {:plug, "~> 1.7"},
       {:floki, "~> 0.20.4"},
